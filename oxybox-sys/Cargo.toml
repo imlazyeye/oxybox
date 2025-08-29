@@ -1,0 +1,33 @@
+[package]
+name = "oxybox-sys"
+version = "0.1.0"
+edition = "2021"
+links = "box2d"
+build = "build.rs"
+include = [
+    "Cargo.toml",
+    "build.rs",
+    "src/**",
+    "vendor/box2d/include/**",
+    "vendor/box2d/src/**",
+    "LICENSE*",
+    "THIRD_PARTY_LICENSES/**",
+]
+
+[dependencies]
+glam = { workspace = true }
+
+
+[lib]
+
+[features]
+# Maintainers run with: --features generate-bindings
+# This MUST list the optional build-dep by name to make it available in build.rs.
+generate-bindings = ["bindgen"]
+
+[build-dependencies]
+cc = "1"
+bindgen = { version = "0.70", optional = true }
+
+[package.metadata.docs.rs]
+features = []

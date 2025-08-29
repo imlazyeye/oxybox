@@ -1,0 +1,13 @@
+[package]
+name = "oxybox"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+glam = { workspace = true }
+oxybox-sys = { path = "../oxybox-sys" }
+
+[lib]
+
+[features]
+default = []
