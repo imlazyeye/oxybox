@@ -29,7 +29,7 @@ fn main() {
         "math_functions.c",
         "motor_joint.c",
         "mover.c",
-        "physics_world.c",
+        "world.c",
         "prismatic_joint.c",
         "revolute_joint.c",
         "sensor.c",

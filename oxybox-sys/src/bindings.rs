@@ -231,7 +231,7 @@ pub struct b2MassData {
     pub mass: f32,
     #[doc = " The position of the shape's centroid relative to the shape's origin."]
     pub center: b2Vec2,
-    #[doc = " The rotational inertia of the shape about the shape center."]
+    #[doc = " The rotational inertia of the shape about the local origin."]
     pub rotationalInertia: f32,
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
@@ -570,7 +570,7 @@ const _: () = {
     ["Offset of field: b2Sweep::q1"][::std::mem::offset_of!(b2Sweep, q1) - 24usize];
     ["Offset of field: b2Sweep::q2"][::std::mem::offset_of!(b2Sweep, q2) - 32usize];
 };
-#[doc = " Time of impact input"]
+#[doc = " Input parameters for b2TimeOfImpact"]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct b2TOIInput {
@@ -602,27 +602,21 @@ pub const b2TOIState_b2_toiStateHit: b2TOIState = 3;
 pub const b2TOIState_b2_toiStateSeparated: b2TOIState = 4;
 #[doc = " Describes the TOI output"]
 pub type b2TOIState = ::std::os::raw::c_uint;
-#[doc = " Time of impact output"]
+#[doc = " Output parameters for b2TimeOfImpact."]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct b2TOIOutput {
-    #[doc = " The type of result"]
+    #[doc = "< The type of result"]
     pub state: b2TOIState,
-    #[doc = " The hit point"]
-    pub point: b2Vec2,
-    #[doc = " The hit normal"]
-    pub normal: b2Vec2,
-    #[doc = " The sweep time of the collision"]
+    #[doc = "< The sweep time of the collision"]
     pub fraction: f32,
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
-    ["Size of b2TOIOutput"][::std::mem::size_of::<b2TOIOutput>() - 24usize];
+    ["Size of b2TOIOutput"][::std::mem::size_of::<b2TOIOutput>() - 8usize];
     ["Alignment of b2TOIOutput"][::std::mem::align_of::<b2TOIOutput>() - 4usize];
     ["Offset of field: b2TOIOutput::state"][::std::mem::offset_of!(b2TOIOutput, state) - 0usize];
-    ["Offset of field: b2TOIOutput::point"][::std::mem::offset_of!(b2TOIOutput, point) - 4usize];
-    ["Offset of field: b2TOIOutput::normal"][::std::mem::offset_of!(b2TOIOutput, normal) - 12usize];
-    ["Offset of field: b2TOIOutput::fraction"][::std::mem::offset_of!(b2TOIOutput, fraction) - 20usize];
+    ["Offset of field: b2TOIOutput::fraction"][::std::mem::offset_of!(b2TOIOutput, fraction) - 4usize];
 };
 #[doc = " A manifold point is a contact point belonging to a contact manifold.\n It holds details related to the geometry and dynamics of the contact points.\n Box2D uses speculative collision so some contact points may be separated.\n You may use the totalNormalImpulse to determine if there was an interaction during\n the time step."]
 #[repr(C)]
@@ -909,24 +903,6 @@ const _: () = {
     ["Offset of field: b2JointId::world0"][::std::mem::offset_of!(b2JointId, world0) - 4usize];
     ["Offset of field: b2JointId::generation"][::std::mem::offset_of!(b2JointId, generation) - 6usize];
 };
-#[doc = " Contact id references a contact instance. This should be treated as an opaque handled."]
-#[repr(C)]
-#[derive(Debug, Copy, Clone)]
-pub struct b2ContactId {
-    pub index1: i32,
-    pub world0: u16,
-    pub padding: i16,
-    pub generation: u32,
-}
-#[allow(clippy::unnecessary_operation, clippy::identity_op)]
-const _: () = {
-    ["Size of b2ContactId"][::std::mem::size_of::<b2ContactId>() - 12usize];
-    ["Alignment of b2ContactId"][::std::mem::align_of::<b2ContactId>() - 4usize];
-    ["Offset of field: b2ContactId::index1"][::std::mem::offset_of!(b2ContactId, index1) - 0usize];
-    ["Offset of field: b2ContactId::world0"][::std::mem::offset_of!(b2ContactId, world0) - 4usize];
-    ["Offset of field: b2ContactId::padding"][::std::mem::offset_of!(b2ContactId, padding) - 6usize];
-    ["Offset of field: b2ContactId::generation"][::std::mem::offset_of!(b2ContactId, generation) - 8usize];
-};
 #[doc = " Task interface\n This is prototype for a Box2D task. Your task system is expected to invoke the Box2D task with these arguments.\n The task spans a range of the parallel-for: [startIndex, endIndex)\n The worker index must correctly identify each worker in the user thread pool, expected in [0, workerCount).\n A worker must only exist on only one thread at a time and is analogous to the thread index.\n The task context is the context pointer sent from Box2D when it is enqueued.\n The startIndex and endIndex are expected in the range [0, itemCount) where itemCount is the argument to b2EnqueueTaskCallback\n below. Box2D expects startIndex < endIndex and will execute a loop like this:\n\n @code{.c}\n for (int i = startIndex; i < endIndex; ++i)\n {\n \tDoWork();\n }\n @endcode\n @ingroup world"]
 pub type b2TaskCallback = ::std::option::Option<
     unsafe extern "C" fn(
@@ -952,11 +928,21 @@ pub type b2FinishTaskCallback = ::std::option::Option<
 >;
 #[doc = " Optional friction mixing callback. This intentionally provides no context objects because this is called\n from a worker thread.\n @warning This function should not attempt to modify Box2D state or user application state.\n @ingroup world"]
 pub type b2FrictionCallback = ::std::option::Option<
-    unsafe extern "C" fn(frictionA: f32, userMaterialIdA: u64, frictionB: f32, userMaterialIdB: u64) -> f32,
+    unsafe extern "C" fn(
+        frictionA: f32,
+        userMaterialIdA: ::std::os::raw::c_int,
+        frictionB: f32,
+        userMaterialIdB: ::std::os::raw::c_int,
+    ) -> f32,
 >;
 #[doc = " Optional restitution mixing callback. This intentionally provides no context objects because this is called\n from a worker thread.\n @warning This function should not attempt to modify Box2D state or user application state.\n @ingroup world"]
 pub type b2RestitutionCallback = ::std::option::Option<
-    unsafe extern "C" fn(restitutionA: f32, userMaterialIdA: u64, restitutionB: f32, userMaterialIdB: u64) -> f32,
+    unsafe extern "C" fn(
+        restitutionA: f32,
+        userMaterialIdA: ::std::os::raw::c_int,
+        restitutionB: f32,
+        userMaterialIdB: ::std::os::raw::c_int,
+    ) -> f32,
 >;
 #[doc = " Result from b2World_RayCastClosest\n If there is initial overlap the fraction and normal will be zero while the point is an arbitrary point in the overlap region.\n @ingroup world"]
 #[repr(C)]
@@ -997,7 +983,7 @@ pub struct b2WorldDef {
     #[doc = " Contact bounciness. Non-dimensional. You can speed up overlap recovery by decreasing this with\n the trade-off that overlap resolution becomes more energetic."]
     pub contactDampingRatio: f32,
     #[doc = " This parameter controls how fast overlap is resolved and usually has units of meters per second. This only\n puts a cap on the resolution speed. The resolution speed is increased by increasing the hertz and/or\n decreasing the damping ratio."]
-    pub contactSpeed: f32,
+    pub maxContactPushSpeed: f32,
     #[doc = " Maximum linear speed. Usually meters per second."]
     pub maximumLinearSpeed: f32,
     #[doc = " Optional mixing callback for friction. The default uses sqrt(frictionA * frictionB)."]
@@ -1032,7 +1018,8 @@ const _: () = {
     ["Offset of field: b2WorldDef::contactHertz"][::std::mem::offset_of!(b2WorldDef, contactHertz) - 16usize];
     ["Offset of field: b2WorldDef::contactDampingRatio"]
         [::std::mem::offset_of!(b2WorldDef, contactDampingRatio) - 20usize];
-    ["Offset of field: b2WorldDef::contactSpeed"][::std::mem::offset_of!(b2WorldDef, contactSpeed) - 24usize];
+    ["Offset of field: b2WorldDef::maxContactPushSpeed"]
+        [::std::mem::offset_of!(b2WorldDef, maxContactPushSpeed) - 24usize];
     ["Offset of field: b2WorldDef::maximumLinearSpeed"]
         [::std::mem::offset_of!(b2WorldDef, maximumLinearSpeed) - 28usize];
     ["Offset of field: b2WorldDef::frictionCallback"][::std::mem::offset_of!(b2WorldDef, frictionCallback) - 32usize];
@@ -1057,25 +1044,6 @@ pub const b2BodyType_b2_dynamicBody: b2BodyType = 2;
 pub const b2BodyType_b2_bodyTypeCount: b2BodyType = 3;
 #[doc = " The body simulation type.\n Each body is one of these three types. The type determines how the body behaves in the simulation.\n @ingroup body"]
 pub type b2BodyType = ::std::os::raw::c_uint;
-#[doc = " Motion locks to restrict the body movement"]
-#[repr(C)]
-#[derive(Debug, Copy, Clone)]
-pub struct b2MotionLocks {
-    #[doc = " Prevent translation along the x-axis"]
-    pub linearX: bool,
-    #[doc = " Prevent translation along the y-axis"]
-    pub linearY: bool,
-    #[doc = " Prevent rotation around the z-axis"]
-    pub angularZ: bool,
-}
-#[allow(clippy::unnecessary_operation, clippy::identity_op)]
-const _: () = {
-    ["Size of b2MotionLocks"][::std::mem::size_of::<b2MotionLocks>() - 3usize];
-    ["Alignment of b2MotionLocks"][::std::mem::align_of::<b2MotionLocks>() - 1usize];
-    ["Offset of field: b2MotionLocks::linearX"][::std::mem::offset_of!(b2MotionLocks, linearX) - 0usize];
-    ["Offset of field: b2MotionLocks::linearY"][::std::mem::offset_of!(b2MotionLocks, linearY) - 1usize];
-    ["Offset of field: b2MotionLocks::angularZ"][::std::mem::offset_of!(b2MotionLocks, angularZ) - 2usize];
-};
 #[doc = " A body definition holds all the data needed to construct a rigid body.\n You can safely re-use body definitions. Shapes are added to a body after construction.\n Body definitions are temporary objects used to bundle creation parameters.\n Must be initialized using b2DefaultBodyDef().\n @ingroup body"]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -1102,13 +1070,13 @@ pub struct b2BodyDef {
     pub name: *const ::std::os::raw::c_char,
     #[doc = " Use this to store application specific body data."]
     pub userData: *mut ::std::os::raw::c_void,
-    #[doc = " Motions locks to restrict linear and angular movement.\n Caution: may lead to softer constraints along the locked direction"]
-    pub motionLocks: b2MotionLocks,
     #[doc = " Set this flag to false if this body should never fall asleep."]
     pub enableSleep: bool,
     #[doc = " Is this body initially awake or sleeping?"]
     pub isAwake: bool,
-    #[doc = " Treat this body as high speed object that performs continuous collision detection\n against dynamic and kinematic bodies, but not other bullet bodies.\n @warning Bullets should be used sparingly. They are not a solution for general dynamic-versus-dynamic\n continuous collision."]
+    #[doc = " Should this body be prevented from rotating? Useful for characters."]
+    pub fixedRotation: bool,
+    #[doc = " Treat this body as high speed object that performs continuous collision detection\n against dynamic and kinematic bodies, but not other bullet bodies.\n @warning Bullets should be used sparingly. They are not a solution for general dynamic-versus-dynamic\n continuous collision. They may interfere with joint constraints."]
     pub isBullet: bool,
     #[doc = " Used to disable a body. A disabled body does not move or collide."]
     pub isEnabled: bool,
@@ -1132,12 +1100,12 @@ const _: () = {
     ["Offset of field: b2BodyDef::sleepThreshold"][::std::mem::offset_of!(b2BodyDef, sleepThreshold) - 44usize];
     ["Offset of field: b2BodyDef::name"][::std::mem::offset_of!(b2BodyDef, name) - 48usize];
     ["Offset of field: b2BodyDef::userData"][::std::mem::offset_of!(b2BodyDef, userData) - 56usize];
-    ["Offset of field: b2BodyDef::motionLocks"][::std::mem::offset_of!(b2BodyDef, motionLocks) - 64usize];
-    ["Offset of field: b2BodyDef::enableSleep"][::std::mem::offset_of!(b2BodyDef, enableSleep) - 67usize];
-    ["Offset of field: b2BodyDef::isAwake"][::std::mem::offset_of!(b2BodyDef, isAwake) - 68usize];
-    ["Offset of field: b2BodyDef::isBullet"][::std::mem::offset_of!(b2BodyDef, isBullet) - 69usize];
-    ["Offset of field: b2BodyDef::isEnabled"][::std::mem::offset_of!(b2BodyDef, isEnabled) - 70usize];
-    ["Offset of field: b2BodyDef::allowFastRotation"][::std::mem::offset_of!(b2BodyDef, allowFastRotation) - 71usize];
+    ["Offset of field: b2BodyDef::enableSleep"][::std::mem::offset_of!(b2BodyDef, enableSleep) - 64usize];
+    ["Offset of field: b2BodyDef::isAwake"][::std::mem::offset_of!(b2BodyDef, isAwake) - 65usize];
+    ["Offset of field: b2BodyDef::fixedRotation"][::std::mem::offset_of!(b2BodyDef, fixedRotation) - 66usize];
+    ["Offset of field: b2BodyDef::isBullet"][::std::mem::offset_of!(b2BodyDef, isBullet) - 67usize];
+    ["Offset of field: b2BodyDef::isEnabled"][::std::mem::offset_of!(b2BodyDef, isEnabled) - 68usize];
+    ["Offset of field: b2BodyDef::allowFastRotation"][::std::mem::offset_of!(b2BodyDef, allowFastRotation) - 69usize];
     ["Offset of field: b2BodyDef::internalValue"][::std::mem::offset_of!(b2BodyDef, internalValue) - 72usize];
 };
 #[doc = " This is used to filter collision on shapes. It affects shape-vs-shape collision\n and shape-versus-query collision (such as b2World_CastRay).\n @ingroup shape"]
@@ -1202,14 +1170,14 @@ pub struct b2SurfaceMaterial {
     #[doc = " The tangent speed for conveyor belts"]
     pub tangentSpeed: f32,
     #[doc = " User material identifier. This is passed with query results and to friction and restitution\n combining functions. It is not used internally."]
-    pub userMaterialId: u64,
+    pub userMaterialId: ::std::os::raw::c_int,
     #[doc = " Custom debug draw color."]
     pub customColor: u32,
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
-    ["Size of b2SurfaceMaterial"][::std::mem::size_of::<b2SurfaceMaterial>() - 32usize];
-    ["Alignment of b2SurfaceMaterial"][::std::mem::align_of::<b2SurfaceMaterial>() - 8usize];
+    ["Size of b2SurfaceMaterial"][::std::mem::size_of::<b2SurfaceMaterial>() - 24usize];
+    ["Alignment of b2SurfaceMaterial"][::std::mem::align_of::<b2SurfaceMaterial>() - 4usize];
     ["Offset of field: b2SurfaceMaterial::friction"][::std::mem::offset_of!(b2SurfaceMaterial, friction) - 0usize];
     ["Offset of field: b2SurfaceMaterial::restitution"]
         [::std::mem::offset_of!(b2SurfaceMaterial, restitution) - 4usize];
@@ -1220,7 +1188,7 @@ const _: () = {
     ["Offset of field: b2SurfaceMaterial::userMaterialId"]
         [::std::mem::offset_of!(b2SurfaceMaterial, userMaterialId) - 16usize];
     ["Offset of field: b2SurfaceMaterial::customColor"]
-        [::std::mem::offset_of!(b2SurfaceMaterial, customColor) - 24usize];
+        [::std::mem::offset_of!(b2SurfaceMaterial, customColor) - 20usize];
 };
 #[doc = " Used to create a shape.\n This is a temporary object used to bundle shape creation parameters. You may use\n the same shape definition to create multiple shapes.\n Must be initialized using b2DefaultShapeDef().\n @ingroup shape"]
 #[repr(C)]
@@ -1234,8 +1202,6 @@ pub struct b2ShapeDef {
     pub density: f32,
     #[doc = " Collision filtering data."]
     pub filter: b2Filter,
-    #[doc = " Enable custom filtering. Only one of the two shapes needs to enable custom filtering. See b2WorldDef."]
-    pub enableCustomFiltering: bool,
     #[doc = " A sensor shape generates overlap events but never generates a collision response.\n Sensors do not have continuous collision. Instead, use a ray or shape cast for those scenarios.\n Sensors still contribute to the body mass if they have non-zero density.\n @note Sensor events are disabled by default.\n @see enableSensorEvents"]
     pub isSensor: bool,
     #[doc = " Enable sensor events for this shape. This applies to sensors and non-sensors. False by default, even for sensors."]
@@ -1244,7 +1210,7 @@ pub struct b2ShapeDef {
     pub enableContactEvents: bool,
     #[doc = " Enable hit events for this shape. Only applies to kinematic and dynamic bodies. Ignored for sensors. False by default."]
     pub enableHitEvents: bool,
-    #[doc = " Enable pre-solve contact events for this shape. Only applies to dynamic bodies. These are expensive\n and must be carefully handled due to multithreading. Ignored for sensors."]
+    #[doc = " Enable pre-solve contact events for this shape. Only applies to dynamic bodies. These are expensive\n and must be carefully handled due to threading. Ignored for sensors."]
     pub enablePreSolveEvents: bool,
     #[doc = " When shapes are created they will scan the environment for collision the next time step. This can significantly slow down\n static body creation when there are many static shapes.\n This is flag is ignored for dynamic and kinematic shapes which always invoke contact creation."]
     pub invokeContactCreation: bool,
@@ -1255,26 +1221,24 @@ pub struct b2ShapeDef {
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
-    ["Size of b2ShapeDef"][::std::mem::size_of::<b2ShapeDef>() - 88usize];
+    ["Size of b2ShapeDef"][::std::mem::size_of::<b2ShapeDef>() - 80usize];
     ["Alignment of b2ShapeDef"][::std::mem::align_of::<b2ShapeDef>() - 8usize];
     ["Offset of field: b2ShapeDef::userData"][::std::mem::offset_of!(b2ShapeDef, userData) - 0usize];
     ["Offset of field: b2ShapeDef::material"][::std::mem::offset_of!(b2ShapeDef, material) - 8usize];
-    ["Offset of field: b2ShapeDef::density"][::std::mem::offset_of!(b2ShapeDef, density) - 40usize];
-    ["Offset of field: b2ShapeDef::filter"][::std::mem::offset_of!(b2ShapeDef, filter) - 48usize];
-    ["Offset of field: b2ShapeDef::enableCustomFiltering"]
-        [::std::mem::offset_of!(b2ShapeDef, enableCustomFiltering) - 72usize];
-    ["Offset of field: b2ShapeDef::isSensor"][::std::mem::offset_of!(b2ShapeDef, isSensor) - 73usize];
+    ["Offset of field: b2ShapeDef::density"][::std::mem::offset_of!(b2ShapeDef, density) - 32usize];
+    ["Offset of field: b2ShapeDef::filter"][::std::mem::offset_of!(b2ShapeDef, filter) - 40usize];
+    ["Offset of field: b2ShapeDef::isSensor"][::std::mem::offset_of!(b2ShapeDef, isSensor) - 64usize];
     ["Offset of field: b2ShapeDef::enableSensorEvents"]
-        [::std::mem::offset_of!(b2ShapeDef, enableSensorEvents) - 74usize];
+        [::std::mem::offset_of!(b2ShapeDef, enableSensorEvents) - 65usize];
     ["Offset of field: b2ShapeDef::enableContactEvents"]
-        [::std::mem::offset_of!(b2ShapeDef, enableContactEvents) - 75usize];
-    ["Offset of field: b2ShapeDef::enableHitEvents"][::std::mem::offset_of!(b2ShapeDef, enableHitEvents) - 76usize];
+        [::std::mem::offset_of!(b2ShapeDef, enableContactEvents) - 66usize];
+    ["Offset of field: b2ShapeDef::enableHitEvents"][::std::mem::offset_of!(b2ShapeDef, enableHitEvents) - 67usize];
     ["Offset of field: b2ShapeDef::enablePreSolveEvents"]
-        [::std::mem::offset_of!(b2ShapeDef, enablePreSolveEvents) - 77usize];
+        [::std::mem::offset_of!(b2ShapeDef, enablePreSolveEvents) - 68usize];
     ["Offset of field: b2ShapeDef::invokeContactCreation"]
-        [::std::mem::offset_of!(b2ShapeDef, invokeContactCreation) - 78usize];
-    ["Offset of field: b2ShapeDef::updateBodyMass"][::std::mem::offset_of!(b2ShapeDef, updateBodyMass) - 79usize];
-    ["Offset of field: b2ShapeDef::internalValue"][::std::mem::offset_of!(b2ShapeDef, internalValue) - 80usize];
+        [::std::mem::offset_of!(b2ShapeDef, invokeContactCreation) - 69usize];
+    ["Offset of field: b2ShapeDef::updateBodyMass"][::std::mem::offset_of!(b2ShapeDef, updateBodyMass) - 70usize];
+    ["Offset of field: b2ShapeDef::internalValue"][::std::mem::offset_of!(b2ShapeDef, internalValue) - 72usize];
 };
 #[doc = " Used to create a chain of line segments. This is designed to eliminate ghost collisions with some limitations.\n - chains are one-sided\n - chains have no mass and should be used on static bodies\n - chains have a counter-clockwise winding order (normal points right of segment direction)\n - chains are either a loop or open\n - a chain must have at least 4 points\n - the distance between any two points must be greater than B2_LINEAR_SLOP\n - a chain shape should not self intersect (this is not validated)\n - an open chain shape has NO COLLISION on the first and final edge\n - you may overlap two open chains on their first three and/or last three points to get smooth collision\n - a chain shape creates multiple line segment shapes on the body\n https://en.wikipedia.org/wiki/Polygonal_chain\n Must be initialized using b2DefaultChainDef().\n @warning Do not use chain shapes unless you understand the limitations. This is an advanced feature.\n @ingroup shape"]
 #[repr(C)]
@@ -1322,6 +1286,7 @@ pub struct b2Profile {
     pub pairs: f32,
     pub collide: f32,
     pub solve: f32,
+    pub mergeIslands: f32,
     pub prepareStages: f32,
     pub solveConstraints: f32,
     pub prepareConstraints: f32,
@@ -1334,8 +1299,6 @@ pub struct b2Profile {
     pub storeImpulses: f32,
     pub splitIslands: f32,
     pub transforms: f32,
-    pub sensorHits: f32,
-    pub jointEvents: f32,
     pub hitEvents: f32,
     pub refit: f32,
     pub bullets: f32,
@@ -1344,32 +1307,31 @@ pub struct b2Profile {
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
-    ["Size of b2Profile"][::std::mem::size_of::<b2Profile>() - 92usize];
+    ["Size of b2Profile"][::std::mem::size_of::<b2Profile>() - 88usize];
     ["Alignment of b2Profile"][::std::mem::align_of::<b2Profile>() - 4usize];
     ["Offset of field: b2Profile::step"][::std::mem::offset_of!(b2Profile, step) - 0usize];
     ["Offset of field: b2Profile::pairs"][::std::mem::offset_of!(b2Profile, pairs) - 4usize];
     ["Offset of field: b2Profile::collide"][::std::mem::offset_of!(b2Profile, collide) - 8usize];
     ["Offset of field: b2Profile::solve"][::std::mem::offset_of!(b2Profile, solve) - 12usize];
-    ["Offset of field: b2Profile::prepareStages"][::std::mem::offset_of!(b2Profile, prepareStages) - 16usize];
-    ["Offset of field: b2Profile::solveConstraints"][::std::mem::offset_of!(b2Profile, solveConstraints) - 20usize];
-    ["Offset of field: b2Profile::prepareConstraints"][::std::mem::offset_of!(b2Profile, prepareConstraints) - 24usize];
+    ["Offset of field: b2Profile::mergeIslands"][::std::mem::offset_of!(b2Profile, mergeIslands) - 16usize];
+    ["Offset of field: b2Profile::prepareStages"][::std::mem::offset_of!(b2Profile, prepareStages) - 20usize];
+    ["Offset of field: b2Profile::solveConstraints"][::std::mem::offset_of!(b2Profile, solveConstraints) - 24usize];
+    ["Offset of field: b2Profile::prepareConstraints"][::std::mem::offset_of!(b2Profile, prepareConstraints) - 28usize];
     ["Offset of field: b2Profile::integrateVelocities"]
-        [::std::mem::offset_of!(b2Profile, integrateVelocities) - 28usize];
-    ["Offset of field: b2Profile::warmStart"][::std::mem::offset_of!(b2Profile, warmStart) - 32usize];
-    ["Offset of field: b2Profile::solveImpulses"][::std::mem::offset_of!(b2Profile, solveImpulses) - 36usize];
-    ["Offset of field: b2Profile::integratePositions"][::std::mem::offset_of!(b2Profile, integratePositions) - 40usize];
-    ["Offset of field: b2Profile::relaxImpulses"][::std::mem::offset_of!(b2Profile, relaxImpulses) - 44usize];
-    ["Offset of field: b2Profile::applyRestitution"][::std::mem::offset_of!(b2Profile, applyRestitution) - 48usize];
-    ["Offset of field: b2Profile::storeImpulses"][::std::mem::offset_of!(b2Profile, storeImpulses) - 52usize];
-    ["Offset of field: b2Profile::splitIslands"][::std::mem::offset_of!(b2Profile, splitIslands) - 56usize];
-    ["Offset of field: b2Profile::transforms"][::std::mem::offset_of!(b2Profile, transforms) - 60usize];
-    ["Offset of field: b2Profile::sensorHits"][::std::mem::offset_of!(b2Profile, sensorHits) - 64usize];
-    ["Offset of field: b2Profile::jointEvents"][::std::mem::offset_of!(b2Profile, jointEvents) - 68usize];
-    ["Offset of field: b2Profile::hitEvents"][::std::mem::offset_of!(b2Profile, hitEvents) - 72usize];
-    ["Offset of field: b2Profile::refit"][::std::mem::offset_of!(b2Profile, refit) - 76usize];
-    ["Offset of field: b2Profile::bullets"][::std::mem::offset_of!(b2Profile, bullets) - 80usize];
-    ["Offset of field: b2Profile::sleepIslands"][::std::mem::offset_of!(b2Profile, sleepIslands) - 84usize];
-    ["Offset of field: b2Profile::sensors"][::std::mem::offset_of!(b2Profile, sensors) - 88usize];
+        [::std::mem::offset_of!(b2Profile, integrateVelocities) - 32usize];
+    ["Offset of field: b2Profile::warmStart"][::std::mem::offset_of!(b2Profile, warmStart) - 36usize];
+    ["Offset of field: b2Profile::solveImpulses"][::std::mem::offset_of!(b2Profile, solveImpulses) - 40usize];
+    ["Offset of field: b2Profile::integratePositions"][::std::mem::offset_of!(b2Profile, integratePositions) - 44usize];
+    ["Offset of field: b2Profile::relaxImpulses"][::std::mem::offset_of!(b2Profile, relaxImpulses) - 48usize];
+    ["Offset of field: b2Profile::applyRestitution"][::std::mem::offset_of!(b2Profile, applyRestitution) - 52usize];
+    ["Offset of field: b2Profile::storeImpulses"][::std::mem::offset_of!(b2Profile, storeImpulses) - 56usize];
+    ["Offset of field: b2Profile::splitIslands"][::std::mem::offset_of!(b2Profile, splitIslands) - 60usize];
+    ["Offset of field: b2Profile::transforms"][::std::mem::offset_of!(b2Profile, transforms) - 64usize];
+    ["Offset of field: b2Profile::hitEvents"][::std::mem::offset_of!(b2Profile, hitEvents) - 68usize];
+    ["Offset of field: b2Profile::refit"][::std::mem::offset_of!(b2Profile, refit) - 72usize];
+    ["Offset of field: b2Profile::bullets"][::std::mem::offset_of!(b2Profile, bullets) - 76usize];
+    ["Offset of field: b2Profile::sleepIslands"][::std::mem::offset_of!(b2Profile, sleepIslands) - 80usize];
+    ["Offset of field: b2Profile::sensors"][::std::mem::offset_of!(b2Profile, sensors) - 84usize];
 };
 #[doc = " Counters that give details of the simulation size."]
 #[repr(C)]
@@ -1385,11 +1347,11 @@ pub struct b2Counters {
     pub treeHeight: ::std::os::raw::c_int,
     pub byteCount: ::std::os::raw::c_int,
     pub taskCount: ::std::os::raw::c_int,
-    pub colorCounts: [::std::os::raw::c_int; 24usize],
+    pub colorCounts: [::std::os::raw::c_int; 12usize],
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
-    ["Size of b2Counters"][::std::mem::size_of::<b2Counters>() - 136usize];
+    ["Size of b2Counters"][::std::mem::size_of::<b2Counters>() - 88usize];
     ["Alignment of b2Counters"][::std::mem::align_of::<b2Counters>() - 4usize];
     ["Offset of field: b2Counters::bodyCount"][::std::mem::offset_of!(b2Counters, bodyCount) - 0usize];
     ["Offset of field: b2Counters::shapeCount"][::std::mem::offset_of!(b2Counters, shapeCount) - 4usize];
@@ -1406,70 +1368,29 @@ const _: () = {
 pub const b2JointType_b2_distanceJoint: b2JointType = 0;
 pub const b2JointType_b2_filterJoint: b2JointType = 1;
 pub const b2JointType_b2_motorJoint: b2JointType = 2;
-pub const b2JointType_b2_prismaticJoint: b2JointType = 3;
-pub const b2JointType_b2_revoluteJoint: b2JointType = 4;
-pub const b2JointType_b2_weldJoint: b2JointType = 5;
-pub const b2JointType_b2_wheelJoint: b2JointType = 6;
+pub const b2JointType_b2_mouseJoint: b2JointType = 3;
+pub const b2JointType_b2_prismaticJoint: b2JointType = 4;
+pub const b2JointType_b2_revoluteJoint: b2JointType = 5;
+pub const b2JointType_b2_weldJoint: b2JointType = 6;
+pub const b2JointType_b2_wheelJoint: b2JointType = 7;
 #[doc = " Joint type enumeration\n\n This is useful because all joint types use b2JointId and sometimes you\n want to get the type of a joint.\n @ingroup joint"]
 pub type b2JointType = ::std::os::raw::c_uint;
-#[doc = " Base joint definition used by all joint types.\n The local frames are measured from the body's origin rather than the center of mass because:\n 1. you might not know where the center of mass will be\n 2. if you add/remove shapes from a body and recompute the mass, the joints will be broken"]
+#[doc = " Distance joint definition\n\n This requires defining an anchor point on both\n bodies and the non-zero distance of the distance joint. The definition uses\n local anchor points so that the initial configuration can violate the\n constraint slightly. This helps when saving and loading a game.\n @ingroup distance_joint"]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
-pub struct b2JointDef {
-    #[doc = " User data pointer"]
-    pub userData: *mut ::std::os::raw::c_void,
+pub struct b2DistanceJointDef {
     #[doc = " The first attached body"]
     pub bodyIdA: b2BodyId,
     #[doc = " The second attached body"]
     pub bodyIdB: b2BodyId,
-    #[doc = " The first local joint frame"]
-    pub localFrameA: b2Transform,
-    #[doc = " The second local joint frame"]
-    pub localFrameB: b2Transform,
-    #[doc = " Force threshold for joint events"]
-    pub forceThreshold: f32,
-    #[doc = " Torque threshold for joint events"]
-    pub torqueThreshold: f32,
-    #[doc = " Constraint hertz (advanced feature)"]
-    pub constraintHertz: f32,
-    #[doc = " Constraint damping ratio (advanced feature)"]
-    pub constraintDampingRatio: f32,
-    #[doc = " Debug draw scale"]
-    pub drawScale: f32,
-    #[doc = " Set this flag to true if the attached bodies should collide"]
-    pub collideConnected: bool,
-}
-#[allow(clippy::unnecessary_operation, clippy::identity_op)]
-const _: () = {
-    ["Size of b2JointDef"][::std::mem::size_of::<b2JointDef>() - 80usize];
-    ["Alignment of b2JointDef"][::std::mem::align_of::<b2JointDef>() - 8usize];
-    ["Offset of field: b2JointDef::userData"][::std::mem::offset_of!(b2JointDef, userData) - 0usize];
-    ["Offset of field: b2JointDef::bodyIdA"][::std::mem::offset_of!(b2JointDef, bodyIdA) - 8usize];
-    ["Offset of field: b2JointDef::bodyIdB"][::std::mem::offset_of!(b2JointDef, bodyIdB) - 16usize];
-    ["Offset of field: b2JointDef::localFrameA"][::std::mem::offset_of!(b2JointDef, localFrameA) - 24usize];
-    ["Offset of field: b2JointDef::localFrameB"][::std::mem::offset_of!(b2JointDef, localFrameB) - 40usize];
-    ["Offset of field: b2JointDef::forceThreshold"][::std::mem::offset_of!(b2JointDef, forceThreshold) - 56usize];
-    ["Offset of field: b2JointDef::torqueThreshold"][::std::mem::offset_of!(b2JointDef, torqueThreshold) - 60usize];
-    ["Offset of field: b2JointDef::constraintHertz"][::std::mem::offset_of!(b2JointDef, constraintHertz) - 64usize];
-    ["Offset of field: b2JointDef::constraintDampingRatio"]
-        [::std::mem::offset_of!(b2JointDef, constraintDampingRatio) - 68usize];
-    ["Offset of field: b2JointDef::drawScale"][::std::mem::offset_of!(b2JointDef, drawScale) - 72usize];
-    ["Offset of field: b2JointDef::collideConnected"][::std::mem::offset_of!(b2JointDef, collideConnected) - 76usize];
-};
-#[doc = " Distance joint definition\n Connects a point on body A with a point on body B by a segment.\n Useful for ropes and springs.\n @ingroup distance_joint"]
-#[repr(C)]
-#[derive(Debug, Copy, Clone)]
-pub struct b2DistanceJointDef {
-    #[doc = " Base joint definition"]
-    pub base: b2JointDef,
+    #[doc = " The local anchor point relative to bodyA's origin"]
+    pub localAnchorA: b2Vec2,
+    #[doc = " The local anchor point relative to bodyB's origin"]
+    pub localAnchorB: b2Vec2,
     #[doc = " The rest length of this joint. Clamped to a stable minimum value."]
     pub length: f32,
     #[doc = " Enable the distance constraint to behave like a spring. If false\n then the distance joint will be rigid, overriding the limit and motor."]
     pub enableSpring: bool,
-    #[doc = " The lower spring force controls how much tension it can sustain"]
-    pub lowerSpringForce: f32,
-    #[doc = " The upper spring force controls how much compression it an sustain"]
-    pub upperSpringForce: f32,
     #[doc = " The spring linear stiffness Hertz, cycles per second"]
     pub hertz: f32,
     #[doc = " The spring linear damping ratio, non-dimensional"]
@@ -1486,126 +1407,175 @@ pub struct b2DistanceJointDef {
     pub maxMotorForce: f32,
     #[doc = " The desired motor speed, usually in meters per second"]
     pub motorSpeed: f32,
+    #[doc = " Set this flag to true if the attached bodies should collide"]
+    pub collideConnected: bool,
+    #[doc = " User data pointer"]
+    pub userData: *mut ::std::os::raw::c_void,
     #[doc = " Used internally to detect a valid definition. DO NOT SET."]
     pub internalValue: ::std::os::raw::c_int,
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
-    ["Size of b2DistanceJointDef"][::std::mem::size_of::<b2DistanceJointDef>() - 136usize];
+    ["Size of b2DistanceJointDef"][::std::mem::size_of::<b2DistanceJointDef>() - 96usize];
     ["Alignment of b2DistanceJointDef"][::std::mem::align_of::<b2DistanceJointDef>() - 8usize];
-    ["Offset of field: b2DistanceJointDef::base"][::std::mem::offset_of!(b2DistanceJointDef, base) - 0usize];
-    ["Offset of field: b2DistanceJointDef::length"][::std::mem::offset_of!(b2DistanceJointDef, length) - 80usize];
+    ["Offset of field: b2DistanceJointDef::bodyIdA"][::std::mem::offset_of!(b2DistanceJointDef, bodyIdA) - 0usize];
+    ["Offset of field: b2DistanceJointDef::bodyIdB"][::std::mem::offset_of!(b2DistanceJointDef, bodyIdB) - 8usize];
+    ["Offset of field: b2DistanceJointDef::localAnchorA"]
+        [::std::mem::offset_of!(b2DistanceJointDef, localAnchorA) - 16usize];
+    ["Offset of field: b2DistanceJointDef::localAnchorB"]
+        [::std::mem::offset_of!(b2DistanceJointDef, localAnchorB) - 24usize];
+    ["Offset of field: b2DistanceJointDef::length"][::std::mem::offset_of!(b2DistanceJointDef, length) - 32usize];
     ["Offset of field: b2DistanceJointDef::enableSpring"]
-        [::std::mem::offset_of!(b2DistanceJointDef, enableSpring) - 84usize];
-    ["Offset of field: b2DistanceJointDef::lowerSpringForce"]
-        [::std::mem::offset_of!(b2DistanceJointDef, lowerSpringForce) - 88usize];
-    ["Offset of field: b2DistanceJointDef::upperSpringForce"]
-        [::std::mem::offset_of!(b2DistanceJointDef, upperSpringForce) - 92usize];
-    ["Offset of field: b2DistanceJointDef::hertz"][::std::mem::offset_of!(b2DistanceJointDef, hertz) - 96usize];
+        [::std::mem::offset_of!(b2DistanceJointDef, enableSpring) - 36usize];
+    ["Offset of field: b2DistanceJointDef::hertz"][::std::mem::offset_of!(b2DistanceJointDef, hertz) - 40usize];
     ["Offset of field: b2DistanceJointDef::dampingRatio"]
-        [::std::mem::offset_of!(b2DistanceJointDef, dampingRatio) - 100usize];
+        [::std::mem::offset_of!(b2DistanceJointDef, dampingRatio) - 44usize];
     ["Offset of field: b2DistanceJointDef::enableLimit"]
-        [::std::mem::offset_of!(b2DistanceJointDef, enableLimit) - 104usize];
-    ["Offset of field: b2DistanceJointDef::minLength"]
-        [::std::mem::offset_of!(b2DistanceJointDef, minLength) - 108usize];
-    ["Offset of field: b2DistanceJointDef::maxLength"]
-        [::std::mem::offset_of!(b2DistanceJointDef, maxLength) - 112usize];
+        [::std::mem::offset_of!(b2DistanceJointDef, enableLimit) - 48usize];
+    ["Offset of field: b2DistanceJointDef::minLength"][::std::mem::offset_of!(b2DistanceJointDef, minLength) - 52usize];
+    ["Offset of field: b2DistanceJointDef::maxLength"][::std::mem::offset_of!(b2DistanceJointDef, maxLength) - 56usize];
     ["Offset of field: b2DistanceJointDef::enableMotor"]
-        [::std::mem::offset_of!(b2DistanceJointDef, enableMotor) - 116usize];
+        [::std::mem::offset_of!(b2DistanceJointDef, enableMotor) - 60usize];
     ["Offset of field: b2DistanceJointDef::maxMotorForce"]
-        [::std::mem::offset_of!(b2DistanceJointDef, maxMotorForce) - 120usize];
+        [::std::mem::offset_of!(b2DistanceJointDef, maxMotorForce) - 64usize];
     ["Offset of field: b2DistanceJointDef::motorSpeed"]
-        [::std::mem::offset_of!(b2DistanceJointDef, motorSpeed) - 124usize];
+        [::std::mem::offset_of!(b2DistanceJointDef, motorSpeed) - 68usize];
+    ["Offset of field: b2DistanceJointDef::collideConnected"]
+        [::std::mem::offset_of!(b2DistanceJointDef, collideConnected) - 72usize];
+    ["Offset of field: b2DistanceJointDef::userData"][::std::mem::offset_of!(b2DistanceJointDef, userData) - 80usize];
     ["Offset of field: b2DistanceJointDef::internalValue"]
-        [::std::mem::offset_of!(b2DistanceJointDef, internalValue) - 128usize];
+        [::std::mem::offset_of!(b2DistanceJointDef, internalValue) - 88usize];
 };
-#[doc = " A motor joint is used to control the relative velocity and or transform between two bodies.\n With a velocity of zero this acts like top-down friction.\n @ingroup motor_joint"]
+#[doc = " A motor joint is used to control the relative motion between two bodies\n\n A typical usage is to control the movement of a dynamic body with respect to the ground.\n @ingroup motor_joint"]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct b2MotorJointDef {
-    #[doc = " Base joint definition"]
-    pub base: b2JointDef,
-    #[doc = " The desired linear velocity"]
-    pub linearVelocity: b2Vec2,
+    #[doc = " The first attached body"]
+    pub bodyIdA: b2BodyId,
+    #[doc = " The second attached body"]
+    pub bodyIdB: b2BodyId,
+    #[doc = " Position of bodyB minus the position of bodyA, in bodyA's frame"]
+    pub linearOffset: b2Vec2,
+    #[doc = " The bodyB angle minus bodyA angle in radians"]
+    pub angularOffset: f32,
     #[doc = " The maximum motor force in newtons"]
-    pub maxVelocityForce: f32,
-    #[doc = " The desired angular velocity"]
-    pub angularVelocity: f32,
+    pub maxForce: f32,
     #[doc = " The maximum motor torque in newton-meters"]
-    pub maxVelocityTorque: f32,
-    #[doc = " Linear spring hertz for position control"]
-    pub linearHertz: f32,
-    #[doc = " Linear spring damping ratio"]
-    pub linearDampingRatio: f32,
-    #[doc = " Maximum spring force in newtons"]
-    pub maxSpringForce: f32,
-    #[doc = " Angular spring hertz for position control"]
-    pub angularHertz: f32,
-    #[doc = " Angular spring damping ratio"]
-    pub angularDampingRatio: f32,
-    #[doc = " Maximum spring torque in newton-meters"]
-    pub maxSpringTorque: f32,
+    pub maxTorque: f32,
+    #[doc = " Position correction factor in the range [0,1]"]
+    pub correctionFactor: f32,
+    #[doc = " Set this flag to true if the attached bodies should collide"]
+    pub collideConnected: bool,
+    #[doc = " User data pointer"]
+    pub userData: *mut ::std::os::raw::c_void,
     #[doc = " Used internally to detect a valid definition. DO NOT SET."]
     pub internalValue: ::std::os::raw::c_int,
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
-    ["Size of b2MotorJointDef"][::std::mem::size_of::<b2MotorJointDef>() - 128usize];
+    ["Size of b2MotorJointDef"][::std::mem::size_of::<b2MotorJointDef>() - 64usize];
     ["Alignment of b2MotorJointDef"][::std::mem::align_of::<b2MotorJointDef>() - 8usize];
-    ["Offset of field: b2MotorJointDef::base"][::std::mem::offset_of!(b2MotorJointDef, base) - 0usize];
-    ["Offset of field: b2MotorJointDef::linearVelocity"]
-        [::std::mem::offset_of!(b2MotorJointDef, linearVelocity) - 80usize];
-    ["Offset of field: b2MotorJointDef::maxVelocityForce"]
-        [::std::mem::offset_of!(b2MotorJointDef, maxVelocityForce) - 88usize];
-    ["Offset of field: b2MotorJointDef::angularVelocity"]
-        [::std::mem::offset_of!(b2MotorJointDef, angularVelocity) - 92usize];
-    ["Offset of field: b2MotorJointDef::maxVelocityTorque"]
-        [::std::mem::offset_of!(b2MotorJointDef, maxVelocityTorque) - 96usize];
-    ["Offset of field: b2MotorJointDef::linearHertz"][::std::mem::offset_of!(b2MotorJointDef, linearHertz) - 100usize];
-    ["Offset of field: b2MotorJointDef::linearDampingRatio"]
-        [::std::mem::offset_of!(b2MotorJointDef, linearDampingRatio) - 104usize];
-    ["Offset of field: b2MotorJointDef::maxSpringForce"]
-        [::std::mem::offset_of!(b2MotorJointDef, maxSpringForce) - 108usize];
-    ["Offset of field: b2MotorJointDef::angularHertz"]
-        [::std::mem::offset_of!(b2MotorJointDef, angularHertz) - 112usize];
-    ["Offset of field: b2MotorJointDef::angularDampingRatio"]
-        [::std::mem::offset_of!(b2MotorJointDef, angularDampingRatio) - 116usize];
-    ["Offset of field: b2MotorJointDef::maxSpringTorque"]
-        [::std::mem::offset_of!(b2MotorJointDef, maxSpringTorque) - 120usize];
+    ["Offset of field: b2MotorJointDef::bodyIdA"][::std::mem::offset_of!(b2MotorJointDef, bodyIdA) - 0usize];
+    ["Offset of field: b2MotorJointDef::bodyIdB"][::std::mem::offset_of!(b2MotorJointDef, bodyIdB) - 8usize];
+    ["Offset of field: b2MotorJointDef::linearOffset"][::std::mem::offset_of!(b2MotorJointDef, linearOffset) - 16usize];
+    ["Offset of field: b2MotorJointDef::angularOffset"]
+        [::std::mem::offset_of!(b2MotorJointDef, angularOffset) - 24usize];
+    ["Offset of field: b2MotorJointDef::maxForce"][::std::mem::offset_of!(b2MotorJointDef, maxForce) - 28usize];
+    ["Offset of field: b2MotorJointDef::maxTorque"][::std::mem::offset_of!(b2MotorJointDef, maxTorque) - 32usize];
+    ["Offset of field: b2MotorJointDef::correctionFactor"]
+        [::std::mem::offset_of!(b2MotorJointDef, correctionFactor) - 36usize];
+    ["Offset of field: b2MotorJointDef::collideConnected"]
+        [::std::mem::offset_of!(b2MotorJointDef, collideConnected) - 40usize];
+    ["Offset of field: b2MotorJointDef::userData"][::std::mem::offset_of!(b2MotorJointDef, userData) - 48usize];
     ["Offset of field: b2MotorJointDef::internalValue"]
-        [::std::mem::offset_of!(b2MotorJointDef, internalValue) - 124usize];
+        [::std::mem::offset_of!(b2MotorJointDef, internalValue) - 56usize];
+};
+#[doc = " A mouse joint is used to make a point on a body track a specified world point.\n\n This a soft constraint and allows the constraint to stretch without\n applying huge forces. This also applies rotation constraint heuristic to improve control.\n @ingroup mouse_joint"]
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct b2MouseJointDef {
+    #[doc = " The first attached body. This is assumed to be static."]
+    pub bodyIdA: b2BodyId,
+    #[doc = " The second attached body."]
+    pub bodyIdB: b2BodyId,
+    #[doc = " The initial target point in world space"]
+    pub target: b2Vec2,
+    #[doc = " Stiffness in hertz"]
+    pub hertz: f32,
+    #[doc = " Damping ratio, non-dimensional"]
+    pub dampingRatio: f32,
+    #[doc = " Maximum force, typically in newtons"]
+    pub maxForce: f32,
+    #[doc = " Set this flag to true if the attached bodies should collide."]
+    pub collideConnected: bool,
+    #[doc = " User data pointer"]
+    pub userData: *mut ::std::os::raw::c_void,
+    #[doc = " Used internally to detect a valid definition. DO NOT SET."]
+    pub internalValue: ::std::os::raw::c_int,
+}
+#[allow(clippy::unnecessary_operation, clippy::identity_op)]
+const _: () = {
+    ["Size of b2MouseJointDef"][::std::mem::size_of::<b2MouseJointDef>() - 56usize];
+    ["Alignment of b2MouseJointDef"][::std::mem::align_of::<b2MouseJointDef>() - 8usize];
+    ["Offset of field: b2MouseJointDef::bodyIdA"][::std::mem::offset_of!(b2MouseJointDef, bodyIdA) - 0usize];
+    ["Offset of field: b2MouseJointDef::bodyIdB"][::std::mem::offset_of!(b2MouseJointDef, bodyIdB) - 8usize];
+    ["Offset of field: b2MouseJointDef::target"][::std::mem::offset_of!(b2MouseJointDef, target) - 16usize];
+    ["Offset of field: b2MouseJointDef::hertz"][::std::mem::offset_of!(b2MouseJointDef, hertz) - 24usize];
+    ["Offset of field: b2MouseJointDef::dampingRatio"][::std::mem::offset_of!(b2MouseJointDef, dampingRatio) - 28usize];
+    ["Offset of field: b2MouseJointDef::maxForce"][::std::mem::offset_of!(b2MouseJointDef, maxForce) - 32usize];
+    ["Offset of field: b2MouseJointDef::collideConnected"]
+        [::std::mem::offset_of!(b2MouseJointDef, collideConnected) - 36usize];
+    ["Offset of field: b2MouseJointDef::userData"][::std::mem::offset_of!(b2MouseJointDef, userData) - 40usize];
+    ["Offset of field: b2MouseJointDef::internalValue"]
+        [::std::mem::offset_of!(b2MouseJointDef, internalValue) - 48usize];
 };
 #[doc = " A filter joint is used to disable collision between two specific bodies.\n\n @ingroup filter_joint"]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct b2FilterJointDef {
-    #[doc = " Base joint definition"]
-    pub base: b2JointDef,
+    #[doc = " The first attached body."]
+    pub bodyIdA: b2BodyId,
+    #[doc = " The second attached body."]
+    pub bodyIdB: b2BodyId,
+    #[doc = " User data pointer"]
+    pub userData: *mut ::std::os::raw::c_void,
     #[doc = " Used internally to detect a valid definition. DO NOT SET."]
     pub internalValue: ::std::os::raw::c_int,
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
-    ["Size of b2FilterJointDef"][::std::mem::size_of::<b2FilterJointDef>() - 88usize];
+    ["Size of b2FilterJointDef"][::std::mem::size_of::<b2FilterJointDef>() - 32usize];
     ["Alignment of b2FilterJointDef"][::std::mem::align_of::<b2FilterJointDef>() - 8usize];
-    ["Offset of field: b2FilterJointDef::base"][::std::mem::offset_of!(b2FilterJointDef, base) - 0usize];
+    ["Offset of field: b2FilterJointDef::bodyIdA"][::std::mem::offset_of!(b2FilterJointDef, bodyIdA) - 0usize];
+    ["Offset of field: b2FilterJointDef::bodyIdB"][::std::mem::offset_of!(b2FilterJointDef, bodyIdB) - 8usize];
+    ["Offset of field: b2FilterJointDef::userData"][::std::mem::offset_of!(b2FilterJointDef, userData) - 16usize];
     ["Offset of field: b2FilterJointDef::internalValue"]
-        [::std::mem::offset_of!(b2FilterJointDef, internalValue) - 80usize];
+        [::std::mem::offset_of!(b2FilterJointDef, internalValue) - 24usize];
 };
-#[doc = " Prismatic joint definition\n Body B may slide along the x-axis in local frame A. Body B cannot rotate relative to body A.\n The joint translation is zero when the local frame origins coincide in world space.\n @ingroup prismatic_joint"]
+#[doc = " Prismatic joint definition\n\n This requires defining a line of motion using an axis and an anchor point.\n The definition uses local anchor points and a local axis so that the initial\n configuration can violate the constraint slightly. The joint translation is zero\n when the local anchor points coincide in world space.\n @ingroup prismatic_joint"]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct b2PrismaticJointDef {
-    #[doc = " Base joint definition"]
-    pub base: b2JointDef,
+    #[doc = " The first attached body"]
+    pub bodyIdA: b2BodyId,
+    #[doc = " The second attached body"]
+    pub bodyIdB: b2BodyId,
+    #[doc = " The local anchor point relative to bodyA's origin"]
+    pub localAnchorA: b2Vec2,
+    #[doc = " The local anchor point relative to bodyB's origin"]
+    pub localAnchorB: b2Vec2,
+    #[doc = " The local translation unit axis in bodyA"]
+    pub localAxisA: b2Vec2,
+    #[doc = " The constrained angle between the bodies: bodyB_angle - bodyA_angle"]
+    pub referenceAngle: f32,
+    #[doc = " The target translation for the joint in meters. The spring-damper will drive\n to this translation."]
+    pub targetTranslation: f32,
     #[doc = " Enable a linear spring along the prismatic joint axis"]
     pub enableSpring: bool,
     #[doc = " The spring stiffness Hertz, cycles per second"]
     pub hertz: f32,
     #[doc = " The spring damping ratio, non-dimensional"]
     pub dampingRatio: f32,
-    #[doc = " The target translation for the joint in meters. The spring-damper will drive\n to this translation."]
-    pub targetTranslation: f32,
     #[doc = " Enable/disable the joint limit"]
     pub enableLimit: bool,
     #[doc = " The lower translation limit"]
@@ -1618,42 +1588,66 @@ pub struct b2PrismaticJointDef {
     pub maxMotorForce: f32,
     #[doc = " The desired motor speed, typically in meters per second"]
     pub motorSpeed: f32,
+    #[doc = " Set this flag to true if the attached bodies should collide"]
+    pub collideConnected: bool,
+    #[doc = " User data pointer"]
+    pub userData: *mut ::std::os::raw::c_void,
     #[doc = " Used internally to detect a valid definition. DO NOT SET."]
     pub internalValue: ::std::os::raw::c_int,
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
-    ["Size of b2PrismaticJointDef"][::std::mem::size_of::<b2PrismaticJointDef>() - 128usize];
+    ["Size of b2PrismaticJointDef"][::std::mem::size_of::<b2PrismaticJointDef>() - 104usize];
     ["Alignment of b2PrismaticJointDef"][::std::mem::align_of::<b2PrismaticJointDef>() - 8usize];
-    ["Offset of field: b2PrismaticJointDef::base"][::std::mem::offset_of!(b2PrismaticJointDef, base) - 0usize];
-    ["Offset of field: b2PrismaticJointDef::enableSpring"]
-        [::std::mem::offset_of!(b2PrismaticJointDef, enableSpring) - 80usize];
-    ["Offset of field: b2PrismaticJointDef::hertz"][::std::mem::offset_of!(b2PrismaticJointDef, hertz) - 84usize];
-    ["Offset of field: b2PrismaticJointDef::dampingRatio"]
-        [::std::mem::offset_of!(b2PrismaticJointDef, dampingRatio) - 88usize];
+    ["Offset of field: b2PrismaticJointDef::bodyIdA"][::std::mem::offset_of!(b2PrismaticJointDef, bodyIdA) - 0usize];
+    ["Offset of field: b2PrismaticJointDef::bodyIdB"][::std::mem::offset_of!(b2PrismaticJointDef, bodyIdB) - 8usize];
+    ["Offset of field: b2PrismaticJointDef::localAnchorA"]
+        [::std::mem::offset_of!(b2PrismaticJointDef, localAnchorA) - 16usize];
+    ["Offset of field: b2PrismaticJointDef::localAnchorB"]
+        [::std::mem::offset_of!(b2PrismaticJointDef, localAnchorB) - 24usize];
+    ["Offset of field: b2PrismaticJointDef::localAxisA"]
+        [::std::mem::offset_of!(b2PrismaticJointDef, localAxisA) - 32usize];
+    ["Offset of field: b2PrismaticJointDef::referenceAngle"]
+        [::std::mem::offset_of!(b2PrismaticJointDef, referenceAngle) - 40usize];
     ["Offset of field: b2PrismaticJointDef::targetTranslation"]
-        [::std::mem::offset_of!(b2PrismaticJointDef, targetTranslation) - 92usize];
+        [::std::mem::offset_of!(b2PrismaticJointDef, targetTranslation) - 44usize];
+    ["Offset of field: b2PrismaticJointDef::enableSpring"]
+        [::std::mem::offset_of!(b2PrismaticJointDef, enableSpring) - 48usize];
+    ["Offset of field: b2PrismaticJointDef::hertz"][::std::mem::offset_of!(b2PrismaticJointDef, hertz) - 52usize];
+    ["Offset of field: b2PrismaticJointDef::dampingRatio"]
+        [::std::mem::offset_of!(b2PrismaticJointDef, dampingRatio) - 56usize];
     ["Offset of field: b2PrismaticJointDef::enableLimit"]
-        [::std::mem::offset_of!(b2PrismaticJointDef, enableLimit) - 96usize];
+        [::std::mem::offset_of!(b2PrismaticJointDef, enableLimit) - 60usize];
     ["Offset of field: b2PrismaticJointDef::lowerTranslation"]
-        [::std::mem::offset_of!(b2PrismaticJointDef, lowerTranslation) - 100usize];
+        [::std::mem::offset_of!(b2PrismaticJointDef, lowerTranslation) - 64usize];
     ["Offset of field: b2PrismaticJointDef::upperTranslation"]
-        [::std::mem::offset_of!(b2PrismaticJointDef, upperTranslation) - 104usize];
+        [::std::mem::offset_of!(b2PrismaticJointDef, upperTranslation) - 68usize];
     ["Offset of field: b2PrismaticJointDef::enableMotor"]
-        [::std::mem::offset_of!(b2PrismaticJointDef, enableMotor) - 108usize];
+        [::std::mem::offset_of!(b2PrismaticJointDef, enableMotor) - 72usize];
     ["Offset of field: b2PrismaticJointDef::maxMotorForce"]
-        [::std::mem::offset_of!(b2PrismaticJointDef, maxMotorForce) - 112usize];
+        [::std::mem::offset_of!(b2PrismaticJointDef, maxMotorForce) - 76usize];
     ["Offset of field: b2PrismaticJointDef::motorSpeed"]
-        [::std::mem::offset_of!(b2PrismaticJointDef, motorSpeed) - 116usize];
+        [::std::mem::offset_of!(b2PrismaticJointDef, motorSpeed) - 80usize];
+    ["Offset of field: b2PrismaticJointDef::collideConnected"]
+        [::std::mem::offset_of!(b2PrismaticJointDef, collideConnected) - 84usize];
+    ["Offset of field: b2PrismaticJointDef::userData"][::std::mem::offset_of!(b2PrismaticJointDef, userData) - 88usize];
     ["Offset of field: b2PrismaticJointDef::internalValue"]
-        [::std::mem::offset_of!(b2PrismaticJointDef, internalValue) - 120usize];
+        [::std::mem::offset_of!(b2PrismaticJointDef, internalValue) - 96usize];
 };
-#[doc = " Revolute joint definition\n A point on body B is fixed to a point on body A. Allows relative rotation.\n @ingroup revolute_joint"]
+#[doc = " Revolute joint definition\n\n This requires defining an anchor point where the bodies are joined.\n The definition uses local anchor points so that the\n initial configuration can violate the constraint slightly. You also need to\n specify the initial relative angle for joint limits. This helps when saving\n and loading a game.\n The local anchor points are measured from the body's origin\n rather than the center of mass because:\n 1. you might not know where the center of mass will be\n 2. if you add/remove shapes from a body and recompute the mass, the joints will be broken\n @ingroup revolute_joint"]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct b2RevoluteJointDef {
-    #[doc = " Base joint definition"]
-    pub base: b2JointDef,
+    #[doc = " The first attached body"]
+    pub bodyIdA: b2BodyId,
+    #[doc = " The second attached body"]
+    pub bodyIdB: b2BodyId,
+    #[doc = " The local anchor point relative to bodyA's origin"]
+    pub localAnchorA: b2Vec2,
+    #[doc = " The local anchor point relative to bodyB's origin"]
+    pub localAnchorB: b2Vec2,
+    #[doc = " The bodyB angle minus bodyA angle in the reference state (radians).\n This defines the zero angle for the joint limit."]
+    pub referenceAngle: f32,
     #[doc = " The target angle for the joint in radians. The spring-damper will drive\n to this angle."]
     pub targetAngle: f32,
     #[doc = " Enable a rotational spring on the revolute hinge axis"]
@@ -1674,42 +1668,67 @@ pub struct b2RevoluteJointDef {
     pub maxMotorTorque: f32,
     #[doc = " The desired motor speed in radians per second"]
     pub motorSpeed: f32,
+    #[doc = " Scale the debug draw"]
+    pub drawSize: f32,
+    #[doc = " Set this flag to true if the attached bodies should collide"]
+    pub collideConnected: bool,
+    #[doc = " User data pointer"]
+    pub userData: *mut ::std::os::raw::c_void,
     #[doc = " Used internally to detect a valid definition. DO NOT SET."]
     pub internalValue: ::std::os::raw::c_int,
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
-    ["Size of b2RevoluteJointDef"][::std::mem::size_of::<b2RevoluteJointDef>() - 128usize];
+    ["Size of b2RevoluteJointDef"][::std::mem::size_of::<b2RevoluteJointDef>() - 104usize];
     ["Alignment of b2RevoluteJointDef"][::std::mem::align_of::<b2RevoluteJointDef>() - 8usize];
-    ["Offset of field: b2RevoluteJointDef::base"][::std::mem::offset_of!(b2RevoluteJointDef, base) - 0usize];
+    ["Offset of field: b2RevoluteJointDef::bodyIdA"][::std::mem::offset_of!(b2RevoluteJointDef, bodyIdA) - 0usize];
+    ["Offset of field: b2RevoluteJointDef::bodyIdB"][::std::mem::offset_of!(b2RevoluteJointDef, bodyIdB) - 8usize];
+    ["Offset of field: b2RevoluteJointDef::localAnchorA"]
+        [::std::mem::offset_of!(b2RevoluteJointDef, localAnchorA) - 16usize];
+    ["Offset of field: b2RevoluteJointDef::localAnchorB"]
+        [::std::mem::offset_of!(b2RevoluteJointDef, localAnchorB) - 24usize];
+    ["Offset of field: b2RevoluteJointDef::referenceAngle"]
+        [::std::mem::offset_of!(b2RevoluteJointDef, referenceAngle) - 32usize];
     ["Offset of field: b2RevoluteJointDef::targetAngle"]
-        [::std::mem::offset_of!(b2RevoluteJointDef, targetAngle) - 80usize];
+        [::std::mem::offset_of!(b2RevoluteJointDef, targetAngle) - 36usize];
     ["Offset of field: b2RevoluteJointDef::enableSpring"]
-        [::std::mem::offset_of!(b2RevoluteJointDef, enableSpring) - 84usize];
-    ["Offset of field: b2RevoluteJointDef::hertz"][::std::mem::offset_of!(b2RevoluteJointDef, hertz) - 88usize];
+        [::std::mem::offset_of!(b2RevoluteJointDef, enableSpring) - 40usize];
+    ["Offset of field: b2RevoluteJointDef::hertz"][::std::mem::offset_of!(b2RevoluteJointDef, hertz) - 44usize];
     ["Offset of field: b2RevoluteJointDef::dampingRatio"]
-        [::std::mem::offset_of!(b2RevoluteJointDef, dampingRatio) - 92usize];
+        [::std::mem::offset_of!(b2RevoluteJointDef, dampingRatio) - 48usize];
     ["Offset of field: b2RevoluteJointDef::enableLimit"]
-        [::std::mem::offset_of!(b2RevoluteJointDef, enableLimit) - 96usize];
+        [::std::mem::offset_of!(b2RevoluteJointDef, enableLimit) - 52usize];
     ["Offset of field: b2RevoluteJointDef::lowerAngle"]
-        [::std::mem::offset_of!(b2RevoluteJointDef, lowerAngle) - 100usize];
+        [::std::mem::offset_of!(b2RevoluteJointDef, lowerAngle) - 56usize];
     ["Offset of field: b2RevoluteJointDef::upperAngle"]
-        [::std::mem::offset_of!(b2RevoluteJointDef, upperAngle) - 104usize];
+        [::std::mem::offset_of!(b2RevoluteJointDef, upperAngle) - 60usize];
     ["Offset of field: b2RevoluteJointDef::enableMotor"]
-        [::std::mem::offset_of!(b2RevoluteJointDef, enableMotor) - 108usize];
+        [::std::mem::offset_of!(b2RevoluteJointDef, enableMotor) - 64usize];
     ["Offset of field: b2RevoluteJointDef::maxMotorTorque"]
-        [::std::mem::offset_of!(b2RevoluteJointDef, maxMotorTorque) - 112usize];
+        [::std::mem::offset_of!(b2RevoluteJointDef, maxMotorTorque) - 68usize];
     ["Offset of field: b2RevoluteJointDef::motorSpeed"]
-        [::std::mem::offset_of!(b2RevoluteJointDef, motorSpeed) - 116usize];
+        [::std::mem::offset_of!(b2RevoluteJointDef, motorSpeed) - 72usize];
+    ["Offset of field: b2RevoluteJointDef::drawSize"][::std::mem::offset_of!(b2RevoluteJointDef, drawSize) - 76usize];
+    ["Offset of field: b2RevoluteJointDef::collideConnected"]
+        [::std::mem::offset_of!(b2RevoluteJointDef, collideConnected) - 80usize];
+    ["Offset of field: b2RevoluteJointDef::userData"][::std::mem::offset_of!(b2RevoluteJointDef, userData) - 88usize];
     ["Offset of field: b2RevoluteJointDef::internalValue"]
-        [::std::mem::offset_of!(b2RevoluteJointDef, internalValue) - 120usize];
+        [::std::mem::offset_of!(b2RevoluteJointDef, internalValue) - 96usize];
 };
-#[doc = " Weld joint definition\n Connects two bodies together rigidly. This constraint provides springs to mimic\n soft-body simulation.\n @note The approximate solver in Box2D cannot hold many bodies together rigidly\n @ingroup weld_joint"]
+#[doc = " Weld joint definition\n\n A weld joint connect to bodies together rigidly. This constraint provides springs to mimic\n soft-body simulation.\n @note The approximate solver in Box2D cannot hold many bodies together rigidly\n @ingroup weld_joint"]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct b2WeldJointDef {
-    #[doc = " Base joint definition"]
-    pub base: b2JointDef,
+    #[doc = " The first attached body"]
+    pub bodyIdA: b2BodyId,
+    #[doc = " The second attached body"]
+    pub bodyIdB: b2BodyId,
+    #[doc = " The local anchor point relative to bodyA's origin"]
+    pub localAnchorA: b2Vec2,
+    #[doc = " The local anchor point relative to bodyB's origin"]
+    pub localAnchorB: b2Vec2,
+    #[doc = " The bodyB angle minus bodyA angle in the reference state (radians)\n todo maybe make this a b2Rot"]
+    pub referenceAngle: f32,
     #[doc = " Linear stiffness expressed as Hertz (cycles per second). Use zero for maximum stiffness."]
     pub linearHertz: f32,
     #[doc = " Angular stiffness as Hertz (cycles per second). Use zero for maximum stiffness."]
@@ -1718,28 +1737,48 @@ pub struct b2WeldJointDef {
     pub linearDampingRatio: f32,
     #[doc = " Linear damping ratio, non-dimensional. Use 1 for critical damping."]
     pub angularDampingRatio: f32,
+    #[doc = " Set this flag to true if the attached bodies should collide"]
+    pub collideConnected: bool,
+    #[doc = " User data pointer"]
+    pub userData: *mut ::std::os::raw::c_void,
     #[doc = " Used internally to detect a valid definition. DO NOT SET."]
     pub internalValue: ::std::os::raw::c_int,
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
-    ["Size of b2WeldJointDef"][::std::mem::size_of::<b2WeldJointDef>() - 104usize];
+    ["Size of b2WeldJointDef"][::std::mem::size_of::<b2WeldJointDef>() - 72usize];
     ["Alignment of b2WeldJointDef"][::std::mem::align_of::<b2WeldJointDef>() - 8usize];
-    ["Offset of field: b2WeldJointDef::base"][::std::mem::offset_of!(b2WeldJointDef, base) - 0usize];
-    ["Offset of field: b2WeldJointDef::linearHertz"][::std::mem::offset_of!(b2WeldJointDef, linearHertz) - 80usize];
-    ["Offset of field: b2WeldJointDef::angularHertz"][::std::mem::offset_of!(b2WeldJointDef, angularHertz) - 84usize];
+    ["Offset of field: b2WeldJointDef::bodyIdA"][::std::mem::offset_of!(b2WeldJointDef, bodyIdA) - 0usize];
+    ["Offset of field: b2WeldJointDef::bodyIdB"][::std::mem::offset_of!(b2WeldJointDef, bodyIdB) - 8usize];
+    ["Offset of field: b2WeldJointDef::localAnchorA"][::std::mem::offset_of!(b2WeldJointDef, localAnchorA) - 16usize];
+    ["Offset of field: b2WeldJointDef::localAnchorB"][::std::mem::offset_of!(b2WeldJointDef, localAnchorB) - 24usize];
+    ["Offset of field: b2WeldJointDef::referenceAngle"]
+        [::std::mem::offset_of!(b2WeldJointDef, referenceAngle) - 32usize];
+    ["Offset of field: b2WeldJointDef::linearHertz"][::std::mem::offset_of!(b2WeldJointDef, linearHertz) - 36usize];
+    ["Offset of field: b2WeldJointDef::angularHertz"][::std::mem::offset_of!(b2WeldJointDef, angularHertz) - 40usize];
     ["Offset of field: b2WeldJointDef::linearDampingRatio"]
-        [::std::mem::offset_of!(b2WeldJointDef, linearDampingRatio) - 88usize];
+        [::std::mem::offset_of!(b2WeldJointDef, linearDampingRatio) - 44usize];
     ["Offset of field: b2WeldJointDef::angularDampingRatio"]
-        [::std::mem::offset_of!(b2WeldJointDef, angularDampingRatio) - 92usize];
-    ["Offset of field: b2WeldJointDef::internalValue"][::std::mem::offset_of!(b2WeldJointDef, internalValue) - 96usize];
+        [::std::mem::offset_of!(b2WeldJointDef, angularDampingRatio) - 48usize];
+    ["Offset of field: b2WeldJointDef::collideConnected"]
+        [::std::mem::offset_of!(b2WeldJointDef, collideConnected) - 52usize];
+    ["Offset of field: b2WeldJointDef::userData"][::std::mem::offset_of!(b2WeldJointDef, userData) - 56usize];
+    ["Offset of field: b2WeldJointDef::internalValue"][::std::mem::offset_of!(b2WeldJointDef, internalValue) - 64usize];
 };
-#[doc = " Wheel joint definition\n Body B is a wheel that may rotate freely and slide along the local x-axis in frame A.\n The joint translation is zero when the local frame origins coincide in world space.\n @ingroup wheel_joint"]
+#[doc = " Wheel joint definition\n\n This requires defining a line of motion using an axis and an anchor point.\n The definition uses local  anchor points and a local axis so that the initial\n configuration can violate the constraint slightly. The joint translation is zero\n when the local anchor points coincide in world space.\n @ingroup wheel_joint"]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct b2WheelJointDef {
-    #[doc = " Base joint definition"]
-    pub base: b2JointDef,
+    #[doc = " The first attached body"]
+    pub bodyIdA: b2BodyId,
+    #[doc = " The second attached body"]
+    pub bodyIdB: b2BodyId,
+    #[doc = " The local anchor point relative to bodyA's origin"]
+    pub localAnchorA: b2Vec2,
+    #[doc = " The local anchor point relative to bodyB's origin"]
+    pub localAnchorB: b2Vec2,
+    #[doc = " The local translation unit axis in bodyA"]
+    pub localAxisA: b2Vec2,
     #[doc = " Enable a linear spring along the local axis"]
     pub enableSpring: bool,
     #[doc = " Spring stiffness in Hertz"]
@@ -1758,28 +1797,39 @@ pub struct b2WheelJointDef {
     pub maxMotorTorque: f32,
     #[doc = " The desired motor speed in radians per second"]
     pub motorSpeed: f32,
+    #[doc = " Set this flag to true if the attached bodies should collide"]
+    pub collideConnected: bool,
+    #[doc = " User data pointer"]
+    pub userData: *mut ::std::os::raw::c_void,
     #[doc = " Used internally to detect a valid definition. DO NOT SET."]
     pub internalValue: ::std::os::raw::c_int,
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
-    ["Size of b2WheelJointDef"][::std::mem::size_of::<b2WheelJointDef>() - 120usize];
+    ["Size of b2WheelJointDef"][::std::mem::size_of::<b2WheelJointDef>() - 96usize];
     ["Alignment of b2WheelJointDef"][::std::mem::align_of::<b2WheelJointDef>() - 8usize];
-    ["Offset of field: b2WheelJointDef::base"][::std::mem::offset_of!(b2WheelJointDef, base) - 0usize];
-    ["Offset of field: b2WheelJointDef::enableSpring"][::std::mem::offset_of!(b2WheelJointDef, enableSpring) - 80usize];
-    ["Offset of field: b2WheelJointDef::hertz"][::std::mem::offset_of!(b2WheelJointDef, hertz) - 84usize];
-    ["Offset of field: b2WheelJointDef::dampingRatio"][::std::mem::offset_of!(b2WheelJointDef, dampingRatio) - 88usize];
-    ["Offset of field: b2WheelJointDef::enableLimit"][::std::mem::offset_of!(b2WheelJointDef, enableLimit) - 92usize];
+    ["Offset of field: b2WheelJointDef::bodyIdA"][::std::mem::offset_of!(b2WheelJointDef, bodyIdA) - 0usize];
+    ["Offset of field: b2WheelJointDef::bodyIdB"][::std::mem::offset_of!(b2WheelJointDef, bodyIdB) - 8usize];
+    ["Offset of field: b2WheelJointDef::localAnchorA"][::std::mem::offset_of!(b2WheelJointDef, localAnchorA) - 16usize];
+    ["Offset of field: b2WheelJointDef::localAnchorB"][::std::mem::offset_of!(b2WheelJointDef, localAnchorB) - 24usize];
+    ["Offset of field: b2WheelJointDef::localAxisA"][::std::mem::offset_of!(b2WheelJointDef, localAxisA) - 32usize];
+    ["Offset of field: b2WheelJointDef::enableSpring"][::std::mem::offset_of!(b2WheelJointDef, enableSpring) - 40usize];
+    ["Offset of field: b2WheelJointDef::hertz"][::std::mem::offset_of!(b2WheelJointDef, hertz) - 44usize];
+    ["Offset of field: b2WheelJointDef::dampingRatio"][::std::mem::offset_of!(b2WheelJointDef, dampingRatio) - 48usize];
+    ["Offset of field: b2WheelJointDef::enableLimit"][::std::mem::offset_of!(b2WheelJointDef, enableLimit) - 52usize];
     ["Offset of field: b2WheelJointDef::lowerTranslation"]
-        [::std::mem::offset_of!(b2WheelJointDef, lowerTranslation) - 96usize];
+        [::std::mem::offset_of!(b2WheelJointDef, lowerTranslation) - 56usize];
     ["Offset of field: b2WheelJointDef::upperTranslation"]
-        [::std::mem::offset_of!(b2WheelJointDef, upperTranslation) - 100usize];
-    ["Offset of field: b2WheelJointDef::enableMotor"][::std::mem::offset_of!(b2WheelJointDef, enableMotor) - 104usize];
+        [::std::mem::offset_of!(b2WheelJointDef, upperTranslation) - 60usize];
+    ["Offset of field: b2WheelJointDef::enableMotor"][::std::mem::offset_of!(b2WheelJointDef, enableMotor) - 64usize];
     ["Offset of field: b2WheelJointDef::maxMotorTorque"]
-        [::std::mem::offset_of!(b2WheelJointDef, maxMotorTorque) - 108usize];
-    ["Offset of field: b2WheelJointDef::motorSpeed"][::std::mem::offset_of!(b2WheelJointDef, motorSpeed) - 112usize];
+        [::std::mem::offset_of!(b2WheelJointDef, maxMotorTorque) - 68usize];
+    ["Offset of field: b2WheelJointDef::motorSpeed"][::std::mem::offset_of!(b2WheelJointDef, motorSpeed) - 72usize];
+    ["Offset of field: b2WheelJointDef::collideConnected"]
+        [::std::mem::offset_of!(b2WheelJointDef, collideConnected) - 76usize];
+    ["Offset of field: b2WheelJointDef::userData"][::std::mem::offset_of!(b2WheelJointDef, userData) - 80usize];
     ["Offset of field: b2WheelJointDef::internalValue"]
-        [::std::mem::offset_of!(b2WheelJointDef, internalValue) - 116usize];
+        [::std::mem::offset_of!(b2WheelJointDef, internalValue) - 88usize];
 };
 #[doc = " The explosion definition is used to configure options for explosions. Explosions\n consider shape geometry when computing the impulse.\n @ingroup world"]
 #[repr(C)]
@@ -1813,7 +1863,7 @@ const _: () = {
 pub struct b2SensorBeginTouchEvent {
     #[doc = " The id of the sensor shape"]
     pub sensorShapeId: b2ShapeId,
-    #[doc = " The id of the shape that began touching the sensor shape"]
+    #[doc = " The id of the dynamic shape that began touching the sensor shape"]
     pub visitorShapeId: b2ShapeId,
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
@@ -1831,7 +1881,7 @@ const _: () = {
 pub struct b2SensorEndTouchEvent {
     #[doc = " The id of the sensor shape\n\t@warning this shape may have been destroyed\n\t@see b2Shape_IsValid"]
     pub sensorShapeId: b2ShapeId,
-    #[doc = " The id of the shape that stopped touching the sensor shape\n\t@warning this shape may have been destroyed\n\t@see b2Shape_IsValid"]
+    #[doc = " The id of the dynamic shape that stopped touching the sensor shape\n\t@warning this shape may have been destroyed\n\t@see b2Shape_IsValid"]
     pub visitorShapeId: b2ShapeId,
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
@@ -1843,7 +1893,7 @@ const _: () = {
     ["Offset of field: b2SensorEndTouchEvent::visitorShapeId"]
         [::std::mem::offset_of!(b2SensorEndTouchEvent, visitorShapeId) - 8usize];
 };
-#[doc = " Sensor events are buffered in the world and are available\n as begin/end overlap event arrays after the time step is complete.\n Note: these may become invalid if bodies and/or shapes are destroyed"]
+#[doc = " Sensor events are buffered in the Box2D world and are available\n as begin/end overlap event arrays after the time step is complete.\n Note: these may become invalid if bodies and/or shapes are destroyed"]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct b2SensorEvents {
@@ -1873,19 +1923,19 @@ pub struct b2ContactBeginTouchEvent {
     pub shapeIdA: b2ShapeId,
     #[doc = " Id of the second shape"]
     pub shapeIdB: b2ShapeId,
-    #[doc = " The transient contact id. This contact maybe destroyed automatically when the world is modified or simulated.\n Used b2Contact_IsValid before using this id."]
-    pub contactId: b2ContactId,
+    #[doc = " The initial contact manifold. This is recorded before the solver is called,\n so all the impulses will be zero."]
+    pub manifold: b2Manifold,
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
-    ["Size of b2ContactBeginTouchEvent"][::std::mem::size_of::<b2ContactBeginTouchEvent>() - 28usize];
+    ["Size of b2ContactBeginTouchEvent"][::std::mem::size_of::<b2ContactBeginTouchEvent>() - 128usize];
     ["Alignment of b2ContactBeginTouchEvent"][::std::mem::align_of::<b2ContactBeginTouchEvent>() - 4usize];
     ["Offset of field: b2ContactBeginTouchEvent::shapeIdA"]
         [::std::mem::offset_of!(b2ContactBeginTouchEvent, shapeIdA) - 0usize];
     ["Offset of field: b2ContactBeginTouchEvent::shapeIdB"]
         [::std::mem::offset_of!(b2ContactBeginTouchEvent, shapeIdB) - 8usize];
-    ["Offset of field: b2ContactBeginTouchEvent::contactId"]
-        [::std::mem::offset_of!(b2ContactBeginTouchEvent, contactId) - 16usize];
+    ["Offset of field: b2ContactBeginTouchEvent::manifold"]
+        [::std::mem::offset_of!(b2ContactBeginTouchEvent, manifold) - 16usize];
 };
 #[doc = " An end touch event is generated when two shapes stop touching.\n\tYou will get an end event if you do anything that destroys contacts previous to the last\n\tworld step. These include things like setting the transform, destroying a body\n\tor shape, or changing a filter or body type."]
 #[repr(C)]
@@ -1895,19 +1945,15 @@ pub struct b2ContactEndTouchEvent {
     pub shapeIdA: b2ShapeId,
     #[doc = " Id of the second shape\n\t@warning this shape may have been destroyed\n\t@see b2Shape_IsValid"]
     pub shapeIdB: b2ShapeId,
-    #[doc = " Id of the contact.\n\t@warning this contact may have been destroyed\n\t@see b2Contact_IsValid"]
-    pub contactId: b2ContactId,
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
-    ["Size of b2ContactEndTouchEvent"][::std::mem::size_of::<b2ContactEndTouchEvent>() - 28usize];
+    ["Size of b2ContactEndTouchEvent"][::std::mem::size_of::<b2ContactEndTouchEvent>() - 16usize];
     ["Alignment of b2ContactEndTouchEvent"][::std::mem::align_of::<b2ContactEndTouchEvent>() - 4usize];
     ["Offset of field: b2ContactEndTouchEvent::shapeIdA"]
         [::std::mem::offset_of!(b2ContactEndTouchEvent, shapeIdA) - 0usize];
     ["Offset of field: b2ContactEndTouchEvent::shapeIdB"]
         [::std::mem::offset_of!(b2ContactEndTouchEvent, shapeIdB) - 8usize];
-    ["Offset of field: b2ContactEndTouchEvent::contactId"]
-        [::std::mem::offset_of!(b2ContactEndTouchEvent, contactId) - 16usize];
 };
 #[doc = " A hit touch event is generated when two shapes collide with a speed faster than the hit speed threshold.\n This may be reported for speculative contacts that have a confirmed impulse."]
 #[repr(C)]
@@ -1967,18 +2013,18 @@ const _: () = {
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct b2BodyMoveEvent {
-    pub userData: *mut ::std::os::raw::c_void,
     pub transform: b2Transform,
     pub bodyId: b2BodyId,
+    pub userData: *mut ::std::os::raw::c_void,
     pub fellAsleep: bool,
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
     ["Size of b2BodyMoveEvent"][::std::mem::size_of::<b2BodyMoveEvent>() - 40usize];
     ["Alignment of b2BodyMoveEvent"][::std::mem::align_of::<b2BodyMoveEvent>() - 8usize];
-    ["Offset of field: b2BodyMoveEvent::userData"][::std::mem::offset_of!(b2BodyMoveEvent, userData) - 0usize];
-    ["Offset of field: b2BodyMoveEvent::transform"][::std::mem::offset_of!(b2BodyMoveEvent, transform) - 8usize];
-    ["Offset of field: b2BodyMoveEvent::bodyId"][::std::mem::offset_of!(b2BodyMoveEvent, bodyId) - 24usize];
+    ["Offset of field: b2BodyMoveEvent::transform"][::std::mem::offset_of!(b2BodyMoveEvent, transform) - 0usize];
+    ["Offset of field: b2BodyMoveEvent::bodyId"][::std::mem::offset_of!(b2BodyMoveEvent, bodyId) - 16usize];
+    ["Offset of field: b2BodyMoveEvent::userData"][::std::mem::offset_of!(b2BodyMoveEvent, userData) - 24usize];
     ["Offset of field: b2BodyMoveEvent::fellAsleep"][::std::mem::offset_of!(b2BodyMoveEvent, fellAsleep) - 32usize];
 };
 #[doc = " Body events are buffered in the Box2D world and are available\n as event arrays after the time step is complete.\n Note: this data becomes invalid if bodies are destroyed"]
@@ -1997,57 +2043,23 @@ const _: () = {
     ["Offset of field: b2BodyEvents::moveEvents"][::std::mem::offset_of!(b2BodyEvents, moveEvents) - 0usize];
     ["Offset of field: b2BodyEvents::moveCount"][::std::mem::offset_of!(b2BodyEvents, moveCount) - 8usize];
 };
-#[doc = " Joint events report joints that are awake and have a force and/or torque exceeding the threshold\n The observed forces and torques are not returned for efficiency reasons."]
-#[repr(C)]
-#[derive(Debug, Copy, Clone)]
-pub struct b2JointEvent {
-    #[doc = " The joint id"]
-    pub jointId: b2JointId,
-    #[doc = " The user data from the joint for convenience"]
-    pub userData: *mut ::std::os::raw::c_void,
-}
-#[allow(clippy::unnecessary_operation, clippy::identity_op)]
-const _: () = {
-    ["Size of b2JointEvent"][::std::mem::size_of::<b2JointEvent>() - 16usize];
-    ["Alignment of b2JointEvent"][::std::mem::align_of::<b2JointEvent>() - 8usize];
-    ["Offset of field: b2JointEvent::jointId"][::std::mem::offset_of!(b2JointEvent, jointId) - 0usize];
-    ["Offset of field: b2JointEvent::userData"][::std::mem::offset_of!(b2JointEvent, userData) - 8usize];
-};
-#[doc = " Joint events are buffered in the world and are available\n as event arrays after the time step is complete.\n Note: this data becomes invalid if joints are destroyed"]
-#[repr(C)]
-#[derive(Debug, Copy, Clone)]
-pub struct b2JointEvents {
-    #[doc = " Array of events"]
-    pub jointEvents: *mut b2JointEvent,
-    #[doc = " Number of events"]
-    pub count: ::std::os::raw::c_int,
-}
-#[allow(clippy::unnecessary_operation, clippy::identity_op)]
-const _: () = {
-    ["Size of b2JointEvents"][::std::mem::size_of::<b2JointEvents>() - 16usize];
-    ["Alignment of b2JointEvents"][::std::mem::align_of::<b2JointEvents>() - 8usize];
-    ["Offset of field: b2JointEvents::jointEvents"][::std::mem::offset_of!(b2JointEvents, jointEvents) - 0usize];
-    ["Offset of field: b2JointEvents::count"][::std::mem::offset_of!(b2JointEvents, count) - 8usize];
-};
 #[doc = " The contact data for two shapes. By convention the manifold normal points\n from shape A to shape B.\n @see b2Shape_GetContactData() and b2Body_GetContactData()"]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct b2ContactData {
-    pub contactId: b2ContactId,
     pub shapeIdA: b2ShapeId,
     pub shapeIdB: b2ShapeId,
     pub manifold: b2Manifold,
 }
 #[allow(clippy::unnecessary_operation, clippy::identity_op)]
 const _: () = {
-    ["Size of b2ContactData"][::std::mem::size_of::<b2ContactData>() - 140usize];
+    ["Size of b2ContactData"][::std::mem::size_of::<b2ContactData>() - 128usize];
     ["Alignment of b2ContactData"][::std::mem::align_of::<b2ContactData>() - 4usize];
-    ["Offset of field: b2ContactData::contactId"][::std::mem::offset_of!(b2ContactData, contactId) - 0usize];
-    ["Offset of field: b2ContactData::shapeIdA"][::std::mem::offset_of!(b2ContactData, shapeIdA) - 12usize];
-    ["Offset of field: b2ContactData::shapeIdB"][::std::mem::offset_of!(b2ContactData, shapeIdB) - 20usize];
-    ["Offset of field: b2ContactData::manifold"][::std::mem::offset_of!(b2ContactData, manifold) - 28usize];
+    ["Offset of field: b2ContactData::shapeIdA"][::std::mem::offset_of!(b2ContactData, shapeIdA) - 0usize];
+    ["Offset of field: b2ContactData::shapeIdB"][::std::mem::offset_of!(b2ContactData, shapeIdB) - 8usize];
+    ["Offset of field: b2ContactData::manifold"][::std::mem::offset_of!(b2ContactData, manifold) - 16usize];
 };
-#[doc = " Prototype for a contact filter callback.\n This is called when a contact pair is considered for collision. This allows you to\n perform custom logic to prevent collision between shapes. This is only called if\n one of the two shapes has custom filtering enabled.\n Notes:\n - this function must be thread-safe\n - this is only called if one of the two shapes has enabled custom filtering\n - this may be called for awake dynamic bodies and sensors\n Return false if you want to disable the collision\n @see b2ShapeDef\n @warning Do not attempt to modify the world inside this callback\n @ingroup world"]
+#[doc = " Prototype for a contact filter callback.\n This is called when a contact pair is considered for collision. This allows you to\n perform custom logic to prevent collision between shapes. This is only called if\n one of the two shapes has custom filtering enabled.\n Notes:\n - this function must be thread-safe\n - this is only called if one of the two shapes has enabled custom filtering\n - this is called only for awake dynamic bodies\n Return false if you want to disable the collision\n @see b2ShapeDef\n @warning Do not attempt to modify the world inside this callback\n @ingroup world"]
 pub type b2CustomFilterFcn = ::std::option::Option<
     unsafe extern "C" fn(shapeIdA: b2ShapeId, shapeIdB: b2ShapeId, context: *mut ::std::os::raw::c_void) -> bool,
 >;
@@ -2056,8 +2068,7 @@ pub type b2PreSolveFcn = ::std::option::Option<
     unsafe extern "C" fn(
         shapeIdA: b2ShapeId,
         shapeIdB: b2ShapeId,
-        point: b2Vec2,
-        normal: b2Vec2,
+        manifold: *mut b2Manifold,
         context: *mut ::std::os::raw::c_void,
     ) -> bool,
 >;
@@ -2293,6 +2304,8 @@ pub struct b2DebugDraw {
     >,
     #[doc = " Bounds to use if restricting drawing to a rectangular region"]
     pub drawingBounds: b2AABB,
+    #[doc = " Option to restrict drawing to a rectangular region. May suffer from unstable depth sorting."]
+    pub useDrawingBounds: bool,
     #[doc = " Option to draw shapes"]
     pub drawShapes: bool,
     #[doc = " Option to draw joints"]
@@ -2339,23 +2352,24 @@ const _: () = {
     ["Offset of field: b2DebugDraw::DrawPointFcn"][::std::mem::offset_of!(b2DebugDraw, DrawPointFcn) - 56usize];
     ["Offset of field: b2DebugDraw::DrawStringFcn"][::std::mem::offset_of!(b2DebugDraw, DrawStringFcn) - 64usize];
     ["Offset of field: b2DebugDraw::drawingBounds"][::std::mem::offset_of!(b2DebugDraw, drawingBounds) - 72usize];
-    ["Offset of field: b2DebugDraw::drawShapes"][::std::mem::offset_of!(b2DebugDraw, drawShapes) - 88usize];
-    ["Offset of field: b2DebugDraw::drawJoints"][::std::mem::offset_of!(b2DebugDraw, drawJoints) - 89usize];
-    ["Offset of field: b2DebugDraw::drawJointExtras"][::std::mem::offset_of!(b2DebugDraw, drawJointExtras) - 90usize];
-    ["Offset of field: b2DebugDraw::drawBounds"][::std::mem::offset_of!(b2DebugDraw, drawBounds) - 91usize];
-    ["Offset of field: b2DebugDraw::drawMass"][::std::mem::offset_of!(b2DebugDraw, drawMass) - 92usize];
-    ["Offset of field: b2DebugDraw::drawBodyNames"][::std::mem::offset_of!(b2DebugDraw, drawBodyNames) - 93usize];
-    ["Offset of field: b2DebugDraw::drawContacts"][::std::mem::offset_of!(b2DebugDraw, drawContacts) - 94usize];
-    ["Offset of field: b2DebugDraw::drawGraphColors"][::std::mem::offset_of!(b2DebugDraw, drawGraphColors) - 95usize];
+    ["Offset of field: b2DebugDraw::useDrawingBounds"][::std::mem::offset_of!(b2DebugDraw, useDrawingBounds) - 88usize];
+    ["Offset of field: b2DebugDraw::drawShapes"][::std::mem::offset_of!(b2DebugDraw, drawShapes) - 89usize];
+    ["Offset of field: b2DebugDraw::drawJoints"][::std::mem::offset_of!(b2DebugDraw, drawJoints) - 90usize];
+    ["Offset of field: b2DebugDraw::drawJointExtras"][::std::mem::offset_of!(b2DebugDraw, drawJointExtras) - 91usize];
+    ["Offset of field: b2DebugDraw::drawBounds"][::std::mem::offset_of!(b2DebugDraw, drawBounds) - 92usize];
+    ["Offset of field: b2DebugDraw::drawMass"][::std::mem::offset_of!(b2DebugDraw, drawMass) - 93usize];
+    ["Offset of field: b2DebugDraw::drawBodyNames"][::std::mem::offset_of!(b2DebugDraw, drawBodyNames) - 94usize];
+    ["Offset of field: b2DebugDraw::drawContacts"][::std::mem::offset_of!(b2DebugDraw, drawContacts) - 95usize];
+    ["Offset of field: b2DebugDraw::drawGraphColors"][::std::mem::offset_of!(b2DebugDraw, drawGraphColors) - 96usize];
     ["Offset of field: b2DebugDraw::drawContactNormals"]
-        [::std::mem::offset_of!(b2DebugDraw, drawContactNormals) - 96usize];
+        [::std::mem::offset_of!(b2DebugDraw, drawContactNormals) - 97usize];
     ["Offset of field: b2DebugDraw::drawContactImpulses"]
-        [::std::mem::offset_of!(b2DebugDraw, drawContactImpulses) - 97usize];
+        [::std::mem::offset_of!(b2DebugDraw, drawContactImpulses) - 98usize];
     ["Offset of field: b2DebugDraw::drawContactFeatures"]
-        [::std::mem::offset_of!(b2DebugDraw, drawContactFeatures) - 98usize];
+        [::std::mem::offset_of!(b2DebugDraw, drawContactFeatures) - 99usize];
     ["Offset of field: b2DebugDraw::drawFrictionImpulses"]
-        [::std::mem::offset_of!(b2DebugDraw, drawFrictionImpulses) - 99usize];
-    ["Offset of field: b2DebugDraw::drawIslands"][::std::mem::offset_of!(b2DebugDraw, drawIslands) - 100usize];
+        [::std::mem::offset_of!(b2DebugDraw, drawFrictionImpulses) - 100usize];
+    ["Offset of field: b2DebugDraw::drawIslands"][::std::mem::offset_of!(b2DebugDraw, drawIslands) - 101usize];
     ["Offset of field: b2DebugDraw::context"][::std::mem::offset_of!(b2DebugDraw, context) - 104usize];
 };
 #[doc = " The tree nodes"]
@@ -2397,8 +2411,6 @@ unsafe extern "C" {
     pub fn b2IsValidVec2(v: b2Vec2) -> bool;
     #[doc = " Is this a valid rotation? Not NaN or infinity. Is normalized."]
     pub fn b2IsValidRotation(q: b2Rot) -> bool;
-    #[doc = " Is this a valid transform? Not NaN or infinity. Rotation is normalized."]
-    pub fn b2IsValidTransform(t: b2Transform) -> bool;
     #[doc = " Is this a valid bounding box? Not Nan or infinity. Upper bound greater than or equal to lower bound."]
     pub fn b2IsValidAABB(aabb: b2AABB) -> bool;
     #[doc = " Is this a valid plane? Normal is a unit vector. Not Nan or infinity."]
@@ -2455,27 +2467,27 @@ unsafe extern "C" {
     #[doc = " Compute the bounding box of a transformed line segment"]
     pub fn b2ComputeSegmentAABB(shape: *const b2Segment, transform: b2Transform) -> b2AABB;
     #[doc = " Test a point for overlap with a circle in local space"]
-    pub fn b2PointInCircle(shape: *const b2Circle, point: b2Vec2) -> bool;
+    pub fn b2PointInCircle(point: b2Vec2, shape: *const b2Circle) -> bool;
     #[doc = " Test a point for overlap with a capsule in local space"]
-    pub fn b2PointInCapsule(shape: *const b2Capsule, point: b2Vec2) -> bool;
+    pub fn b2PointInCapsule(point: b2Vec2, shape: *const b2Capsule) -> bool;
     #[doc = " Test a point for overlap with a convex polygon in local space"]
-    pub fn b2PointInPolygon(shape: *const b2Polygon, point: b2Vec2) -> bool;
-    #[doc = " Ray cast versus circle shape in local space."]
-    pub fn b2RayCastCircle(shape: *const b2Circle, input: *const b2RayCastInput) -> b2CastOutput;
-    #[doc = " Ray cast versus capsule shape in local space."]
-    pub fn b2RayCastCapsule(shape: *const b2Capsule, input: *const b2RayCastInput) -> b2CastOutput;
+    pub fn b2PointInPolygon(point: b2Vec2, shape: *const b2Polygon) -> bool;
+    #[doc = " Ray cast versus circle shape in local space. Initial overlap is treated as a miss."]
+    pub fn b2RayCastCircle(input: *const b2RayCastInput, shape: *const b2Circle) -> b2CastOutput;
+    #[doc = " Ray cast versus capsule shape in local space. Initial overlap is treated as a miss."]
+    pub fn b2RayCastCapsule(input: *const b2RayCastInput, shape: *const b2Capsule) -> b2CastOutput;
     #[doc = " Ray cast versus segment shape in local space. Optionally treat the segment as one-sided with hits from\n the left side being treated as a miss."]
-    pub fn b2RayCastSegment(shape: *const b2Segment, input: *const b2RayCastInput, oneSided: bool) -> b2CastOutput;
-    #[doc = " Ray cast versus polygon shape in local space."]
-    pub fn b2RayCastPolygon(shape: *const b2Polygon, input: *const b2RayCastInput) -> b2CastOutput;
-    #[doc = " Shape cast versus a circle."]
-    pub fn b2ShapeCastCircle(shape: *const b2Circle, input: *const b2ShapeCastInput) -> b2CastOutput;
-    #[doc = " Shape cast versus a capsule."]
-    pub fn b2ShapeCastCapsule(shape: *const b2Capsule, input: *const b2ShapeCastInput) -> b2CastOutput;
-    #[doc = " Shape cast versus a line segment."]
-    pub fn b2ShapeCastSegment(shape: *const b2Segment, input: *const b2ShapeCastInput) -> b2CastOutput;
-    #[doc = " Shape cast versus a convex polygon."]
-    pub fn b2ShapeCastPolygon(shape: *const b2Polygon, input: *const b2ShapeCastInput) -> b2CastOutput;
+    pub fn b2RayCastSegment(input: *const b2RayCastInput, shape: *const b2Segment, oneSided: bool) -> b2CastOutput;
+    #[doc = " Ray cast versus polygon shape in local space. Initial overlap is treated as a miss."]
+    pub fn b2RayCastPolygon(input: *const b2RayCastInput, shape: *const b2Polygon) -> b2CastOutput;
+    #[doc = " Shape cast versus a circle. Initial overlap is treated as a miss."]
+    pub fn b2ShapeCastCircle(input: *const b2ShapeCastInput, shape: *const b2Circle) -> b2CastOutput;
+    #[doc = " Shape cast versus a capsule. Initial overlap is treated as a miss."]
+    pub fn b2ShapeCastCapsule(input: *const b2ShapeCastInput, shape: *const b2Capsule) -> b2CastOutput;
+    #[doc = " Shape cast versus a line segment. Initial overlap is treated as a miss."]
+    pub fn b2ShapeCastSegment(input: *const b2ShapeCastInput, shape: *const b2Segment) -> b2CastOutput;
+    #[doc = " Shape cast versus a convex polygon. Initial overlap is treated as a miss."]
+    pub fn b2ShapeCastPolygon(input: *const b2ShapeCastInput, shape: *const b2Polygon) -> b2CastOutput;
     #[doc = " Compute the convex hull of a set of points. Returns an empty hull if it fails.\n Some failure cases:\n - all points very close together\n - all points on a line\n - less than 3 points\n - more than B2_MAX_POLYGON_VERTICES points\n This welds close points and removes collinear points.\n @warning Do not modify a hull once it has been computed"]
     pub fn b2ComputeHull(points: *const b2Vec2, count: ::std::os::raw::c_int) -> b2Hull;
     #[doc = " This determines if a hull is valid. Checks for:\n - convexity\n - collinear points\n This is expensive and should not be called at runtime."]
@@ -2621,13 +2633,6 @@ unsafe extern "C" {
         callback: b2TreeQueryCallbackFcn,
         context: *mut ::std::os::raw::c_void,
     ) -> b2TreeStats;
-    #[doc = " Query an AABB for overlapping proxies. The callback class is called for each proxy that overlaps the supplied AABB.\n No filtering is performed.\n\t@return performance data"]
-    pub fn b2DynamicTree_QueryAll(
-        tree: *const b2DynamicTree,
-        aabb: b2AABB,
-        callback: b2TreeQueryCallbackFcn,
-        context: *mut ::std::os::raw::c_void,
-    ) -> b2TreeStats;
     #[doc = " Ray cast against the proxies in the tree. This relies on the callback\n to perform a exact ray cast in the case were the proxy contains a shape.\n The callback also performs the any collision filtering. This has performance\n roughly equal to k * log(n), where k is the number of collisions and n is the\n number of proxies in the tree.\n Bit-wise filtering using mask bits can greatly improve performance in some scenarios.\n\tHowever, this filtering may be approximate, so the user should still apply filtering to results.\n @param tree the dynamic tree to ray cast\n @param input the ray cast input data. The ray extends from p1 to p1 + maxFraction * (p2 - p1)\n @param maskBits mask bit hint: `bool accept = (maskBits & node->categoryBits) != 0;`\n @param callback a callback class that is called for each proxy that is hit by the ray\n @param context user context that is passed to the callback\n\t@return performance data"]
     pub fn b2DynamicTree_RayCast(
         tree: *const b2DynamicTree,
@@ -2678,7 +2683,6 @@ unsafe extern "C" {
     pub static b2_nullShapeId: b2ShapeId;
     pub static b2_nullChainId: b2ChainId;
     pub static b2_nullJointId: b2JointId;
-    pub static b2_nullContactId: b2ContactId;
     #[doc = " Use this to initialize your world definition\n @ingroup world"]
     pub fn b2DefaultWorldDef() -> b2WorldDef;
     #[doc = " Use this to initialize your body definition\n @ingroup body"]
@@ -2697,6 +2701,8 @@ unsafe extern "C" {
     pub fn b2DefaultDistanceJointDef() -> b2DistanceJointDef;
     #[doc = " Use this to initialize your joint definition\n @ingroup motor_joint"]
     pub fn b2DefaultMotorJointDef() -> b2MotorJointDef;
+    #[doc = " Use this to initialize your joint definition\n @ingroup mouse_joint"]
+    pub fn b2DefaultMouseJointDef() -> b2MouseJointDef;
     #[doc = " Use this to initialize your joint definition\n @ingroup filter_joint"]
     pub fn b2DefaultFilterJointDef() -> b2FilterJointDef;
     #[doc = " Use this to initialize your joint definition\n @ingroupd prismatic_joint"]
@@ -2727,8 +2733,6 @@ unsafe extern "C" {
     pub fn b2World_GetSensorEvents(worldId: b2WorldId) -> b2SensorEvents;
     #[doc = " Get contact events for this current time step. The event data is transient. Do not store a reference to this data."]
     pub fn b2World_GetContactEvents(worldId: b2WorldId) -> b2ContactEvents;
-    #[doc = " Get the joint events for the current time step. The event data is transient. Do not store a reference to this data."]
-    pub fn b2World_GetJointEvents(worldId: b2WorldId) -> b2JointEvents;
     #[doc = " Overlap test for all shapes that *potentially* overlap the provided AABB"]
     pub fn b2World_OverlapAABB(
         worldId: b2WorldId,
@@ -2849,7 +2853,7 @@ unsafe extern "C" {
     pub fn b2CreateBody(worldId: b2WorldId, def: *const b2BodyDef) -> b2BodyId;
     #[doc = " Destroy a rigid body given an id. This destroys all shapes and joints attached to the body.\n Do not keep references to the associated shapes and joints."]
     pub fn b2DestroyBody(bodyId: b2BodyId);
-    #[doc = " Body identifier validation. A valid body exists in a world and is non-null.\n This can be used to detect orphaned ids. Provides validation for up to 64K allocations."]
+    #[doc = " Body identifier validation. Can be used to detect orphaned ids. Provides validation for up to 64K allocations."]
     pub fn b2Body_IsValid(id: b2BodyId) -> bool;
     #[doc = " Get the body type: static, kinematic, or dynamic"]
     pub fn b2Body_GetType(bodyId: b2BodyId) -> b2BodyType;
@@ -2857,7 +2861,7 @@ unsafe extern "C" {
     pub fn b2Body_SetType(bodyId: b2BodyId, type_: b2BodyType);
     #[doc = " Set the body name. Up to 31 characters excluding 0 termination."]
     pub fn b2Body_SetName(bodyId: b2BodyId, name: *const ::std::os::raw::c_char);
-    #[doc = " Get the body name."]
+    #[doc = " Get the body name. May be null."]
     pub fn b2Body_GetName(bodyId: b2BodyId) -> *const ::std::os::raw::c_char;
     #[doc = " Set the user data for a body"]
     pub fn b2Body_SetUserData(bodyId: b2BodyId, userData: *mut ::std::os::raw::c_void);
@@ -2869,7 +2873,7 @@ unsafe extern "C" {
     pub fn b2Body_GetRotation(bodyId: b2BodyId) -> b2Rot;
     #[doc = " Get the world transform of a body."]
     pub fn b2Body_GetTransform(bodyId: b2BodyId) -> b2Transform;
-    #[doc = " Set the world transform of a body. This acts as a teleport and is fairly expensive.\n @note Generally you should create a body with then intended transform.\n @see b2BodyDef::position and b2BodyDef::rotation"]
+    #[doc = " Set the world transform of a body. This acts as a teleport and is fairly expensive.\n @note Generally you should create a body with then intended transform.\n @see b2BodyDef::position and b2BodyDef::angle"]
     pub fn b2Body_SetTransform(bodyId: b2BodyId, position: b2Vec2, rotation: b2Rot);
     #[doc = " Get a local point on a body given a world point"]
     pub fn b2Body_GetLocalPoint(bodyId: b2BodyId, worldPoint: b2Vec2) -> b2Vec2;
@@ -2903,7 +2907,7 @@ unsafe extern "C" {
     pub fn b2Body_ApplyLinearImpulse(bodyId: b2BodyId, impulse: b2Vec2, point: b2Vec2, wake: bool);
     #[doc = " Apply an impulse to the center of mass. This immediately modifies the velocity.\n The impulse is ignored if the body is not awake. This optionally wakes the body.\n @param bodyId The body id\n @param impulse the world impulse vector, usually in N*s or kg*m/s.\n @param wake also wake up the body\n @warning This should be used for one-shot impulses. If you need a steady force,\n use a force instead, which will work better with the sub-stepping solver."]
     pub fn b2Body_ApplyLinearImpulseToCenter(bodyId: b2BodyId, impulse: b2Vec2, wake: bool);
-    #[doc = " Apply an angular impulse. The impulse is ignored if the body is not awake.\n This optionally wakes the body.\n @param bodyId The body id\n @param impulse the angular impulse, usually in units of kg*m*m/s\n @param wake also wake up the body\n @warning This should be used for one-shot impulses. If you need a steady torque,\n use a torque instead, which will work better with the sub-stepping solver."]
+    #[doc = " Apply an angular impulse. The impulse is ignored if the body is not awake.\n This optionally wakes the body.\n @param bodyId The body id\n @param impulse the angular impulse, usually in units of kg*m*m/s\n @param wake also wake up the body\n @warning This should be used for one-shot impulses. If you need a steady force,\n use a force instead, which will work better with the sub-stepping solver."]
     pub fn b2Body_ApplyAngularImpulse(bodyId: b2BodyId, impulse: f32, wake: bool);
     #[doc = " Get the mass of the body, usually in kilograms"]
     pub fn b2Body_GetMass(bodyId: b2BodyId) -> f32;
@@ -2949,10 +2953,10 @@ unsafe extern "C" {
     pub fn b2Body_Disable(bodyId: b2BodyId);
     #[doc = " Enable a body by adding it to the simulation. This is expensive."]
     pub fn b2Body_Enable(bodyId: b2BodyId);
-    #[doc = " Set the motion locks on this body."]
-    pub fn b2Body_SetMotionLocks(bodyId: b2BodyId, locks: b2MotionLocks);
-    #[doc = " Get the motion locks for this body."]
-    pub fn b2Body_GetMotionLocks(bodyId: b2BodyId) -> b2MotionLocks;
+    #[doc = " Set this body to have fixed rotation. This causes the mass to be reset in all cases."]
+    pub fn b2Body_SetFixedRotation(bodyId: b2BodyId, flag: bool);
+    #[doc = " Does this body have fixed rotation?"]
+    pub fn b2Body_IsFixedRotation(bodyId: b2BodyId) -> bool;
     #[doc = " Set this body to be a bullet. A bullet does continuous collision detection\n against dynamic bodies (but not other bullets)."]
     pub fn b2Body_SetBullet(bodyId: b2BodyId, flag: bool);
     #[doc = " Is this body a bullet?"]
@@ -3017,20 +3021,20 @@ unsafe extern "C" {
     pub fn b2Shape_SetDensity(shapeId: b2ShapeId, density: f32, updateBodyMass: bool);
     #[doc = " Get the density of a shape, usually in kg/m^2"]
     pub fn b2Shape_GetDensity(shapeId: b2ShapeId) -> f32;
-    #[doc = " Set the friction on a shape"]
+    #[doc = " Set the friction on a shape\n @see b2ShapeDef::friction"]
     pub fn b2Shape_SetFriction(shapeId: b2ShapeId, friction: f32);
     #[doc = " Get the friction of a shape"]
     pub fn b2Shape_GetFriction(shapeId: b2ShapeId) -> f32;
-    #[doc = " Set the shape restitution (bounciness)"]
+    #[doc = " Set the shape restitution (bounciness)\n @see b2ShapeDef::restitution"]
     pub fn b2Shape_SetRestitution(shapeId: b2ShapeId, restitution: f32);
     #[doc = " Get the shape restitution"]
     pub fn b2Shape_GetRestitution(shapeId: b2ShapeId) -> f32;
-    #[doc = " Set the user material identifier"]
-    pub fn b2Shape_SetUserMaterial(shapeId: b2ShapeId, material: u64);
-    #[doc = " Get the user material identifier"]
-    pub fn b2Shape_GetUserMaterial(shapeId: b2ShapeId) -> u64;
+    #[doc = " Set the shape material identifier\n @see b2ShapeDef::material"]
+    pub fn b2Shape_SetMaterial(shapeId: b2ShapeId, material: ::std::os::raw::c_int);
+    #[doc = " Get the shape material identifier"]
+    pub fn b2Shape_GetMaterial(shapeId: b2ShapeId) -> ::std::os::raw::c_int;
     #[doc = " Set the shape surface material"]
-    pub fn b2Shape_SetSurfaceMaterial(shapeId: b2ShapeId, surfaceMaterial: *const b2SurfaceMaterial);
+    pub fn b2Shape_SetSurfaceMaterial(shapeId: b2ShapeId, surfaceMaterial: b2SurfaceMaterial);
     #[doc = " Get the shape surface material"]
     pub fn b2Shape_GetSurfaceMaterial(shapeId: b2ShapeId) -> b2SurfaceMaterial;
     #[doc = " Get the shape filter"]
@@ -3087,16 +3091,16 @@ unsafe extern "C" {
     ) -> ::std::os::raw::c_int;
     #[doc = " Get the maximum capacity required for retrieving all the overlapped shapes on a sensor shape.\n This returns 0 if the provided shape is not a sensor.\n @param shapeId the id of a sensor shape\n @returns the required capacity to get all the overlaps in b2Shape_GetSensorOverlaps"]
     pub fn b2Shape_GetSensorCapacity(shapeId: b2ShapeId) -> ::std::os::raw::c_int;
-    #[doc = " Get the overlap data for a sensor shape.\n @param shapeId the id of a sensor shape\n @param visitorIds a user allocated array that is filled with the overlapping shapes (visitors)\n @param capacity the capacity of overlappedShapes\n @returns the number of elements filled in the provided array\n @warning do not ignore the return value, it specifies the valid number of elements\n @warning overlaps may contain destroyed shapes so use b2Shape_IsValid to confirm each overlap"]
-    pub fn b2Shape_GetSensorData(
+    #[doc = " Get the overlapped shapes for a sensor shape.\n @param shapeId the id of a sensor shape\n @param overlaps a user allocated array that is filled with the overlapping shapes\n @param capacity the capacity of overlappedShapes\n @returns the number of elements filled in the provided array\n @warning do not ignore the return value, it specifies the valid number of elements\n @warning overlaps may contain destroyed shapes so use b2Shape_IsValid to confirm each overlap"]
+    pub fn b2Shape_GetSensorOverlaps(
         shapeId: b2ShapeId,
-        visitorIds: *mut b2ShapeId,
+        overlaps: *mut b2ShapeId,
         capacity: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int;
     #[doc = " Get the current world AABB"]
     pub fn b2Shape_GetAABB(shapeId: b2ShapeId) -> b2AABB;
-    #[doc = " Compute the mass data for a shape"]
-    pub fn b2Shape_ComputeMassData(shapeId: b2ShapeId) -> b2MassData;
+    #[doc = " Get the mass data for a shape"]
+    pub fn b2Shape_GetMassData(shapeId: b2ShapeId) -> b2MassData;
     #[doc = " Get the closest point on a shape to a target point. Target and result are in world space.\n todo need sample"]
     pub fn b2Shape_GetClosestPoint(shapeId: b2ShapeId, target: b2Vec2) -> b2Vec2;
     #[doc = " Create a chain shape\n @see b2ChainDef for details"]
@@ -3113,16 +3117,18 @@ unsafe extern "C" {
         segmentArray: *mut b2ShapeId,
         capacity: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int;
-    #[doc = " Get the number of materials used on this chain. Must be 1 or the number of segments."]
-    pub fn b2Chain_GetSurfaceMaterialCount(chainId: b2ChainId) -> ::std::os::raw::c_int;
-    #[doc = " Set a chain material. If the chain has only one material, this material is applied to all\n segments. Otherwise it is applied to a single segment."]
-    pub fn b2Chain_SetSurfaceMaterial(
-        chainId: b2ChainId,
-        material: *const b2SurfaceMaterial,
-        materialIndex: ::std::os::raw::c_int,
-    );
-    #[doc = " Get a chain material by index."]
-    pub fn b2Chain_GetSurfaceMaterial(chainId: b2ChainId, materialIndex: ::std::os::raw::c_int) -> b2SurfaceMaterial;
+    #[doc = " Set the chain friction\n @see b2ChainDef::friction"]
+    pub fn b2Chain_SetFriction(chainId: b2ChainId, friction: f32);
+    #[doc = " Get the chain friction"]
+    pub fn b2Chain_GetFriction(chainId: b2ChainId) -> f32;
+    #[doc = " Set the chain restitution (bounciness)\n @see b2ChainDef::restitution"]
+    pub fn b2Chain_SetRestitution(chainId: b2ChainId, restitution: f32);
+    #[doc = " Get the chain restitution"]
+    pub fn b2Chain_GetRestitution(chainId: b2ChainId) -> f32;
+    #[doc = " Set the chain material\n @see b2ChainDef::material"]
+    pub fn b2Chain_SetMaterial(chainId: b2ChainId, material: ::std::os::raw::c_int);
+    #[doc = " Get the chain material"]
+    pub fn b2Chain_GetMaterial(chainId: b2ChainId) -> ::std::os::raw::c_int;
     #[doc = " Chain identifier validation. Provides validation for up to 64K allocations."]
     pub fn b2Chain_IsValid(id: b2ChainId) -> bool;
     #[doc = " Destroy a joint"]
@@ -3137,14 +3143,22 @@ unsafe extern "C" {
     pub fn b2Joint_GetBodyB(jointId: b2JointId) -> b2BodyId;
     #[doc = " Get the world that owns this joint"]
     pub fn b2Joint_GetWorld(jointId: b2JointId) -> b2WorldId;
-    #[doc = " Set the local frame on bodyA"]
-    pub fn b2Joint_SetLocalFrameA(jointId: b2JointId, localFrame: b2Transform);
-    #[doc = " Get the local frame on bodyA"]
-    pub fn b2Joint_GetLocalFrameA(jointId: b2JointId) -> b2Transform;
-    #[doc = " Set the local frame on bodyB"]
-    pub fn b2Joint_SetLocalFrameB(jointId: b2JointId, localFrame: b2Transform);
-    #[doc = " Get the local frame on bodyB"]
-    pub fn b2Joint_GetLocalFrameB(jointId: b2JointId) -> b2Transform;
+    #[doc = " Set the local anchor on bodyA"]
+    pub fn b2Joint_SetLocalAnchorA(jointId: b2JointId, localAnchor: b2Vec2);
+    #[doc = " Get the local anchor on bodyA"]
+    pub fn b2Joint_GetLocalAnchorA(jointId: b2JointId) -> b2Vec2;
+    #[doc = " Set the local anchor on bodyB"]
+    pub fn b2Joint_SetLocalAnchorB(jointId: b2JointId, localAnchor: b2Vec2);
+    #[doc = " Get the local anchor on bodyB"]
+    pub fn b2Joint_GetLocalAnchorB(jointId: b2JointId) -> b2Vec2;
+    #[doc = " Get the joint reference angle in radians (revolute, prismatic, and weld)"]
+    pub fn b2Joint_GetReferenceAngle(jointId: b2JointId) -> f32;
+    #[doc = " Set the joint reference angle in radians, must be in [-pi,pi]. (revolute, prismatic, and weld)"]
+    pub fn b2Joint_SetReferenceAngle(jointId: b2JointId, angleInRadians: f32);
+    #[doc = " Set the local axis on bodyA (prismatic and wheel)"]
+    pub fn b2Joint_SetLocalAxisA(jointId: b2JointId, localAxis: b2Vec2);
+    #[doc = " Get the local axis on bodyA (prismatic and wheel)"]
+    pub fn b2Joint_GetLocalAxisA(jointId: b2JointId) -> b2Vec2;
     #[doc = " Toggle collision between connected bodies"]
     pub fn b2Joint_SetCollideConnected(jointId: b2JointId, shouldCollide: bool);
     #[doc = " Is collision allowed between connected bodies?"]
@@ -3163,18 +3177,10 @@ unsafe extern "C" {
     pub fn b2Joint_GetLinearSeparation(jointId: b2JointId) -> f32;
     #[doc = " Get the current angular separation error for this joint. Does not consider admissible movement. Usually in meters."]
     pub fn b2Joint_GetAngularSeparation(jointId: b2JointId) -> f32;
-    #[doc = " Set the joint constraint tuning. Advanced feature.\n @param jointId the joint\n @param hertz the stiffness in Hertz (cycles per second)\n @param dampingRatio the non-dimensional damping ratio (one for critical damping)"]
-    pub fn b2Joint_SetConstraintTuning(jointId: b2JointId, hertz: f32, dampingRatio: f32);
     #[doc = " Get the joint constraint tuning. Advanced feature."]
     pub fn b2Joint_GetConstraintTuning(jointId: b2JointId, hertz: *mut f32, dampingRatio: *mut f32);
-    #[doc = " Set the force threshold for joint events (Newtons)"]
-    pub fn b2Joint_SetForceThreshold(jointId: b2JointId, threshold: f32);
-    #[doc = " Get the force threshold for joint events (Newtons)"]
-    pub fn b2Joint_GetForceThreshold(jointId: b2JointId) -> f32;
-    #[doc = " Set the torque threshold for joint events (N-m)"]
-    pub fn b2Joint_SetTorqueThreshold(jointId: b2JointId, threshold: f32);
-    #[doc = " Get the torque threshold for joint events (N-m)"]
-    pub fn b2Joint_GetTorqueThreshold(jointId: b2JointId) -> f32;
+    #[doc = " Set the joint constraint tuning. Advanced feature.\n @param jointId the joint\n @param hertz the stiffness in Hertz (cycles per second)\n @param dampingRatio the non-dimensional damping ratio (one for critical damping)"]
+    pub fn b2Joint_SetConstraintTuning(jointId: b2JointId, hertz: f32, dampingRatio: f32);
     #[doc = " Create a distance joint\n @see b2DistanceJointDef for details"]
     pub fn b2CreateDistanceJoint(worldId: b2WorldId, def: *const b2DistanceJointDef) -> b2JointId;
     #[doc = " Set the rest length of a distance joint\n @param jointId The id for a distance joint\n @param length The new distance joint length"]
@@ -3185,10 +3191,6 @@ unsafe extern "C" {
     pub fn b2DistanceJoint_EnableSpring(jointId: b2JointId, enableSpring: bool);
     #[doc = " Is the distance joint spring enabled?"]
     pub fn b2DistanceJoint_IsSpringEnabled(jointId: b2JointId) -> bool;
-    #[doc = " Set the force range for the spring."]
-    pub fn b2DistanceJoint_SetSpringForceRange(jointId: b2JointId, lowerForce: f32, upperForce: f32);
-    #[doc = " Get the force range for the spring."]
-    pub fn b2DistanceJoint_GetSpringForceRange(jointId: b2JointId, lowerForce: *mut f32, upperForce: *mut f32);
     #[doc = " Set the spring stiffness in Hertz"]
     pub fn b2DistanceJoint_SetSpringHertz(jointId: b2JointId, hertz: f32);
     #[doc = " Set the spring damping ratio, non-dimensional"]
@@ -3225,46 +3227,44 @@ unsafe extern "C" {
     pub fn b2DistanceJoint_GetMotorForce(jointId: b2JointId) -> f32;
     #[doc = " Create a motor joint\n @see b2MotorJointDef for details"]
     pub fn b2CreateMotorJoint(worldId: b2WorldId, def: *const b2MotorJointDef) -> b2JointId;
-    #[doc = " Set the desired relative linear velocity in meters per second"]
-    pub fn b2MotorJoint_SetLinearVelocity(jointId: b2JointId, velocity: b2Vec2);
-    #[doc = " Get the desired relative linear velocity in meters per second"]
-    pub fn b2MotorJoint_GetLinearVelocity(jointId: b2JointId) -> b2Vec2;
-    #[doc = " Set the desired relative angular velocity in radians per second"]
-    pub fn b2MotorJoint_SetAngularVelocity(jointId: b2JointId, velocity: f32);
-    #[doc = " Get the desired relative angular velocity in radians per second"]
-    pub fn b2MotorJoint_GetAngularVelocity(jointId: b2JointId) -> f32;
+    #[doc = " Set the motor joint linear offset target"]
+    pub fn b2MotorJoint_SetLinearOffset(jointId: b2JointId, linearOffset: b2Vec2);
+    #[doc = " Get the motor joint linear offset target"]
+    pub fn b2MotorJoint_GetLinearOffset(jointId: b2JointId) -> b2Vec2;
+    #[doc = " Set the motor joint angular offset target in radians. This angle will be unwound\n so the motor will drive along the shortest arc."]
+    pub fn b2MotorJoint_SetAngularOffset(jointId: b2JointId, angularOffset: f32);
+    #[doc = " Get the motor joint angular offset target in radians"]
+    pub fn b2MotorJoint_GetAngularOffset(jointId: b2JointId) -> f32;
     #[doc = " Set the motor joint maximum force, usually in newtons"]
-    pub fn b2MotorJoint_SetMaxVelocityForce(jointId: b2JointId, maxForce: f32);
+    pub fn b2MotorJoint_SetMaxForce(jointId: b2JointId, maxForce: f32);
     #[doc = " Get the motor joint maximum force, usually in newtons"]
-    pub fn b2MotorJoint_GetMaxVelocityForce(jointId: b2JointId) -> f32;
+    pub fn b2MotorJoint_GetMaxForce(jointId: b2JointId) -> f32;
     #[doc = " Set the motor joint maximum torque, usually in newton-meters"]
-    pub fn b2MotorJoint_SetMaxVelocityTorque(jointId: b2JointId, maxTorque: f32);
+    pub fn b2MotorJoint_SetMaxTorque(jointId: b2JointId, maxTorque: f32);
     #[doc = " Get the motor joint maximum torque, usually in newton-meters"]
-    pub fn b2MotorJoint_GetMaxVelocityTorque(jointId: b2JointId) -> f32;
-    #[doc = " Set the spring linear hertz stiffness"]
-    pub fn b2MotorJoint_SetLinearHertz(jointId: b2JointId, hertz: f32);
-    #[doc = " Get the spring linear hertz stiffness"]
-    pub fn b2MotorJoint_GetLinearHertz(jointId: b2JointId) -> f32;
-    #[doc = " Set the spring linear damping ratio. Use 1.0 for critical damping."]
-    pub fn b2MotorJoint_SetLinearDampingRatio(jointId: b2JointId, damping: f32);
-    #[doc = " Get the spring linear damping ratio."]
-    pub fn b2MotorJoint_GetLinearDampingRatio(jointId: b2JointId) -> f32;
-    #[doc = " Set the spring angular hertz stiffness"]
-    pub fn b2MotorJoint_SetAngularHertz(jointId: b2JointId, hertz: f32);
-    #[doc = " Get the spring angular hertz stiffness"]
-    pub fn b2MotorJoint_GetAngularHertz(jointId: b2JointId) -> f32;
-    #[doc = " Set the spring angular damping ratio. Use 1.0 for critical damping."]
-    pub fn b2MotorJoint_SetAngularDampingRatio(jointId: b2JointId, damping: f32);
-    #[doc = " Get the spring angular damping ratio."]
-    pub fn b2MotorJoint_GetAngularDampingRatio(jointId: b2JointId) -> f32;
-    #[doc = " Set the maximum spring force in newtons."]
-    pub fn b2MotorJoint_SetMaxSpringForce(jointId: b2JointId, maxForce: f32);
-    #[doc = " Get the maximum spring force in newtons."]
-    pub fn b2MotorJoint_GetMaxSpringForce(jointId: b2JointId) -> f32;
-    #[doc = " Set the maximum spring torque in newtons * meters"]
-    pub fn b2MotorJoint_SetMaxSpringTorque(jointId: b2JointId, maxTorque: f32);
-    #[doc = " Get the maximum spring torque in newtons * meters"]
-    pub fn b2MotorJoint_GetMaxSpringTorque(jointId: b2JointId) -> f32;
+    pub fn b2MotorJoint_GetMaxTorque(jointId: b2JointId) -> f32;
+    #[doc = " Set the motor joint correction factor, usually in [0, 1]"]
+    pub fn b2MotorJoint_SetCorrectionFactor(jointId: b2JointId, correctionFactor: f32);
+    #[doc = " Get the motor joint correction factor, usually in [0, 1]"]
+    pub fn b2MotorJoint_GetCorrectionFactor(jointId: b2JointId) -> f32;
+    #[doc = " Create a mouse joint\n @see b2MouseJointDef for details"]
+    pub fn b2CreateMouseJoint(worldId: b2WorldId, def: *const b2MouseJointDef) -> b2JointId;
+    #[doc = " Set the mouse joint target"]
+    pub fn b2MouseJoint_SetTarget(jointId: b2JointId, target: b2Vec2);
+    #[doc = " Get the mouse joint target"]
+    pub fn b2MouseJoint_GetTarget(jointId: b2JointId) -> b2Vec2;
+    #[doc = " Set the mouse joint spring stiffness in Hertz"]
+    pub fn b2MouseJoint_SetSpringHertz(jointId: b2JointId, hertz: f32);
+    #[doc = " Get the mouse joint spring stiffness in Hertz"]
+    pub fn b2MouseJoint_GetSpringHertz(jointId: b2JointId) -> f32;
+    #[doc = " Set the mouse joint spring damping ratio, non-dimensional"]
+    pub fn b2MouseJoint_SetSpringDampingRatio(jointId: b2JointId, dampingRatio: f32);
+    #[doc = " Get the mouse joint damping ratio, non-dimensional"]
+    pub fn b2MouseJoint_GetSpringDampingRatio(jointId: b2JointId) -> f32;
+    #[doc = " Set the mouse joint maximum force, usually in newtons"]
+    pub fn b2MouseJoint_SetMaxForce(jointId: b2JointId, maxForce: f32);
+    #[doc = " Get the mouse joint maximum force, usually in newtons"]
+    pub fn b2MouseJoint_GetMaxForce(jointId: b2JointId) -> f32;
     #[doc = " Create a filter joint.\n @see b2FilterJointDef for details"]
     pub fn b2CreateFilterJoint(worldId: b2WorldId, def: *const b2FilterJointDef) -> b2JointId;
     #[doc = " Create a prismatic (slider) joint.\n @see b2PrismaticJointDef for details"]
@@ -3413,8 +3413,4 @@ unsafe extern "C" {
     pub fn b2WheelJoint_GetMaxMotorTorque(jointId: b2JointId) -> f32;
     #[doc = " Get the wheel joint current motor torque, usually in newton-meters"]
     pub fn b2WheelJoint_GetMotorTorque(jointId: b2JointId) -> f32;
-    #[doc = " Contact identifier validation. Provides validation for up to 2^32 allocations."]
-    pub fn b2Contact_IsValid(id: b2ContactId) -> bool;
-    #[doc = " Get the data for a contact. The manifold may have no points if the contact is not touching."]
-    pub fn b2Contact_GetData(contactId: b2ContactId) -> b2ContactData;
 }

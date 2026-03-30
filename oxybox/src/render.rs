@@ -116,6 +116,7 @@ pub fn gather_draws(world: &World, flags: TeselationFlags) -> Vec<Draw> {
         },
 
         context: &mut calls as *mut _ as *mut c_void,
+        useDrawingBounds: false,
     };
 
     unsafe {
