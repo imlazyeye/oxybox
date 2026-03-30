@@ -3,12 +3,10 @@ name = "oxybox-sys"
 version = "0.1.0"
 edition = "2024"
 links = "box2d"
-rust-version = "1.94"
 
 [dependencies]
 glam.workspace = true
 
 [build-dependencies]
 cc = "1"
-bindgen = { version = "0.72", optional = true }
 camino = "1.2.2"

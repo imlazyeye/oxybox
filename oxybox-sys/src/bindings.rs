@@ -14,18 +14,6 @@ pub type b2AssertFcn = ::std::option::Option<
         lineNumber: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int,
 >;
-unsafe extern "C" {
-    #[doc = " This allows the user to override the allocation functions. These should be\n set during application startup."]
-    pub fn b2SetAllocator(allocFcn: b2AllocFcn, freeFcn: b2FreeFcn);
-}
-unsafe extern "C" {
-    #[doc = " @return the total bytes allocated by Box2D"]
-    pub fn b2GetByteCount() -> ::std::os::raw::c_int;
-}
-unsafe extern "C" {
-    #[doc = " Override the default assert callback\n @param assertFcn a non-null assert callback"]
-    pub fn b2SetAssertFcn(assertFcn: b2AssertFcn);
-}
 #[doc = " Version numbering scheme.\n See https://semver.org/"]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -45,36 +33,6 @@ const _: () = {
     ["Offset of field: b2Version::minor"][::std::mem::offset_of!(b2Version, minor) - 4usize];
     ["Offset of field: b2Version::revision"][::std::mem::offset_of!(b2Version, revision) - 8usize];
 };
-unsafe extern "C" {
-    #[doc = " Get the current version of Box2D"]
-    pub fn b2GetVersion() -> b2Version;
-}
-unsafe extern "C" {
-    pub fn b2InternalAssertFcn(
-        condition: *const ::std::os::raw::c_char,
-        fileName: *const ::std::os::raw::c_char,
-        lineNumber: ::std::os::raw::c_int,
-    ) -> ::std::os::raw::c_int;
-}
-unsafe extern "C" {
-    #[doc = " Get the absolute number of system ticks. The value is platform specific."]
-    pub fn b2GetTicks() -> u64;
-}
-unsafe extern "C" {
-    #[doc = " Get the milliseconds passed from an initial tick value."]
-    pub fn b2GetMilliseconds(ticks: u64) -> f32;
-}
-unsafe extern "C" {
-    #[doc = " Get the milliseconds passed from an initial tick value. Resets the passed in\n value to the current tick value."]
-    pub fn b2GetMillisecondsAndReset(ticks: *mut u64) -> f32;
-}
-unsafe extern "C" {
-    #[doc = " Yield to be used in a busy loop."]
-    pub fn b2Yield();
-}
-unsafe extern "C" {
-    pub fn b2Hash(hash: u32, data: *const u8, count: ::std::os::raw::c_int) -> u32;
-}
 #[doc = " 2D vector\n This can be used to represent a point or free vector"]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -180,62 +138,6 @@ const _: () = {
     ["Offset of field: b2Plane::normal"][::std::mem::offset_of!(b2Plane, normal) - 0usize];
     ["Offset of field: b2Plane::offset"][::std::mem::offset_of!(b2Plane, offset) - 8usize];
 };
-unsafe extern "C" {
-    pub static b2Vec2_zero: b2Vec2;
-}
-unsafe extern "C" {
-    pub static b2Rot_identity: b2Rot;
-}
-unsafe extern "C" {
-    pub static b2Transform_identity: b2Transform;
-}
-unsafe extern "C" {
-    pub static b2Mat22_zero: b2Mat22;
-}
-unsafe extern "C" {
-    #[doc = " Is this a valid number? Not NaN or infinity."]
-    pub fn b2IsValidFloat(a: f32) -> bool;
-}
-unsafe extern "C" {
-    #[doc = " Is this a valid vector? Not NaN or infinity."]
-    pub fn b2IsValidVec2(v: b2Vec2) -> bool;
-}
-unsafe extern "C" {
-    #[doc = " Is this a valid rotation? Not NaN or infinity. Is normalized."]
-    pub fn b2IsValidRotation(q: b2Rot) -> bool;
-}
-unsafe extern "C" {
-    #[doc = " Is this a valid transform? Not NaN or infinity. Rotation is normalized."]
-    pub fn b2IsValidTransform(t: b2Transform) -> bool;
-}
-unsafe extern "C" {
-    #[doc = " Is this a valid bounding box? Not Nan or infinity. Upper bound greater than or equal to lower bound."]
-    pub fn b2IsValidAABB(aabb: b2AABB) -> bool;
-}
-unsafe extern "C" {
-    #[doc = " Is this a valid plane? Normal is a unit vector. Not Nan or infinity."]
-    pub fn b2IsValidPlane(a: b2Plane) -> bool;
-}
-unsafe extern "C" {
-    #[doc = " Compute an approximate arctangent in the range [-pi, pi]\n This is hand coded for cross-platform determinism. The atan2f\n function in the standard library is not cross-platform deterministic.\n\tAccurate to around 0.0023 degrees"]
-    pub fn b2Atan2(y: f32, x: f32) -> f32;
-}
-unsafe extern "C" {
-    #[doc = " Compute the cosine and sine of an angle in radians. Implemented\n for cross-platform determinism."]
-    pub fn b2ComputeCosSin(radians: f32) -> b2CosSin;
-}
-unsafe extern "C" {
-    #[doc = " Compute the rotation between two unit vectors"]
-    pub fn b2ComputeRotationBetweenUnitVectors(v1: b2Vec2, v2: b2Vec2) -> b2Rot;
-}
-unsafe extern "C" {
-    #[doc = " Box2D bases all length units on meters, but you may need different units for your game.\n You can set this value to use different units. This should be done at application startup\n and only modified once. Default value is 1.\n For example, if your game uses pixels for units you can use pixels for all length values\n sent to Box2D. There should be no extra cost. However, Box2D has some internal tolerances\n and thresholds that have been tuned for meters. By calling this function, Box2D is able\n to adjust those tolerances and thresholds to improve accuracy.\n A good rule of thumb is to pass the height of your player character to this function. So\n if your player character is 32 pixels high, then pass 32 to this function. Then you may\n confidently use pixels for all the length values sent to Box2D. All length values returned\n from Box2D will also be pixels because Box2D does not do any scaling internally.\n However, you are now on the hook for coming up with good values for gravity, density, and\n forces.\n @warning This must be modified before any calls to Box2D"]
-    pub fn b2SetLengthUnitsPerMeter(lengthUnits: f32);
-}
-unsafe extern "C" {
-    #[doc = " Get the current length units per meter."]
-    pub fn b2GetLengthUnitsPerMeter() -> f32;
-}
 #[doc = " Low level ray cast input data"]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -438,125 +340,6 @@ const _: () = {
     ["Offset of field: b2ChainSegment::ghost2"][::std::mem::offset_of!(b2ChainSegment, ghost2) - 24usize];
     ["Offset of field: b2ChainSegment::chainId"][::std::mem::offset_of!(b2ChainSegment, chainId) - 32usize];
 };
-unsafe extern "C" {
-    #[doc = " Validate ray cast input data (NaN, etc)"]
-    pub fn b2IsValidRay(input: *const b2RayCastInput) -> bool;
-}
-unsafe extern "C" {
-    #[doc = " Make a convex polygon from a convex hull. This will assert if the hull is not valid.\n @warning Do not manually fill in the hull data, it must come directly from b2ComputeHull"]
-    pub fn b2MakePolygon(hull: *const b2Hull, radius: f32) -> b2Polygon;
-}
-unsafe extern "C" {
-    #[doc = " Make an offset convex polygon from a convex hull. This will assert if the hull is not valid.\n @warning Do not manually fill in the hull data, it must come directly from b2ComputeHull"]
-    pub fn b2MakeOffsetPolygon(hull: *const b2Hull, position: b2Vec2, rotation: b2Rot) -> b2Polygon;
-}
-unsafe extern "C" {
-    #[doc = " Make an offset convex polygon from a convex hull. This will assert if the hull is not valid.\n @warning Do not manually fill in the hull data, it must come directly from b2ComputeHull"]
-    pub fn b2MakeOffsetRoundedPolygon(hull: *const b2Hull, position: b2Vec2, rotation: b2Rot, radius: f32)
-    -> b2Polygon;
-}
-unsafe extern "C" {
-    #[doc = " Make a square polygon, bypassing the need for a convex hull.\n @param halfWidth the half-width"]
-    pub fn b2MakeSquare(halfWidth: f32) -> b2Polygon;
-}
-unsafe extern "C" {
-    #[doc = " Make a box (rectangle) polygon, bypassing the need for a convex hull.\n @param halfWidth the half-width (x-axis)\n @param halfHeight the half-height (y-axis)"]
-    pub fn b2MakeBox(halfWidth: f32, halfHeight: f32) -> b2Polygon;
-}
-unsafe extern "C" {
-    #[doc = " Make a rounded box, bypassing the need for a convex hull.\n @param halfWidth the half-width (x-axis)\n @param halfHeight the half-height (y-axis)\n @param radius the radius of the rounded extension"]
-    pub fn b2MakeRoundedBox(halfWidth: f32, halfHeight: f32, radius: f32) -> b2Polygon;
-}
-unsafe extern "C" {
-    #[doc = " Make an offset box, bypassing the need for a convex hull.\n @param halfWidth the half-width (x-axis)\n @param halfHeight the half-height (y-axis)\n @param center the local center of the box\n @param rotation the local rotation of the box"]
-    pub fn b2MakeOffsetBox(halfWidth: f32, halfHeight: f32, center: b2Vec2, rotation: b2Rot) -> b2Polygon;
-}
-unsafe extern "C" {
-    #[doc = " Make an offset rounded box, bypassing the need for a convex hull.\n @param halfWidth the half-width (x-axis)\n @param halfHeight the half-height (y-axis)\n @param center the local center of the box\n @param rotation the local rotation of the box\n @param radius the radius of the rounded extension"]
-    pub fn b2MakeOffsetRoundedBox(
-        halfWidth: f32,
-        halfHeight: f32,
-        center: b2Vec2,
-        rotation: b2Rot,
-        radius: f32,
-    ) -> b2Polygon;
-}
-unsafe extern "C" {
-    #[doc = " Transform a polygon. This is useful for transferring a shape from one body to another."]
-    pub fn b2TransformPolygon(transform: b2Transform, polygon: *const b2Polygon) -> b2Polygon;
-}
-unsafe extern "C" {
-    #[doc = " Compute mass properties of a circle"]
-    pub fn b2ComputeCircleMass(shape: *const b2Circle, density: f32) -> b2MassData;
-}
-unsafe extern "C" {
-    #[doc = " Compute mass properties of a capsule"]
-    pub fn b2ComputeCapsuleMass(shape: *const b2Capsule, density: f32) -> b2MassData;
-}
-unsafe extern "C" {
-    #[doc = " Compute mass properties of a polygon"]
-    pub fn b2ComputePolygonMass(shape: *const b2Polygon, density: f32) -> b2MassData;
-}
-unsafe extern "C" {
-    #[doc = " Compute the bounding box of a transformed circle"]
-    pub fn b2ComputeCircleAABB(shape: *const b2Circle, transform: b2Transform) -> b2AABB;
-}
-unsafe extern "C" {
-    #[doc = " Compute the bounding box of a transformed capsule"]
-    pub fn b2ComputeCapsuleAABB(shape: *const b2Capsule, transform: b2Transform) -> b2AABB;
-}
-unsafe extern "C" {
-    #[doc = " Compute the bounding box of a transformed polygon"]
-    pub fn b2ComputePolygonAABB(shape: *const b2Polygon, transform: b2Transform) -> b2AABB;
-}
-unsafe extern "C" {
-    #[doc = " Compute the bounding box of a transformed line segment"]
-    pub fn b2ComputeSegmentAABB(shape: *const b2Segment, transform: b2Transform) -> b2AABB;
-}
-unsafe extern "C" {
-    #[doc = " Test a point for overlap with a circle in local space"]
-    pub fn b2PointInCircle(shape: *const b2Circle, point: b2Vec2) -> bool;
-}
-unsafe extern "C" {
-    #[doc = " Test a point for overlap with a capsule in local space"]
-    pub fn b2PointInCapsule(shape: *const b2Capsule, point: b2Vec2) -> bool;
-}
-unsafe extern "C" {
-    #[doc = " Test a point for overlap with a convex polygon in local space"]
-    pub fn b2PointInPolygon(shape: *const b2Polygon, point: b2Vec2) -> bool;
-}
-unsafe extern "C" {
-    #[doc = " Ray cast versus circle shape in local space."]
-    pub fn b2RayCastCircle(shape: *const b2Circle, input: *const b2RayCastInput) -> b2CastOutput;
-}
-unsafe extern "C" {
-    #[doc = " Ray cast versus capsule shape in local space."]
-    pub fn b2RayCastCapsule(shape: *const b2Capsule, input: *const b2RayCastInput) -> b2CastOutput;
-}
-unsafe extern "C" {
-    #[doc = " Ray cast versus segment shape in local space. Optionally treat the segment as one-sided with hits from\n the left side being treated as a miss."]
-    pub fn b2RayCastSegment(shape: *const b2Segment, input: *const b2RayCastInput, oneSided: bool) -> b2CastOutput;
-}
-unsafe extern "C" {
-    #[doc = " Ray cast versus polygon shape in local space."]
-    pub fn b2RayCastPolygon(shape: *const b2Polygon, input: *const b2RayCastInput) -> b2CastOutput;
-}
-unsafe extern "C" {
-    #[doc = " Shape cast versus a circle."]
-    pub fn b2ShapeCastCircle(shape: *const b2Circle, input: *const b2ShapeCastInput) -> b2CastOutput;
-}
-unsafe extern "C" {
-    #[doc = " Shape cast versus a capsule."]
-    pub fn b2ShapeCastCapsule(shape: *const b2Capsule, input: *const b2ShapeCastInput) -> b2CastOutput;
-}
-unsafe extern "C" {
-    #[doc = " Shape cast versus a line segment."]
-    pub fn b2ShapeCastSegment(shape: *const b2Segment, input: *const b2ShapeCastInput) -> b2CastOutput;
-}
-unsafe extern "C" {
-    #[doc = " Shape cast versus a convex polygon."]
-    pub fn b2ShapeCastPolygon(shape: *const b2Polygon, input: *const b2ShapeCastInput) -> b2CastOutput;
-}
 #[doc = " A convex hull. Used to create convex polygons.\n @warning Do not modify these values directly, instead use b2ComputeHull()"]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -573,14 +356,6 @@ const _: () = {
     ["Offset of field: b2Hull::points"][::std::mem::offset_of!(b2Hull, points) - 0usize];
     ["Offset of field: b2Hull::count"][::std::mem::offset_of!(b2Hull, count) - 64usize];
 };
-unsafe extern "C" {
-    #[doc = " Compute the convex hull of a set of points. Returns an empty hull if it fails.\n Some failure cases:\n - all points very close together\n - all points on a line\n - less than 3 points\n - more than B2_MAX_POLYGON_VERTICES points\n This welds close points and removes collinear points.\n @warning Do not modify a hull once it has been computed"]
-    pub fn b2ComputeHull(points: *const b2Vec2, count: ::std::os::raw::c_int) -> b2Hull;
-}
-unsafe extern "C" {
-    #[doc = " This determines if a hull is valid. Checks for:\n - convexity\n - collinear points\n This is expensive and should not be called at runtime."]
-    pub fn b2ValidateHull(hull: *const b2Hull) -> bool;
-}
 #[doc = " Result of computing the distance between two line segments"]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -611,10 +386,6 @@ const _: () = {
     ["Offset of field: b2SegmentDistanceResult::distanceSquared"]
         [::std::mem::offset_of!(b2SegmentDistanceResult, distanceSquared) - 24usize];
 };
-unsafe extern "C" {
-    #[doc = " Compute the distance between two line segments, clamping at the end points if needed."]
-    pub fn b2SegmentDistance(p1: b2Vec2, q1: b2Vec2, p2: b2Vec2, q2: b2Vec2) -> b2SegmentDistanceResult;
-}
 #[doc = " Used to warm start the GJK simplex. If you call this function multiple times with nearby\n transforms this might improve performance. Otherwise you can zero initialize this.\n The distance cache must be initialized to zero on the first call.\n Users should generally just zero initialize this structure for each call."]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -634,9 +405,6 @@ const _: () = {
     ["Offset of field: b2SimplexCache::indexA"][::std::mem::offset_of!(b2SimplexCache, indexA) - 2usize];
     ["Offset of field: b2SimplexCache::indexB"][::std::mem::offset_of!(b2SimplexCache, indexB) - 5usize];
 };
-unsafe extern "C" {
-    pub static b2_emptySimplexCache: b2SimplexCache;
-}
 #[doc = " Input for b2ShapeDistance"]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -741,15 +509,6 @@ const _: () = {
     ["Offset of field: b2Simplex::v3"][::std::mem::offset_of!(b2Simplex, v3) - 72usize];
     ["Offset of field: b2Simplex::count"][::std::mem::offset_of!(b2Simplex, count) - 108usize];
 };
-unsafe extern "C" {
-    #[doc = " Compute the closest points between two shapes represented as point clouds.\n b2SimplexCache cache is input/output. On the first call set b2SimplexCache.count to zero.\n The underlying GJK algorithm may be debugged by passing in debug simplexes and capacity. You may pass in NULL and 0 for these."]
-    pub fn b2ShapeDistance(
-        input: *const b2DistanceInput,
-        cache: *mut b2SimplexCache,
-        simplexes: *mut b2Simplex,
-        simplexCapacity: ::std::os::raw::c_int,
-    ) -> b2DistanceOutput;
-}
 #[doc = " Input parameters for b2ShapeCast"]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -786,24 +545,6 @@ const _: () = {
     ["Offset of field: b2ShapeCastPairInput::canEncroach"]
         [::std::mem::offset_of!(b2ShapeCastPairInput, canEncroach) - 188usize];
 };
-unsafe extern "C" {
-    #[doc = " Perform a linear shape cast of shape B moving and shape A fixed. Determines the hit point, normal, and translation fraction.\n Initially touching shapes are treated as a miss."]
-    pub fn b2ShapeCast(input: *const b2ShapeCastPairInput) -> b2CastOutput;
-}
-unsafe extern "C" {
-    #[doc = " Make a proxy for use in overlap, shape cast, and related functions. This is a deep copy of the points."]
-    pub fn b2MakeProxy(points: *const b2Vec2, count: ::std::os::raw::c_int, radius: f32) -> b2ShapeProxy;
-}
-unsafe extern "C" {
-    #[doc = " Make a proxy with a transform. This is a deep copy of the points."]
-    pub fn b2MakeOffsetProxy(
-        points: *const b2Vec2,
-        count: ::std::os::raw::c_int,
-        radius: f32,
-        position: b2Vec2,
-        rotation: b2Rot,
-    ) -> b2ShapeProxy;
-}
 #[doc = " This describes the motion of a body/shape for TOI computation. Shapes are defined with respect to the body origin,\n which may not coincide with the center of mass. However, to support dynamics we must interpolate the center of mass\n position."]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -829,10 +570,6 @@ const _: () = {
     ["Offset of field: b2Sweep::q1"][::std::mem::offset_of!(b2Sweep, q1) - 24usize];
     ["Offset of field: b2Sweep::q2"][::std::mem::offset_of!(b2Sweep, q2) - 32usize];
 };
-unsafe extern "C" {
-    #[doc = " Evaluate the transform sweep at a specific time."]
-    pub fn b2GetSweepTransform(sweep: *const b2Sweep, time: f32) -> b2Transform;
-}
 #[doc = " Time of impact input"]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -887,10 +624,6 @@ const _: () = {
     ["Offset of field: b2TOIOutput::normal"][::std::mem::offset_of!(b2TOIOutput, normal) - 12usize];
     ["Offset of field: b2TOIOutput::fraction"][::std::mem::offset_of!(b2TOIOutput, fraction) - 20usize];
 };
-unsafe extern "C" {
-    #[doc = " Compute the upper bound on time before two shapes penetrate. Time is represented as\n a fraction between [0,tMax]. This uses a swept separating axis and may miss some intermediate,\n non-tunneling collisions. If you change the time interval, you should call this function\n again."]
-    pub fn b2TimeOfImpact(input: *const b2TOIInput) -> b2TOIOutput;
-}
 #[doc = " A manifold point is a contact point belonging to a contact manifold.\n It holds details related to the geometry and dynamics of the contact points.\n Box2D uses speculative collision so some contact points may be separated.\n You may use the totalNormalImpulse to determine if there was an interaction during\n the time step."]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -957,116 +690,6 @@ const _: () = {
     ["Offset of field: b2Manifold::points"][::std::mem::offset_of!(b2Manifold, points) - 12usize];
     ["Offset of field: b2Manifold::pointCount"][::std::mem::offset_of!(b2Manifold, pointCount) - 108usize];
 };
-unsafe extern "C" {
-    #[doc = " Compute the contact manifold between two circles"]
-    pub fn b2CollideCircles(
-        circleA: *const b2Circle,
-        xfA: b2Transform,
-        circleB: *const b2Circle,
-        xfB: b2Transform,
-    ) -> b2Manifold;
-}
-unsafe extern "C" {
-    #[doc = " Compute the contact manifold between a capsule and circle"]
-    pub fn b2CollideCapsuleAndCircle(
-        capsuleA: *const b2Capsule,
-        xfA: b2Transform,
-        circleB: *const b2Circle,
-        xfB: b2Transform,
-    ) -> b2Manifold;
-}
-unsafe extern "C" {
-    #[doc = " Compute the contact manifold between an segment and a circle"]
-    pub fn b2CollideSegmentAndCircle(
-        segmentA: *const b2Segment,
-        xfA: b2Transform,
-        circleB: *const b2Circle,
-        xfB: b2Transform,
-    ) -> b2Manifold;
-}
-unsafe extern "C" {
-    #[doc = " Compute the contact manifold between a polygon and a circle"]
-    pub fn b2CollidePolygonAndCircle(
-        polygonA: *const b2Polygon,
-        xfA: b2Transform,
-        circleB: *const b2Circle,
-        xfB: b2Transform,
-    ) -> b2Manifold;
-}
-unsafe extern "C" {
-    #[doc = " Compute the contact manifold between a capsule and circle"]
-    pub fn b2CollideCapsules(
-        capsuleA: *const b2Capsule,
-        xfA: b2Transform,
-        capsuleB: *const b2Capsule,
-        xfB: b2Transform,
-    ) -> b2Manifold;
-}
-unsafe extern "C" {
-    #[doc = " Compute the contact manifold between an segment and a capsule"]
-    pub fn b2CollideSegmentAndCapsule(
-        segmentA: *const b2Segment,
-        xfA: b2Transform,
-        capsuleB: *const b2Capsule,
-        xfB: b2Transform,
-    ) -> b2Manifold;
-}
-unsafe extern "C" {
-    #[doc = " Compute the contact manifold between a polygon and capsule"]
-    pub fn b2CollidePolygonAndCapsule(
-        polygonA: *const b2Polygon,
-        xfA: b2Transform,
-        capsuleB: *const b2Capsule,
-        xfB: b2Transform,
-    ) -> b2Manifold;
-}
-unsafe extern "C" {
-    #[doc = " Compute the contact manifold between two polygons"]
-    pub fn b2CollidePolygons(
-        polygonA: *const b2Polygon,
-        xfA: b2Transform,
-        polygonB: *const b2Polygon,
-        xfB: b2Transform,
-    ) -> b2Manifold;
-}
-unsafe extern "C" {
-    #[doc = " Compute the contact manifold between an segment and a polygon"]
-    pub fn b2CollideSegmentAndPolygon(
-        segmentA: *const b2Segment,
-        xfA: b2Transform,
-        polygonB: *const b2Polygon,
-        xfB: b2Transform,
-    ) -> b2Manifold;
-}
-unsafe extern "C" {
-    #[doc = " Compute the contact manifold between a chain segment and a circle"]
-    pub fn b2CollideChainSegmentAndCircle(
-        segmentA: *const b2ChainSegment,
-        xfA: b2Transform,
-        circleB: *const b2Circle,
-        xfB: b2Transform,
-    ) -> b2Manifold;
-}
-unsafe extern "C" {
-    #[doc = " Compute the contact manifold between a chain segment and a capsule"]
-    pub fn b2CollideChainSegmentAndCapsule(
-        segmentA: *const b2ChainSegment,
-        xfA: b2Transform,
-        capsuleB: *const b2Capsule,
-        xfB: b2Transform,
-        cache: *mut b2SimplexCache,
-    ) -> b2Manifold;
-}
-unsafe extern "C" {
-    #[doc = " Compute the contact manifold between a chain segment and a rounded polygon"]
-    pub fn b2CollideChainSegmentAndPolygon(
-        segmentA: *const b2ChainSegment,
-        xfA: b2Transform,
-        polygonB: *const b2Polygon,
-        xfB: b2Transform,
-        cache: *mut b2SimplexCache,
-    ) -> b2Manifold;
-}
 #[doc = " The dynamic tree structure. This should be considered private data.\n It is placed here for performance reasons."]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -1127,66 +750,10 @@ const _: () = {
     ["Offset of field: b2TreeStats::nodeVisits"][::std::mem::offset_of!(b2TreeStats, nodeVisits) - 0usize];
     ["Offset of field: b2TreeStats::leafVisits"][::std::mem::offset_of!(b2TreeStats, leafVisits) - 4usize];
 };
-unsafe extern "C" {
-    #[doc = " Constructing the tree initializes the node pool."]
-    pub fn b2DynamicTree_Create() -> b2DynamicTree;
-}
-unsafe extern "C" {
-    #[doc = " Destroy the tree, freeing the node pool."]
-    pub fn b2DynamicTree_Destroy(tree: *mut b2DynamicTree);
-}
-unsafe extern "C" {
-    #[doc = " Create a proxy. Provide an AABB and a userData value."]
-    pub fn b2DynamicTree_CreateProxy(
-        tree: *mut b2DynamicTree,
-        aabb: b2AABB,
-        categoryBits: u64,
-        userData: u64,
-    ) -> ::std::os::raw::c_int;
-}
-unsafe extern "C" {
-    #[doc = " Destroy a proxy. This asserts if the id is invalid."]
-    pub fn b2DynamicTree_DestroyProxy(tree: *mut b2DynamicTree, proxyId: ::std::os::raw::c_int);
-}
-unsafe extern "C" {
-    #[doc = " Move a proxy to a new AABB by removing and reinserting into the tree."]
-    pub fn b2DynamicTree_MoveProxy(tree: *mut b2DynamicTree, proxyId: ::std::os::raw::c_int, aabb: b2AABB);
-}
-unsafe extern "C" {
-    #[doc = " Enlarge a proxy and enlarge ancestors as necessary."]
-    pub fn b2DynamicTree_EnlargeProxy(tree: *mut b2DynamicTree, proxyId: ::std::os::raw::c_int, aabb: b2AABB);
-}
-unsafe extern "C" {
-    #[doc = " Modify the category bits on a proxy. This is an expensive operation."]
-    pub fn b2DynamicTree_SetCategoryBits(tree: *mut b2DynamicTree, proxyId: ::std::os::raw::c_int, categoryBits: u64);
-}
-unsafe extern "C" {
-    #[doc = " Get the category bits on a proxy."]
-    pub fn b2DynamicTree_GetCategoryBits(tree: *mut b2DynamicTree, proxyId: ::std::os::raw::c_int) -> u64;
-}
 #[doc = " This function receives proxies found in the AABB query.\n @return true if the query should continue"]
 pub type b2TreeQueryCallbackFcn = ::std::option::Option<
     unsafe extern "C" fn(proxyId: ::std::os::raw::c_int, userData: u64, context: *mut ::std::os::raw::c_void) -> bool,
 >;
-unsafe extern "C" {
-    #[doc = " Query an AABB for overlapping proxies. The callback class is called for each proxy that overlaps the supplied AABB.\n\t@return performance data"]
-    pub fn b2DynamicTree_Query(
-        tree: *const b2DynamicTree,
-        aabb: b2AABB,
-        maskBits: u64,
-        callback: b2TreeQueryCallbackFcn,
-        context: *mut ::std::os::raw::c_void,
-    ) -> b2TreeStats;
-}
-unsafe extern "C" {
-    #[doc = " Query an AABB for overlapping proxies. The callback class is called for each proxy that overlaps the supplied AABB.\n No filtering is performed.\n\t@return performance data"]
-    pub fn b2DynamicTree_QueryAll(
-        tree: *const b2DynamicTree,
-        aabb: b2AABB,
-        callback: b2TreeQueryCallbackFcn,
-        context: *mut ::std::os::raw::c_void,
-    ) -> b2TreeStats;
-}
 #[doc = " This function receives clipped ray cast input for a proxy. The function\n returns the new ray fraction.\n - return a value of 0 to terminate the ray cast\n - return a value less than input->maxFraction to clip the ray\n - return a value of input->maxFraction to continue the ray cast without clipping"]
 pub type b2TreeRayCastCallbackFcn = ::std::option::Option<
     unsafe extern "C" fn(
@@ -1196,16 +763,6 @@ pub type b2TreeRayCastCallbackFcn = ::std::option::Option<
         context: *mut ::std::os::raw::c_void,
     ) -> f32,
 >;
-unsafe extern "C" {
-    #[doc = " Ray cast against the proxies in the tree. This relies on the callback\n to perform a exact ray cast in the case were the proxy contains a shape.\n The callback also performs the any collision filtering. This has performance\n roughly equal to k * log(n), where k is the number of collisions and n is the\n number of proxies in the tree.\n Bit-wise filtering using mask bits can greatly improve performance in some scenarios.\n\tHowever, this filtering may be approximate, so the user should still apply filtering to results.\n @param tree the dynamic tree to ray cast\n @param input the ray cast input data. The ray extends from p1 to p1 + maxFraction * (p2 - p1)\n @param maskBits mask bit hint: `bool accept = (maskBits & node->categoryBits) != 0;`\n @param callback a callback class that is called for each proxy that is hit by the ray\n @param context user context that is passed to the callback\n\t@return performance data"]
-    pub fn b2DynamicTree_RayCast(
-        tree: *const b2DynamicTree,
-        input: *const b2RayCastInput,
-        maskBits: u64,
-        callback: b2TreeRayCastCallbackFcn,
-        context: *mut ::std::os::raw::c_void,
-    ) -> b2TreeStats;
-}
 #[doc = " This function receives clipped ray cast input for a proxy. The function\n returns the new ray fraction.\n - return a value of 0 to terminate the ray cast\n - return a value less than input->maxFraction to clip the ray\n - return a value of input->maxFraction to continue the ray cast without clipping"]
 pub type b2TreeShapeCastCallbackFcn = ::std::option::Option<
     unsafe extern "C" fn(
@@ -1215,56 +772,6 @@ pub type b2TreeShapeCastCallbackFcn = ::std::option::Option<
         context: *mut ::std::os::raw::c_void,
     ) -> f32,
 >;
-unsafe extern "C" {
-    #[doc = " Ray cast against the proxies in the tree. This relies on the callback\n to perform a exact ray cast in the case were the proxy contains a shape.\n The callback also performs the any collision filtering. This has performance\n roughly equal to k * log(n), where k is the number of collisions and n is the\n number of proxies in the tree.\n @param tree the dynamic tree to ray cast\n @param input the ray cast input data. The ray extends from p1 to p1 + maxFraction * (p2 - p1).\n @param maskBits filter bits: `bool accept = (maskBits & node->categoryBits) != 0;`\n @param callback a callback class that is called for each proxy that is hit by the shape\n @param context user context that is passed to the callback\n\t@return performance data"]
-    pub fn b2DynamicTree_ShapeCast(
-        tree: *const b2DynamicTree,
-        input: *const b2ShapeCastInput,
-        maskBits: u64,
-        callback: b2TreeShapeCastCallbackFcn,
-        context: *mut ::std::os::raw::c_void,
-    ) -> b2TreeStats;
-}
-unsafe extern "C" {
-    #[doc = " Get the height of the binary tree."]
-    pub fn b2DynamicTree_GetHeight(tree: *const b2DynamicTree) -> ::std::os::raw::c_int;
-}
-unsafe extern "C" {
-    #[doc = " Get the ratio of the sum of the node areas to the root area."]
-    pub fn b2DynamicTree_GetAreaRatio(tree: *const b2DynamicTree) -> f32;
-}
-unsafe extern "C" {
-    #[doc = " Get the bounding box that contains the entire tree"]
-    pub fn b2DynamicTree_GetRootBounds(tree: *const b2DynamicTree) -> b2AABB;
-}
-unsafe extern "C" {
-    #[doc = " Get the number of proxies created"]
-    pub fn b2DynamicTree_GetProxyCount(tree: *const b2DynamicTree) -> ::std::os::raw::c_int;
-}
-unsafe extern "C" {
-    #[doc = " Rebuild the tree while retaining subtrees that haven't changed. Returns the number of boxes sorted."]
-    pub fn b2DynamicTree_Rebuild(tree: *mut b2DynamicTree, fullBuild: bool) -> ::std::os::raw::c_int;
-}
-unsafe extern "C" {
-    #[doc = " Get the number of bytes used by this tree"]
-    pub fn b2DynamicTree_GetByteCount(tree: *const b2DynamicTree) -> ::std::os::raw::c_int;
-}
-unsafe extern "C" {
-    #[doc = " Get proxy user data"]
-    pub fn b2DynamicTree_GetUserData(tree: *const b2DynamicTree, proxyId: ::std::os::raw::c_int) -> u64;
-}
-unsafe extern "C" {
-    #[doc = " Get the AABB of a proxy"]
-    pub fn b2DynamicTree_GetAABB(tree: *const b2DynamicTree, proxyId: ::std::os::raw::c_int) -> b2AABB;
-}
-unsafe extern "C" {
-    #[doc = " Validate this tree. For testing."]
-    pub fn b2DynamicTree_Validate(tree: *const b2DynamicTree);
-}
-unsafe extern "C" {
-    #[doc = " Validate this tree has no enlarged AABBs. For testing."]
-    pub fn b2DynamicTree_ValidateNoEnlarged(tree: *const b2DynamicTree);
-}
 #[doc = " These are the collision planes returned from b2World_CollideMover"]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -1324,18 +831,6 @@ const _: () = {
     ["Offset of field: b2PlaneSolverResult::iterationCount"]
         [::std::mem::offset_of!(b2PlaneSolverResult, iterationCount) - 8usize];
 };
-unsafe extern "C" {
-    #[doc = " Solves the position of a mover that satisfies the given collision planes.\n @param targetDelta the desired movement from the position used to generate the collision planes\n @param planes the collision planes\n @param count the number of collision planes"]
-    pub fn b2SolvePlanes(
-        targetDelta: b2Vec2,
-        planes: *mut b2CollisionPlane,
-        count: ::std::os::raw::c_int,
-    ) -> b2PlaneSolverResult;
-}
-unsafe extern "C" {
-    #[doc = " Clips the velocity against the given collision planes. Planes with zero push or clipVelocity\n set to false are skipped."]
-    pub fn b2ClipVector(vector: b2Vec2, planes: *const b2CollisionPlane, count: ::std::os::raw::c_int) -> b2Vec2;
-}
 #[doc = " World id references a world instance. This should be treated as an opaque handle."]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -1432,25 +927,6 @@ const _: () = {
     ["Offset of field: b2ContactId::padding"][::std::mem::offset_of!(b2ContactId, padding) - 6usize];
     ["Offset of field: b2ContactId::generation"][::std::mem::offset_of!(b2ContactId, generation) - 8usize];
 };
-unsafe extern "C" {
-    #[doc = " Use these to make your identifiers null.\n You may also use zero initialization to get null."]
-    pub static b2_nullWorldId: b2WorldId;
-}
-unsafe extern "C" {
-    pub static b2_nullBodyId: b2BodyId;
-}
-unsafe extern "C" {
-    pub static b2_nullShapeId: b2ShapeId;
-}
-unsafe extern "C" {
-    pub static b2_nullChainId: b2ChainId;
-}
-unsafe extern "C" {
-    pub static b2_nullJointId: b2JointId;
-}
-unsafe extern "C" {
-    pub static b2_nullContactId: b2ContactId;
-}
 #[doc = " Task interface\n This is prototype for a Box2D task. Your task system is expected to invoke the Box2D task with these arguments.\n The task spans a range of the parallel-for: [startIndex, endIndex)\n The worker index must correctly identify each worker in the user thread pool, expected in [0, workerCount).\n A worker must only exist on only one thread at a time and is analogous to the thread index.\n The task context is the context pointer sent from Box2D when it is enqueued.\n The startIndex and endIndex are expected in the range [0, itemCount) where itemCount is the argument to b2EnqueueTaskCallback\n below. Box2D expects startIndex < endIndex and will execute a loop like this:\n\n @code{.c}\n for (int i = startIndex; i < endIndex; ++i)\n {\n \tDoWork();\n }\n @endcode\n @ingroup world"]
 pub type b2TaskCallback = ::std::option::Option<
     unsafe extern "C" fn(
@@ -1571,10 +1047,6 @@ const _: () = {
     ["Offset of field: b2WorldDef::userData"][::std::mem::offset_of!(b2WorldDef, userData) - 80usize];
     ["Offset of field: b2WorldDef::internalValue"][::std::mem::offset_of!(b2WorldDef, internalValue) - 88usize];
 };
-unsafe extern "C" {
-    #[doc = " Use this to initialize your world definition\n @ingroup world"]
-    pub fn b2DefaultWorldDef() -> b2WorldDef;
-}
 #[doc = " zero mass, zero velocity, may be manually moved"]
 pub const b2BodyType_b2_staticBody: b2BodyType = 0;
 #[doc = " zero mass, velocity set by user, moved by solver"]
@@ -1668,10 +1140,6 @@ const _: () = {
     ["Offset of field: b2BodyDef::allowFastRotation"][::std::mem::offset_of!(b2BodyDef, allowFastRotation) - 71usize];
     ["Offset of field: b2BodyDef::internalValue"][::std::mem::offset_of!(b2BodyDef, internalValue) - 72usize];
 };
-unsafe extern "C" {
-    #[doc = " Use this to initialize your body definition\n @ingroup body"]
-    pub fn b2DefaultBodyDef() -> b2BodyDef;
-}
 #[doc = " This is used to filter collision on shapes. It affects shape-vs-shape collision\n and shape-versus-query collision (such as b2World_CastRay).\n @ingroup shape"]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -1691,10 +1159,6 @@ const _: () = {
     ["Offset of field: b2Filter::maskBits"][::std::mem::offset_of!(b2Filter, maskBits) - 8usize];
     ["Offset of field: b2Filter::groupIndex"][::std::mem::offset_of!(b2Filter, groupIndex) - 16usize];
 };
-unsafe extern "C" {
-    #[doc = " Use this to initialize your filter\n @ingroup shape"]
-    pub fn b2DefaultFilter() -> b2Filter;
-}
 #[doc = " The query filter is used to filter collisions between queries and shapes. For example,\n you may want a ray-cast representing a projectile to hit players and the static environment\n but not debris.\n @ingroup shape"]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -1711,10 +1175,6 @@ const _: () = {
     ["Offset of field: b2QueryFilter::categoryBits"][::std::mem::offset_of!(b2QueryFilter, categoryBits) - 0usize];
     ["Offset of field: b2QueryFilter::maskBits"][::std::mem::offset_of!(b2QueryFilter, maskBits) - 8usize];
 };
-unsafe extern "C" {
-    #[doc = " Use this to initialize your query filter\n @ingroup shape"]
-    pub fn b2DefaultQueryFilter() -> b2QueryFilter;
-}
 #[doc = " A circle with an offset"]
 pub const b2ShapeType_b2_circleShape: b2ShapeType = 0;
 #[doc = " A capsule is an extruded circle"]
@@ -1762,10 +1222,6 @@ const _: () = {
     ["Offset of field: b2SurfaceMaterial::customColor"]
         [::std::mem::offset_of!(b2SurfaceMaterial, customColor) - 24usize];
 };
-unsafe extern "C" {
-    #[doc = " Use this to initialize your surface material\n @ingroup shape"]
-    pub fn b2DefaultSurfaceMaterial() -> b2SurfaceMaterial;
-}
 #[doc = " Used to create a shape.\n This is a temporary object used to bundle shape creation parameters. You may use\n the same shape definition to create multiple shapes.\n Must be initialized using b2DefaultShapeDef().\n @ingroup shape"]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -1820,10 +1276,6 @@ const _: () = {
     ["Offset of field: b2ShapeDef::updateBodyMass"][::std::mem::offset_of!(b2ShapeDef, updateBodyMass) - 79usize];
     ["Offset of field: b2ShapeDef::internalValue"][::std::mem::offset_of!(b2ShapeDef, internalValue) - 80usize];
 };
-unsafe extern "C" {
-    #[doc = " Use this to initialize your shape definition\n @ingroup shape"]
-    pub fn b2DefaultShapeDef() -> b2ShapeDef;
-}
 #[doc = " Used to create a chain of line segments. This is designed to eliminate ghost collisions with some limitations.\n - chains are one-sided\n - chains have no mass and should be used on static bodies\n - chains have a counter-clockwise winding order (normal points right of segment direction)\n - chains are either a loop or open\n - a chain must have at least 4 points\n - the distance between any two points must be greater than B2_LINEAR_SLOP\n - a chain shape should not self intersect (this is not validated)\n - an open chain shape has NO COLLISION on the first and final edge\n - you may overlap two open chains on their first three and/or last three points to get smooth collision\n - a chain shape creates multiple line segment shapes on the body\n https://en.wikipedia.org/wiki/Polygonal_chain\n Must be initialized using b2DefaultChainDef().\n @warning Do not use chain shapes unless you understand the limitations. This is an advanced feature.\n @ingroup shape"]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -1862,10 +1314,6 @@ const _: () = {
         [::std::mem::offset_of!(b2ChainDef, enableSensorEvents) - 65usize];
     ["Offset of field: b2ChainDef::internalValue"][::std::mem::offset_of!(b2ChainDef, internalValue) - 68usize];
 };
-unsafe extern "C" {
-    #[doc = " Use this to initialize your chain definition\n @ingroup shape"]
-    pub fn b2DefaultChainDef() -> b2ChainDef;
-}
 #[doc = "! @cond\n Profiling data. Times are in milliseconds."]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -2071,10 +1519,6 @@ const _: () = {
     ["Offset of field: b2DistanceJointDef::internalValue"]
         [::std::mem::offset_of!(b2DistanceJointDef, internalValue) - 128usize];
 };
-unsafe extern "C" {
-    #[doc = " Use this to initialize your joint definition\n @ingroup distance_joint"]
-    pub fn b2DefaultDistanceJointDef() -> b2DistanceJointDef;
-}
 #[doc = " A motor joint is used to control the relative velocity and or transform between two bodies.\n With a velocity of zero this acts like top-down friction.\n @ingroup motor_joint"]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -2131,10 +1575,6 @@ const _: () = {
     ["Offset of field: b2MotorJointDef::internalValue"]
         [::std::mem::offset_of!(b2MotorJointDef, internalValue) - 124usize];
 };
-unsafe extern "C" {
-    #[doc = " Use this to initialize your joint definition\n @ingroup motor_joint"]
-    pub fn b2DefaultMotorJointDef() -> b2MotorJointDef;
-}
 #[doc = " A filter joint is used to disable collision between two specific bodies.\n\n @ingroup filter_joint"]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -2152,10 +1592,6 @@ const _: () = {
     ["Offset of field: b2FilterJointDef::internalValue"]
         [::std::mem::offset_of!(b2FilterJointDef, internalValue) - 80usize];
 };
-unsafe extern "C" {
-    #[doc = " Use this to initialize your joint definition\n @ingroup filter_joint"]
-    pub fn b2DefaultFilterJointDef() -> b2FilterJointDef;
-}
 #[doc = " Prismatic joint definition\n Body B may slide along the x-axis in local frame A. Body B cannot rotate relative to body A.\n The joint translation is zero when the local frame origins coincide in world space.\n @ingroup prismatic_joint"]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -2212,10 +1648,6 @@ const _: () = {
     ["Offset of field: b2PrismaticJointDef::internalValue"]
         [::std::mem::offset_of!(b2PrismaticJointDef, internalValue) - 120usize];
 };
-unsafe extern "C" {
-    #[doc = " Use this to initialize your joint definition\n @ingroupd prismatic_joint"]
-    pub fn b2DefaultPrismaticJointDef() -> b2PrismaticJointDef;
-}
 #[doc = " Revolute joint definition\n A point on body B is fixed to a point on body A. Allows relative rotation.\n @ingroup revolute_joint"]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -2272,10 +1704,6 @@ const _: () = {
     ["Offset of field: b2RevoluteJointDef::internalValue"]
         [::std::mem::offset_of!(b2RevoluteJointDef, internalValue) - 120usize];
 };
-unsafe extern "C" {
-    #[doc = " Use this to initialize your joint definition.\n @ingroup revolute_joint"]
-    pub fn b2DefaultRevoluteJointDef() -> b2RevoluteJointDef;
-}
 #[doc = " Weld joint definition\n Connects two bodies together rigidly. This constraint provides springs to mimic\n soft-body simulation.\n @note The approximate solver in Box2D cannot hold many bodies together rigidly\n @ingroup weld_joint"]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -2306,10 +1734,6 @@ const _: () = {
         [::std::mem::offset_of!(b2WeldJointDef, angularDampingRatio) - 92usize];
     ["Offset of field: b2WeldJointDef::internalValue"][::std::mem::offset_of!(b2WeldJointDef, internalValue) - 96usize];
 };
-unsafe extern "C" {
-    #[doc = " Use this to initialize your joint definition\n @ingroup weld_joint"]
-    pub fn b2DefaultWeldJointDef() -> b2WeldJointDef;
-}
 #[doc = " Wheel joint definition\n Body B is a wheel that may rotate freely and slide along the local x-axis in frame A.\n The joint translation is zero when the local frame origins coincide in world space.\n @ingroup wheel_joint"]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -2357,10 +1781,6 @@ const _: () = {
     ["Offset of field: b2WheelJointDef::internalValue"]
         [::std::mem::offset_of!(b2WheelJointDef, internalValue) - 116usize];
 };
-unsafe extern "C" {
-    #[doc = " Use this to initialize your joint definition\n @ingroup wheel_joint"]
-    pub fn b2DefaultWheelJointDef() -> b2WheelJointDef;
-}
 #[doc = " The explosion definition is used to configure options for explosions. Explosions\n consider shape geometry when computing the impulse.\n @ingroup world"]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -2387,10 +1807,6 @@ const _: () = {
     ["Offset of field: b2ExplosionDef::impulsePerLength"]
         [::std::mem::offset_of!(b2ExplosionDef, impulsePerLength) - 24usize];
 };
-unsafe extern "C" {
-    #[doc = " Use this to initialize your explosion definition\n @ingroup world"]
-    pub fn b2DefaultExplosionDef() -> b2ExplosionDef;
-}
 #[doc = " A begin touch event is generated when a shape starts to overlap a sensor shape."]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -2942,47 +2358,377 @@ const _: () = {
     ["Offset of field: b2DebugDraw::drawIslands"][::std::mem::offset_of!(b2DebugDraw, drawIslands) - 100usize];
     ["Offset of field: b2DebugDraw::context"][::std::mem::offset_of!(b2DebugDraw, context) - 104usize];
 };
+#[doc = " The tree nodes"]
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct b2TreeNode {
+    pub _address: u8,
+}
 unsafe extern "C" {
+    #[doc = " This allows the user to override the allocation functions. These should be\n set during application startup."]
+    pub fn b2SetAllocator(allocFcn: b2AllocFcn, freeFcn: b2FreeFcn);
+    #[doc = " @return the total bytes allocated by Box2D"]
+    pub fn b2GetByteCount() -> ::std::os::raw::c_int;
+    #[doc = " Override the default assert callback\n @param assertFcn a non-null assert callback"]
+    pub fn b2SetAssertFcn(assertFcn: b2AssertFcn);
+    #[doc = " Get the current version of Box2D"]
+    pub fn b2GetVersion() -> b2Version;
+    pub fn b2InternalAssertFcn(
+        condition: *const ::std::os::raw::c_char,
+        fileName: *const ::std::os::raw::c_char,
+        lineNumber: ::std::os::raw::c_int,
+    ) -> ::std::os::raw::c_int;
+    #[doc = " Get the absolute number of system ticks. The value is platform specific."]
+    pub fn b2GetTicks() -> u64;
+    #[doc = " Get the milliseconds passed from an initial tick value."]
+    pub fn b2GetMilliseconds(ticks: u64) -> f32;
+    #[doc = " Get the milliseconds passed from an initial tick value. Resets the passed in\n value to the current tick value."]
+    pub fn b2GetMillisecondsAndReset(ticks: *mut u64) -> f32;
+    #[doc = " Yield to be used in a busy loop."]
+    pub fn b2Yield();
+    pub fn b2Hash(hash: u32, data: *const u8, count: ::std::os::raw::c_int) -> u32;
+    pub static b2Vec2_zero: b2Vec2;
+    pub static b2Rot_identity: b2Rot;
+    pub static b2Transform_identity: b2Transform;
+    pub static b2Mat22_zero: b2Mat22;
+    #[doc = " Is this a valid number? Not NaN or infinity."]
+    pub fn b2IsValidFloat(a: f32) -> bool;
+    #[doc = " Is this a valid vector? Not NaN or infinity."]
+    pub fn b2IsValidVec2(v: b2Vec2) -> bool;
+    #[doc = " Is this a valid rotation? Not NaN or infinity. Is normalized."]
+    pub fn b2IsValidRotation(q: b2Rot) -> bool;
+    #[doc = " Is this a valid transform? Not NaN or infinity. Rotation is normalized."]
+    pub fn b2IsValidTransform(t: b2Transform) -> bool;
+    #[doc = " Is this a valid bounding box? Not Nan or infinity. Upper bound greater than or equal to lower bound."]
+    pub fn b2IsValidAABB(aabb: b2AABB) -> bool;
+    #[doc = " Is this a valid plane? Normal is a unit vector. Not Nan or infinity."]
+    pub fn b2IsValidPlane(a: b2Plane) -> bool;
+    #[doc = " Compute an approximate arctangent in the range [-pi, pi]\n This is hand coded for cross-platform determinism. The atan2f\n function in the standard library is not cross-platform deterministic.\n\tAccurate to around 0.0023 degrees"]
+    pub fn b2Atan2(y: f32, x: f32) -> f32;
+    #[doc = " Compute the cosine and sine of an angle in radians. Implemented\n for cross-platform determinism."]
+    pub fn b2ComputeCosSin(radians: f32) -> b2CosSin;
+    #[doc = " Compute the rotation between two unit vectors"]
+    pub fn b2ComputeRotationBetweenUnitVectors(v1: b2Vec2, v2: b2Vec2) -> b2Rot;
+    #[doc = " Box2D bases all length units on meters, but you may need different units for your game.\n You can set this value to use different units. This should be done at application startup\n and only modified once. Default value is 1.\n For example, if your game uses pixels for units you can use pixels for all length values\n sent to Box2D. There should be no extra cost. However, Box2D has some internal tolerances\n and thresholds that have been tuned for meters. By calling this function, Box2D is able\n to adjust those tolerances and thresholds to improve accuracy.\n A good rule of thumb is to pass the height of your player character to this function. So\n if your player character is 32 pixels high, then pass 32 to this function. Then you may\n confidently use pixels for all the length values sent to Box2D. All length values returned\n from Box2D will also be pixels because Box2D does not do any scaling internally.\n However, you are now on the hook for coming up with good values for gravity, density, and\n forces.\n @warning This must be modified before any calls to Box2D"]
+    pub fn b2SetLengthUnitsPerMeter(lengthUnits: f32);
+    #[doc = " Get the current length units per meter."]
+    pub fn b2GetLengthUnitsPerMeter() -> f32;
+    #[doc = " Validate ray cast input data (NaN, etc)"]
+    pub fn b2IsValidRay(input: *const b2RayCastInput) -> bool;
+    #[doc = " Make a convex polygon from a convex hull. This will assert if the hull is not valid.\n @warning Do not manually fill in the hull data, it must come directly from b2ComputeHull"]
+    pub fn b2MakePolygon(hull: *const b2Hull, radius: f32) -> b2Polygon;
+    #[doc = " Make an offset convex polygon from a convex hull. This will assert if the hull is not valid.\n @warning Do not manually fill in the hull data, it must come directly from b2ComputeHull"]
+    pub fn b2MakeOffsetPolygon(hull: *const b2Hull, position: b2Vec2, rotation: b2Rot) -> b2Polygon;
+    #[doc = " Make an offset convex polygon from a convex hull. This will assert if the hull is not valid.\n @warning Do not manually fill in the hull data, it must come directly from b2ComputeHull"]
+    pub fn b2MakeOffsetRoundedPolygon(hull: *const b2Hull, position: b2Vec2, rotation: b2Rot, radius: f32)
+    -> b2Polygon;
+    #[doc = " Make a square polygon, bypassing the need for a convex hull.\n @param halfWidth the half-width"]
+    pub fn b2MakeSquare(halfWidth: f32) -> b2Polygon;
+    #[doc = " Make a box (rectangle) polygon, bypassing the need for a convex hull.\n @param halfWidth the half-width (x-axis)\n @param halfHeight the half-height (y-axis)"]
+    pub fn b2MakeBox(halfWidth: f32, halfHeight: f32) -> b2Polygon;
+    #[doc = " Make a rounded box, bypassing the need for a convex hull.\n @param halfWidth the half-width (x-axis)\n @param halfHeight the half-height (y-axis)\n @param radius the radius of the rounded extension"]
+    pub fn b2MakeRoundedBox(halfWidth: f32, halfHeight: f32, radius: f32) -> b2Polygon;
+    #[doc = " Make an offset box, bypassing the need for a convex hull.\n @param halfWidth the half-width (x-axis)\n @param halfHeight the half-height (y-axis)\n @param center the local center of the box\n @param rotation the local rotation of the box"]
+    pub fn b2MakeOffsetBox(halfWidth: f32, halfHeight: f32, center: b2Vec2, rotation: b2Rot) -> b2Polygon;
+    #[doc = " Make an offset rounded box, bypassing the need for a convex hull.\n @param halfWidth the half-width (x-axis)\n @param halfHeight the half-height (y-axis)\n @param center the local center of the box\n @param rotation the local rotation of the box\n @param radius the radius of the rounded extension"]
+    pub fn b2MakeOffsetRoundedBox(
+        halfWidth: f32,
+        halfHeight: f32,
+        center: b2Vec2,
+        rotation: b2Rot,
+        radius: f32,
+    ) -> b2Polygon;
+    #[doc = " Transform a polygon. This is useful for transferring a shape from one body to another."]
+    pub fn b2TransformPolygon(transform: b2Transform, polygon: *const b2Polygon) -> b2Polygon;
+    #[doc = " Compute mass properties of a circle"]
+    pub fn b2ComputeCircleMass(shape: *const b2Circle, density: f32) -> b2MassData;
+    #[doc = " Compute mass properties of a capsule"]
+    pub fn b2ComputeCapsuleMass(shape: *const b2Capsule, density: f32) -> b2MassData;
+    #[doc = " Compute mass properties of a polygon"]
+    pub fn b2ComputePolygonMass(shape: *const b2Polygon, density: f32) -> b2MassData;
+    #[doc = " Compute the bounding box of a transformed circle"]
+    pub fn b2ComputeCircleAABB(shape: *const b2Circle, transform: b2Transform) -> b2AABB;
+    #[doc = " Compute the bounding box of a transformed capsule"]
+    pub fn b2ComputeCapsuleAABB(shape: *const b2Capsule, transform: b2Transform) -> b2AABB;
+    #[doc = " Compute the bounding box of a transformed polygon"]
+    pub fn b2ComputePolygonAABB(shape: *const b2Polygon, transform: b2Transform) -> b2AABB;
+    #[doc = " Compute the bounding box of a transformed line segment"]
+    pub fn b2ComputeSegmentAABB(shape: *const b2Segment, transform: b2Transform) -> b2AABB;
+    #[doc = " Test a point for overlap with a circle in local space"]
+    pub fn b2PointInCircle(shape: *const b2Circle, point: b2Vec2) -> bool;
+    #[doc = " Test a point for overlap with a capsule in local space"]
+    pub fn b2PointInCapsule(shape: *const b2Capsule, point: b2Vec2) -> bool;
+    #[doc = " Test a point for overlap with a convex polygon in local space"]
+    pub fn b2PointInPolygon(shape: *const b2Polygon, point: b2Vec2) -> bool;
+    #[doc = " Ray cast versus circle shape in local space."]
+    pub fn b2RayCastCircle(shape: *const b2Circle, input: *const b2RayCastInput) -> b2CastOutput;
+    #[doc = " Ray cast versus capsule shape in local space."]
+    pub fn b2RayCastCapsule(shape: *const b2Capsule, input: *const b2RayCastInput) -> b2CastOutput;
+    #[doc = " Ray cast versus segment shape in local space. Optionally treat the segment as one-sided with hits from\n the left side being treated as a miss."]
+    pub fn b2RayCastSegment(shape: *const b2Segment, input: *const b2RayCastInput, oneSided: bool) -> b2CastOutput;
+    #[doc = " Ray cast versus polygon shape in local space."]
+    pub fn b2RayCastPolygon(shape: *const b2Polygon, input: *const b2RayCastInput) -> b2CastOutput;
+    #[doc = " Shape cast versus a circle."]
+    pub fn b2ShapeCastCircle(shape: *const b2Circle, input: *const b2ShapeCastInput) -> b2CastOutput;
+    #[doc = " Shape cast versus a capsule."]
+    pub fn b2ShapeCastCapsule(shape: *const b2Capsule, input: *const b2ShapeCastInput) -> b2CastOutput;
+    #[doc = " Shape cast versus a line segment."]
+    pub fn b2ShapeCastSegment(shape: *const b2Segment, input: *const b2ShapeCastInput) -> b2CastOutput;
+    #[doc = " Shape cast versus a convex polygon."]
+    pub fn b2ShapeCastPolygon(shape: *const b2Polygon, input: *const b2ShapeCastInput) -> b2CastOutput;
+    #[doc = " Compute the convex hull of a set of points. Returns an empty hull if it fails.\n Some failure cases:\n - all points very close together\n - all points on a line\n - less than 3 points\n - more than B2_MAX_POLYGON_VERTICES points\n This welds close points and removes collinear points.\n @warning Do not modify a hull once it has been computed"]
+    pub fn b2ComputeHull(points: *const b2Vec2, count: ::std::os::raw::c_int) -> b2Hull;
+    #[doc = " This determines if a hull is valid. Checks for:\n - convexity\n - collinear points\n This is expensive and should not be called at runtime."]
+    pub fn b2ValidateHull(hull: *const b2Hull) -> bool;
+    #[doc = " Compute the distance between two line segments, clamping at the end points if needed."]
+    pub fn b2SegmentDistance(p1: b2Vec2, q1: b2Vec2, p2: b2Vec2, q2: b2Vec2) -> b2SegmentDistanceResult;
+    pub static b2_emptySimplexCache: b2SimplexCache;
+    #[doc = " Compute the closest points between two shapes represented as point clouds.\n b2SimplexCache cache is input/output. On the first call set b2SimplexCache.count to zero.\n The underlying GJK algorithm may be debugged by passing in debug simplexes and capacity. You may pass in NULL and 0 for these."]
+    pub fn b2ShapeDistance(
+        input: *const b2DistanceInput,
+        cache: *mut b2SimplexCache,
+        simplexes: *mut b2Simplex,
+        simplexCapacity: ::std::os::raw::c_int,
+    ) -> b2DistanceOutput;
+    #[doc = " Perform a linear shape cast of shape B moving and shape A fixed. Determines the hit point, normal, and translation fraction.\n Initially touching shapes are treated as a miss."]
+    pub fn b2ShapeCast(input: *const b2ShapeCastPairInput) -> b2CastOutput;
+    #[doc = " Make a proxy for use in overlap, shape cast, and related functions. This is a deep copy of the points."]
+    pub fn b2MakeProxy(points: *const b2Vec2, count: ::std::os::raw::c_int, radius: f32) -> b2ShapeProxy;
+    #[doc = " Make a proxy with a transform. This is a deep copy of the points."]
+    pub fn b2MakeOffsetProxy(
+        points: *const b2Vec2,
+        count: ::std::os::raw::c_int,
+        radius: f32,
+        position: b2Vec2,
+        rotation: b2Rot,
+    ) -> b2ShapeProxy;
+    #[doc = " Evaluate the transform sweep at a specific time."]
+    pub fn b2GetSweepTransform(sweep: *const b2Sweep, time: f32) -> b2Transform;
+    #[doc = " Compute the upper bound on time before two shapes penetrate. Time is represented as\n a fraction between [0,tMax]. This uses a swept separating axis and may miss some intermediate,\n non-tunneling collisions. If you change the time interval, you should call this function\n again."]
+    pub fn b2TimeOfImpact(input: *const b2TOIInput) -> b2TOIOutput;
+    #[doc = " Compute the contact manifold between two circles"]
+    pub fn b2CollideCircles(
+        circleA: *const b2Circle,
+        xfA: b2Transform,
+        circleB: *const b2Circle,
+        xfB: b2Transform,
+    ) -> b2Manifold;
+    #[doc = " Compute the contact manifold between a capsule and circle"]
+    pub fn b2CollideCapsuleAndCircle(
+        capsuleA: *const b2Capsule,
+        xfA: b2Transform,
+        circleB: *const b2Circle,
+        xfB: b2Transform,
+    ) -> b2Manifold;
+    #[doc = " Compute the contact manifold between an segment and a circle"]
+    pub fn b2CollideSegmentAndCircle(
+        segmentA: *const b2Segment,
+        xfA: b2Transform,
+        circleB: *const b2Circle,
+        xfB: b2Transform,
+    ) -> b2Manifold;
+    #[doc = " Compute the contact manifold between a polygon and a circle"]
+    pub fn b2CollidePolygonAndCircle(
+        polygonA: *const b2Polygon,
+        xfA: b2Transform,
+        circleB: *const b2Circle,
+        xfB: b2Transform,
+    ) -> b2Manifold;
+    #[doc = " Compute the contact manifold between a capsule and circle"]
+    pub fn b2CollideCapsules(
+        capsuleA: *const b2Capsule,
+        xfA: b2Transform,
+        capsuleB: *const b2Capsule,
+        xfB: b2Transform,
+    ) -> b2Manifold;
+    #[doc = " Compute the contact manifold between an segment and a capsule"]
+    pub fn b2CollideSegmentAndCapsule(
+        segmentA: *const b2Segment,
+        xfA: b2Transform,
+        capsuleB: *const b2Capsule,
+        xfB: b2Transform,
+    ) -> b2Manifold;
+    #[doc = " Compute the contact manifold between a polygon and capsule"]
+    pub fn b2CollidePolygonAndCapsule(
+        polygonA: *const b2Polygon,
+        xfA: b2Transform,
+        capsuleB: *const b2Capsule,
+        xfB: b2Transform,
+    ) -> b2Manifold;
+    #[doc = " Compute the contact manifold between two polygons"]
+    pub fn b2CollidePolygons(
+        polygonA: *const b2Polygon,
+        xfA: b2Transform,
+        polygonB: *const b2Polygon,
+        xfB: b2Transform,
+    ) -> b2Manifold;
+    #[doc = " Compute the contact manifold between an segment and a polygon"]
+    pub fn b2CollideSegmentAndPolygon(
+        segmentA: *const b2Segment,
+        xfA: b2Transform,
+        polygonB: *const b2Polygon,
+        xfB: b2Transform,
+    ) -> b2Manifold;
+    #[doc = " Compute the contact manifold between a chain segment and a circle"]
+    pub fn b2CollideChainSegmentAndCircle(
+        segmentA: *const b2ChainSegment,
+        xfA: b2Transform,
+        circleB: *const b2Circle,
+        xfB: b2Transform,
+    ) -> b2Manifold;
+    #[doc = " Compute the contact manifold between a chain segment and a capsule"]
+    pub fn b2CollideChainSegmentAndCapsule(
+        segmentA: *const b2ChainSegment,
+        xfA: b2Transform,
+        capsuleB: *const b2Capsule,
+        xfB: b2Transform,
+        cache: *mut b2SimplexCache,
+    ) -> b2Manifold;
+    #[doc = " Compute the contact manifold between a chain segment and a rounded polygon"]
+    pub fn b2CollideChainSegmentAndPolygon(
+        segmentA: *const b2ChainSegment,
+        xfA: b2Transform,
+        polygonB: *const b2Polygon,
+        xfB: b2Transform,
+        cache: *mut b2SimplexCache,
+    ) -> b2Manifold;
+    #[doc = " Constructing the tree initializes the node pool."]
+    pub fn b2DynamicTree_Create() -> b2DynamicTree;
+    #[doc = " Destroy the tree, freeing the node pool."]
+    pub fn b2DynamicTree_Destroy(tree: *mut b2DynamicTree);
+    #[doc = " Create a proxy. Provide an AABB and a userData value."]
+    pub fn b2DynamicTree_CreateProxy(
+        tree: *mut b2DynamicTree,
+        aabb: b2AABB,
+        categoryBits: u64,
+        userData: u64,
+    ) -> ::std::os::raw::c_int;
+    #[doc = " Destroy a proxy. This asserts if the id is invalid."]
+    pub fn b2DynamicTree_DestroyProxy(tree: *mut b2DynamicTree, proxyId: ::std::os::raw::c_int);
+    #[doc = " Move a proxy to a new AABB by removing and reinserting into the tree."]
+    pub fn b2DynamicTree_MoveProxy(tree: *mut b2DynamicTree, proxyId: ::std::os::raw::c_int, aabb: b2AABB);
+    #[doc = " Enlarge a proxy and enlarge ancestors as necessary."]
+    pub fn b2DynamicTree_EnlargeProxy(tree: *mut b2DynamicTree, proxyId: ::std::os::raw::c_int, aabb: b2AABB);
+    #[doc = " Modify the category bits on a proxy. This is an expensive operation."]
+    pub fn b2DynamicTree_SetCategoryBits(tree: *mut b2DynamicTree, proxyId: ::std::os::raw::c_int, categoryBits: u64);
+    #[doc = " Get the category bits on a proxy."]
+    pub fn b2DynamicTree_GetCategoryBits(tree: *mut b2DynamicTree, proxyId: ::std::os::raw::c_int) -> u64;
+    #[doc = " Query an AABB for overlapping proxies. The callback class is called for each proxy that overlaps the supplied AABB.\n\t@return performance data"]
+    pub fn b2DynamicTree_Query(
+        tree: *const b2DynamicTree,
+        aabb: b2AABB,
+        maskBits: u64,
+        callback: b2TreeQueryCallbackFcn,
+        context: *mut ::std::os::raw::c_void,
+    ) -> b2TreeStats;
+    #[doc = " Query an AABB for overlapping proxies. The callback class is called for each proxy that overlaps the supplied AABB.\n No filtering is performed.\n\t@return performance data"]
+    pub fn b2DynamicTree_QueryAll(
+        tree: *const b2DynamicTree,
+        aabb: b2AABB,
+        callback: b2TreeQueryCallbackFcn,
+        context: *mut ::std::os::raw::c_void,
+    ) -> b2TreeStats;
+    #[doc = " Ray cast against the proxies in the tree. This relies on the callback\n to perform a exact ray cast in the case were the proxy contains a shape.\n The callback also performs the any collision filtering. This has performance\n roughly equal to k * log(n), where k is the number of collisions and n is the\n number of proxies in the tree.\n Bit-wise filtering using mask bits can greatly improve performance in some scenarios.\n\tHowever, this filtering may be approximate, so the user should still apply filtering to results.\n @param tree the dynamic tree to ray cast\n @param input the ray cast input data. The ray extends from p1 to p1 + maxFraction * (p2 - p1)\n @param maskBits mask bit hint: `bool accept = (maskBits & node->categoryBits) != 0;`\n @param callback a callback class that is called for each proxy that is hit by the ray\n @param context user context that is passed to the callback\n\t@return performance data"]
+    pub fn b2DynamicTree_RayCast(
+        tree: *const b2DynamicTree,
+        input: *const b2RayCastInput,
+        maskBits: u64,
+        callback: b2TreeRayCastCallbackFcn,
+        context: *mut ::std::os::raw::c_void,
+    ) -> b2TreeStats;
+    #[doc = " Ray cast against the proxies in the tree. This relies on the callback\n to perform a exact ray cast in the case were the proxy contains a shape.\n The callback also performs the any collision filtering. This has performance\n roughly equal to k * log(n), where k is the number of collisions and n is the\n number of proxies in the tree.\n @param tree the dynamic tree to ray cast\n @param input the ray cast input data. The ray extends from p1 to p1 + maxFraction * (p2 - p1).\n @param maskBits filter bits: `bool accept = (maskBits & node->categoryBits) != 0;`\n @param callback a callback class that is called for each proxy that is hit by the shape\n @param context user context that is passed to the callback\n\t@return performance data"]
+    pub fn b2DynamicTree_ShapeCast(
+        tree: *const b2DynamicTree,
+        input: *const b2ShapeCastInput,
+        maskBits: u64,
+        callback: b2TreeShapeCastCallbackFcn,
+        context: *mut ::std::os::raw::c_void,
+    ) -> b2TreeStats;
+    #[doc = " Get the height of the binary tree."]
+    pub fn b2DynamicTree_GetHeight(tree: *const b2DynamicTree) -> ::std::os::raw::c_int;
+    #[doc = " Get the ratio of the sum of the node areas to the root area."]
+    pub fn b2DynamicTree_GetAreaRatio(tree: *const b2DynamicTree) -> f32;
+    #[doc = " Get the bounding box that contains the entire tree"]
+    pub fn b2DynamicTree_GetRootBounds(tree: *const b2DynamicTree) -> b2AABB;
+    #[doc = " Get the number of proxies created"]
+    pub fn b2DynamicTree_GetProxyCount(tree: *const b2DynamicTree) -> ::std::os::raw::c_int;
+    #[doc = " Rebuild the tree while retaining subtrees that haven't changed. Returns the number of boxes sorted."]
+    pub fn b2DynamicTree_Rebuild(tree: *mut b2DynamicTree, fullBuild: bool) -> ::std::os::raw::c_int;
+    #[doc = " Get the number of bytes used by this tree"]
+    pub fn b2DynamicTree_GetByteCount(tree: *const b2DynamicTree) -> ::std::os::raw::c_int;
+    #[doc = " Get proxy user data"]
+    pub fn b2DynamicTree_GetUserData(tree: *const b2DynamicTree, proxyId: ::std::os::raw::c_int) -> u64;
+    #[doc = " Get the AABB of a proxy"]
+    pub fn b2DynamicTree_GetAABB(tree: *const b2DynamicTree, proxyId: ::std::os::raw::c_int) -> b2AABB;
+    #[doc = " Validate this tree. For testing."]
+    pub fn b2DynamicTree_Validate(tree: *const b2DynamicTree);
+    #[doc = " Validate this tree has no enlarged AABBs. For testing."]
+    pub fn b2DynamicTree_ValidateNoEnlarged(tree: *const b2DynamicTree);
+    #[doc = " Solves the position of a mover that satisfies the given collision planes.\n @param targetDelta the desired movement from the position used to generate the collision planes\n @param planes the collision planes\n @param count the number of collision planes"]
+    pub fn b2SolvePlanes(
+        targetDelta: b2Vec2,
+        planes: *mut b2CollisionPlane,
+        count: ::std::os::raw::c_int,
+    ) -> b2PlaneSolverResult;
+    #[doc = " Clips the velocity against the given collision planes. Planes with zero push or clipVelocity\n set to false are skipped."]
+    pub fn b2ClipVector(vector: b2Vec2, planes: *const b2CollisionPlane, count: ::std::os::raw::c_int) -> b2Vec2;
+    #[doc = " Use these to make your identifiers null.\n You may also use zero initialization to get null."]
+    pub static b2_nullWorldId: b2WorldId;
+    pub static b2_nullBodyId: b2BodyId;
+    pub static b2_nullShapeId: b2ShapeId;
+    pub static b2_nullChainId: b2ChainId;
+    pub static b2_nullJointId: b2JointId;
+    pub static b2_nullContactId: b2ContactId;
+    #[doc = " Use this to initialize your world definition\n @ingroup world"]
+    pub fn b2DefaultWorldDef() -> b2WorldDef;
+    #[doc = " Use this to initialize your body definition\n @ingroup body"]
+    pub fn b2DefaultBodyDef() -> b2BodyDef;
+    #[doc = " Use this to initialize your filter\n @ingroup shape"]
+    pub fn b2DefaultFilter() -> b2Filter;
+    #[doc = " Use this to initialize your query filter\n @ingroup shape"]
+    pub fn b2DefaultQueryFilter() -> b2QueryFilter;
+    #[doc = " Use this to initialize your surface material\n @ingroup shape"]
+    pub fn b2DefaultSurfaceMaterial() -> b2SurfaceMaterial;
+    #[doc = " Use this to initialize your shape definition\n @ingroup shape"]
+    pub fn b2DefaultShapeDef() -> b2ShapeDef;
+    #[doc = " Use this to initialize your chain definition\n @ingroup shape"]
+    pub fn b2DefaultChainDef() -> b2ChainDef;
+    #[doc = " Use this to initialize your joint definition\n @ingroup distance_joint"]
+    pub fn b2DefaultDistanceJointDef() -> b2DistanceJointDef;
+    #[doc = " Use this to initialize your joint definition\n @ingroup motor_joint"]
+    pub fn b2DefaultMotorJointDef() -> b2MotorJointDef;
+    #[doc = " Use this to initialize your joint definition\n @ingroup filter_joint"]
+    pub fn b2DefaultFilterJointDef() -> b2FilterJointDef;
+    #[doc = " Use this to initialize your joint definition\n @ingroupd prismatic_joint"]
+    pub fn b2DefaultPrismaticJointDef() -> b2PrismaticJointDef;
+    #[doc = " Use this to initialize your joint definition.\n @ingroup revolute_joint"]
+    pub fn b2DefaultRevoluteJointDef() -> b2RevoluteJointDef;
+    #[doc = " Use this to initialize your joint definition\n @ingroup weld_joint"]
+    pub fn b2DefaultWeldJointDef() -> b2WeldJointDef;
+    #[doc = " Use this to initialize your joint definition\n @ingroup wheel_joint"]
+    pub fn b2DefaultWheelJointDef() -> b2WheelJointDef;
+    #[doc = " Use this to initialize your explosion definition\n @ingroup world"]
+    pub fn b2DefaultExplosionDef() -> b2ExplosionDef;
     #[doc = " Use this to initialize your drawing interface. This allows you to implement a sub-set\n of the drawing functions."]
     pub fn b2DefaultDebugDraw() -> b2DebugDraw;
-}
-unsafe extern "C" {
     #[doc = " Create a world for rigid body simulation. A world contains bodies, shapes, and constraints. You make create\n up to 128 worlds. Each world is completely independent and may be simulated in parallel.\n @return the world id."]
     pub fn b2CreateWorld(def: *const b2WorldDef) -> b2WorldId;
-}
-unsafe extern "C" {
     #[doc = " Destroy a world"]
     pub fn b2DestroyWorld(worldId: b2WorldId);
-}
-unsafe extern "C" {
     #[doc = " World id validation. Provides validation for up to 64K allocations."]
     pub fn b2World_IsValid(id: b2WorldId) -> bool;
-}
-unsafe extern "C" {
     #[doc = " Simulate a world for one time step. This performs collision detection, integration, and constraint solution.\n @param worldId The world to simulate\n @param timeStep The amount of time to simulate, this should be a fixed number. Usually 1/60.\n @param subStepCount The number of sub-steps, increasing the sub-step count can increase accuracy. Usually 4."]
     pub fn b2World_Step(worldId: b2WorldId, timeStep: f32, subStepCount: ::std::os::raw::c_int);
-}
-unsafe extern "C" {
     #[doc = " Call this to draw shapes and other debug draw data"]
     pub fn b2World_Draw(worldId: b2WorldId, draw: *mut b2DebugDraw);
-}
-unsafe extern "C" {
     #[doc = " Get the body events for the current time step. The event data is transient. Do not store a reference to this data."]
     pub fn b2World_GetBodyEvents(worldId: b2WorldId) -> b2BodyEvents;
-}
-unsafe extern "C" {
     #[doc = " Get sensor events for the current time step. The event data is transient. Do not store a reference to this data."]
     pub fn b2World_GetSensorEvents(worldId: b2WorldId) -> b2SensorEvents;
-}
-unsafe extern "C" {
     #[doc = " Get contact events for this current time step. The event data is transient. Do not store a reference to this data."]
     pub fn b2World_GetContactEvents(worldId: b2WorldId) -> b2ContactEvents;
-}
-unsafe extern "C" {
     #[doc = " Get the joint events for the current time step. The event data is transient. Do not store a reference to this data."]
     pub fn b2World_GetJointEvents(worldId: b2WorldId) -> b2JointEvents;
-}
-unsafe extern "C" {
     #[doc = " Overlap test for all shapes that *potentially* overlap the provided AABB"]
     pub fn b2World_OverlapAABB(
         worldId: b2WorldId,
@@ -2991,8 +2737,6 @@ unsafe extern "C" {
         fcn: b2OverlapResultFcn,
         context: *mut ::std::os::raw::c_void,
     ) -> b2TreeStats;
-}
-unsafe extern "C" {
     #[doc = " Overlap test for all shapes that overlap the provided shape proxy."]
     pub fn b2World_OverlapShape(
         worldId: b2WorldId,
@@ -3001,8 +2745,6 @@ unsafe extern "C" {
         fcn: b2OverlapResultFcn,
         context: *mut ::std::os::raw::c_void,
     ) -> b2TreeStats;
-}
-unsafe extern "C" {
     #[doc = " Cast a ray into the world to collect shapes in the path of the ray.\n Your callback function controls whether you get the closest point, any point, or n-points.\n @note The callback function may receive shapes in any order\n @param worldId The world to cast the ray against\n @param origin The start point of the ray\n @param translation The translation of the ray from the start point to the end point\n @param filter Contains bit flags to filter unwanted shapes from the results\n @param fcn A user implemented callback function\n @param context A user context that is passed along to the callback function\n\t@return traversal performance counters"]
     pub fn b2World_CastRay(
         worldId: b2WorldId,
@@ -3012,8 +2754,6 @@ unsafe extern "C" {
         fcn: b2CastResultFcn,
         context: *mut ::std::os::raw::c_void,
     ) -> b2TreeStats;
-}
-unsafe extern "C" {
     #[doc = " Cast a ray into the world to collect the closest hit. This is a convenience function. Ignores initial overlap.\n This is less general than b2World_CastRay() and does not allow for custom filtering."]
     pub fn b2World_CastRayClosest(
         worldId: b2WorldId,
@@ -3021,8 +2761,6 @@ unsafe extern "C" {
         translation: b2Vec2,
         filter: b2QueryFilter,
     ) -> b2RayResult;
-}
-unsafe extern "C" {
     #[doc = " Cast a shape through the world. Similar to a cast ray except that a shape is cast instead of a point.\n\t@see b2World_CastRay"]
     pub fn b2World_CastShape(
         worldId: b2WorldId,
@@ -3032,8 +2770,6 @@ unsafe extern "C" {
         fcn: b2CastResultFcn,
         context: *mut ::std::os::raw::c_void,
     ) -> b2TreeStats;
-}
-unsafe extern "C" {
     #[doc = " Cast a capsule mover through the world. This is a special shape cast that handles sliding along other shapes while reducing\n clipping."]
     pub fn b2World_CastMover(
         worldId: b2WorldId,
@@ -3041,8 +2777,6 @@ unsafe extern "C" {
         translation: b2Vec2,
         filter: b2QueryFilter,
     ) -> f32;
-}
-unsafe extern "C" {
     #[doc = " Collide a capsule mover with the world, gathering collision planes that can be fed to b2SolvePlanes. Useful for\n kinematic character movement."]
     pub fn b2World_CollideMover(
         worldId: b2WorldId,
@@ -3051,1242 +2785,636 @@ unsafe extern "C" {
         fcn: b2PlaneResultFcn,
         context: *mut ::std::os::raw::c_void,
     );
-}
-unsafe extern "C" {
     #[doc = " Enable/disable sleep. If your application does not need sleeping, you can gain some performance\n by disabling sleep completely at the world level.\n @see b2WorldDef"]
     pub fn b2World_EnableSleeping(worldId: b2WorldId, flag: bool);
-}
-unsafe extern "C" {
     #[doc = " Is body sleeping enabled?"]
     pub fn b2World_IsSleepingEnabled(worldId: b2WorldId) -> bool;
-}
-unsafe extern "C" {
     #[doc = " Enable/disable continuous collision between dynamic and static bodies. Generally you should keep continuous\n collision enabled to prevent fast moving objects from going through static objects. The performance gain from\n disabling continuous collision is minor.\n @see b2WorldDef"]
     pub fn b2World_EnableContinuous(worldId: b2WorldId, flag: bool);
-}
-unsafe extern "C" {
     #[doc = " Is continuous collision enabled?"]
     pub fn b2World_IsContinuousEnabled(worldId: b2WorldId) -> bool;
-}
-unsafe extern "C" {
     #[doc = " Adjust the restitution threshold. It is recommended not to make this value very small\n because it will prevent bodies from sleeping. Usually in meters per second.\n @see b2WorldDef"]
     pub fn b2World_SetRestitutionThreshold(worldId: b2WorldId, value: f32);
-}
-unsafe extern "C" {
     #[doc = " Get the the restitution speed threshold. Usually in meters per second."]
     pub fn b2World_GetRestitutionThreshold(worldId: b2WorldId) -> f32;
-}
-unsafe extern "C" {
     #[doc = " Adjust the hit event threshold. This controls the collision speed needed to generate a b2ContactHitEvent.\n Usually in meters per second.\n @see b2WorldDef::hitEventThreshold"]
     pub fn b2World_SetHitEventThreshold(worldId: b2WorldId, value: f32);
-}
-unsafe extern "C" {
     #[doc = " Get the the hit event speed threshold. Usually in meters per second."]
     pub fn b2World_GetHitEventThreshold(worldId: b2WorldId) -> f32;
-}
-unsafe extern "C" {
     #[doc = " Register the custom filter callback. This is optional."]
     pub fn b2World_SetCustomFilterCallback(
         worldId: b2WorldId,
         fcn: b2CustomFilterFcn,
         context: *mut ::std::os::raw::c_void,
     );
-}
-unsafe extern "C" {
     #[doc = " Register the pre-solve callback. This is optional."]
     pub fn b2World_SetPreSolveCallback(worldId: b2WorldId, fcn: b2PreSolveFcn, context: *mut ::std::os::raw::c_void);
-}
-unsafe extern "C" {
     #[doc = " Set the gravity vector for the entire world. Box2D has no concept of an up direction and this\n is left as a decision for the application. Usually in m/s^2.\n @see b2WorldDef"]
     pub fn b2World_SetGravity(worldId: b2WorldId, gravity: b2Vec2);
-}
-unsafe extern "C" {
     #[doc = " Get the gravity vector"]
     pub fn b2World_GetGravity(worldId: b2WorldId) -> b2Vec2;
-}
-unsafe extern "C" {
     #[doc = " Apply a radial explosion\n @param worldId The world id\n @param explosionDef The explosion definition"]
     pub fn b2World_Explode(worldId: b2WorldId, explosionDef: *const b2ExplosionDef);
-}
-unsafe extern "C" {
     #[doc = " Adjust contact tuning parameters\n @param worldId The world id\n @param hertz The contact stiffness (cycles per second)\n @param dampingRatio The contact bounciness with 1 being critical damping (non-dimensional)\n @param pushSpeed The maximum contact constraint push out speed (meters per second)\n @note Advanced feature"]
     pub fn b2World_SetContactTuning(worldId: b2WorldId, hertz: f32, dampingRatio: f32, pushSpeed: f32);
-}
-unsafe extern "C" {
     #[doc = " Set the maximum linear speed. Usually in m/s."]
     pub fn b2World_SetMaximumLinearSpeed(worldId: b2WorldId, maximumLinearSpeed: f32);
-}
-unsafe extern "C" {
     #[doc = " Get the maximum linear speed. Usually in m/s."]
     pub fn b2World_GetMaximumLinearSpeed(worldId: b2WorldId) -> f32;
-}
-unsafe extern "C" {
     #[doc = " Enable/disable constraint warm starting. Advanced feature for testing. Disabling\n warm starting greatly reduces stability and provides no performance gain."]
     pub fn b2World_EnableWarmStarting(worldId: b2WorldId, flag: bool);
-}
-unsafe extern "C" {
     #[doc = " Is constraint warm starting enabled?"]
     pub fn b2World_IsWarmStartingEnabled(worldId: b2WorldId) -> bool;
-}
-unsafe extern "C" {
     #[doc = " Get the number of awake bodies."]
     pub fn b2World_GetAwakeBodyCount(worldId: b2WorldId) -> ::std::os::raw::c_int;
-}
-unsafe extern "C" {
     #[doc = " Get the current world performance profile"]
     pub fn b2World_GetProfile(worldId: b2WorldId) -> b2Profile;
-}
-unsafe extern "C" {
     #[doc = " Get world counters and sizes"]
     pub fn b2World_GetCounters(worldId: b2WorldId) -> b2Counters;
-}
-unsafe extern "C" {
     #[doc = " Set the user data pointer."]
     pub fn b2World_SetUserData(worldId: b2WorldId, userData: *mut ::std::os::raw::c_void);
-}
-unsafe extern "C" {
     #[doc = " Get the user data pointer."]
     pub fn b2World_GetUserData(worldId: b2WorldId) -> *mut ::std::os::raw::c_void;
-}
-unsafe extern "C" {
     #[doc = " Set the friction callback. Passing NULL resets to default."]
     pub fn b2World_SetFrictionCallback(worldId: b2WorldId, callback: b2FrictionCallback);
-}
-unsafe extern "C" {
     #[doc = " Set the restitution callback. Passing NULL resets to default."]
     pub fn b2World_SetRestitutionCallback(worldId: b2WorldId, callback: b2RestitutionCallback);
-}
-unsafe extern "C" {
     #[doc = " Dump memory stats to box2d_memory.txt"]
     pub fn b2World_DumpMemoryStats(worldId: b2WorldId);
-}
-unsafe extern "C" {
     #[doc = " This is for internal testing"]
     pub fn b2World_RebuildStaticTree(worldId: b2WorldId);
-}
-unsafe extern "C" {
     #[doc = " This is for internal testing"]
     pub fn b2World_EnableSpeculative(worldId: b2WorldId, flag: bool);
-}
-unsafe extern "C" {
     #[doc = " Create a rigid body given a definition. No reference to the definition is retained. So you can create the definition\n on the stack and pass it as a pointer.\n @code{.c}\n b2BodyDef bodyDef = b2DefaultBodyDef();\n b2BodyId myBodyId = b2CreateBody(myWorldId, &bodyDef);\n @endcode\n @warning This function is locked during callbacks."]
     pub fn b2CreateBody(worldId: b2WorldId, def: *const b2BodyDef) -> b2BodyId;
-}
-unsafe extern "C" {
     #[doc = " Destroy a rigid body given an id. This destroys all shapes and joints attached to the body.\n Do not keep references to the associated shapes and joints."]
     pub fn b2DestroyBody(bodyId: b2BodyId);
-}
-unsafe extern "C" {
     #[doc = " Body identifier validation. A valid body exists in a world and is non-null.\n This can be used to detect orphaned ids. Provides validation for up to 64K allocations."]
     pub fn b2Body_IsValid(id: b2BodyId) -> bool;
-}
-unsafe extern "C" {
     #[doc = " Get the body type: static, kinematic, or dynamic"]
     pub fn b2Body_GetType(bodyId: b2BodyId) -> b2BodyType;
-}
-unsafe extern "C" {
     #[doc = " Change the body type. This is an expensive operation. This automatically updates the mass\n properties regardless of the automatic mass setting."]
     pub fn b2Body_SetType(bodyId: b2BodyId, type_: b2BodyType);
-}
-unsafe extern "C" {
     #[doc = " Set the body name. Up to 31 characters excluding 0 termination."]
     pub fn b2Body_SetName(bodyId: b2BodyId, name: *const ::std::os::raw::c_char);
-}
-unsafe extern "C" {
     #[doc = " Get the body name."]
     pub fn b2Body_GetName(bodyId: b2BodyId) -> *const ::std::os::raw::c_char;
-}
-unsafe extern "C" {
     #[doc = " Set the user data for a body"]
     pub fn b2Body_SetUserData(bodyId: b2BodyId, userData: *mut ::std::os::raw::c_void);
-}
-unsafe extern "C" {
     #[doc = " Get the user data stored in a body"]
     pub fn b2Body_GetUserData(bodyId: b2BodyId) -> *mut ::std::os::raw::c_void;
-}
-unsafe extern "C" {
     #[doc = " Get the world position of a body. This is the location of the body origin."]
     pub fn b2Body_GetPosition(bodyId: b2BodyId) -> b2Vec2;
-}
-unsafe extern "C" {
     #[doc = " Get the world rotation of a body as a cosine/sine pair (complex number)"]
     pub fn b2Body_GetRotation(bodyId: b2BodyId) -> b2Rot;
-}
-unsafe extern "C" {
     #[doc = " Get the world transform of a body."]
     pub fn b2Body_GetTransform(bodyId: b2BodyId) -> b2Transform;
-}
-unsafe extern "C" {
     #[doc = " Set the world transform of a body. This acts as a teleport and is fairly expensive.\n @note Generally you should create a body with then intended transform.\n @see b2BodyDef::position and b2BodyDef::rotation"]
     pub fn b2Body_SetTransform(bodyId: b2BodyId, position: b2Vec2, rotation: b2Rot);
-}
-unsafe extern "C" {
     #[doc = " Get a local point on a body given a world point"]
     pub fn b2Body_GetLocalPoint(bodyId: b2BodyId, worldPoint: b2Vec2) -> b2Vec2;
-}
-unsafe extern "C" {
     #[doc = " Get a world point on a body given a local point"]
     pub fn b2Body_GetWorldPoint(bodyId: b2BodyId, localPoint: b2Vec2) -> b2Vec2;
-}
-unsafe extern "C" {
     #[doc = " Get a local vector on a body given a world vector"]
     pub fn b2Body_GetLocalVector(bodyId: b2BodyId, worldVector: b2Vec2) -> b2Vec2;
-}
-unsafe extern "C" {
     #[doc = " Get a world vector on a body given a local vector"]
     pub fn b2Body_GetWorldVector(bodyId: b2BodyId, localVector: b2Vec2) -> b2Vec2;
-}
-unsafe extern "C" {
     #[doc = " Get the linear velocity of a body's center of mass. Usually in meters per second."]
     pub fn b2Body_GetLinearVelocity(bodyId: b2BodyId) -> b2Vec2;
-}
-unsafe extern "C" {
     #[doc = " Get the angular velocity of a body in radians per second"]
     pub fn b2Body_GetAngularVelocity(bodyId: b2BodyId) -> f32;
-}
-unsafe extern "C" {
     #[doc = " Set the linear velocity of a body. Usually in meters per second."]
     pub fn b2Body_SetLinearVelocity(bodyId: b2BodyId, linearVelocity: b2Vec2);
-}
-unsafe extern "C" {
     #[doc = " Set the angular velocity of a body in radians per second"]
     pub fn b2Body_SetAngularVelocity(bodyId: b2BodyId, angularVelocity: f32);
-}
-unsafe extern "C" {
     #[doc = " Set the velocity to reach the given transform after a given time step.\n The result will be close but maybe not exact. This is meant for kinematic bodies.\n The target is not applied if the velocity would be below the sleep threshold.\n This will automatically wake the body if asleep."]
     pub fn b2Body_SetTargetTransform(bodyId: b2BodyId, target: b2Transform, timeStep: f32);
-}
-unsafe extern "C" {
     #[doc = " Get the linear velocity of a local point attached to a body. Usually in meters per second."]
     pub fn b2Body_GetLocalPointVelocity(bodyId: b2BodyId, localPoint: b2Vec2) -> b2Vec2;
-}
-unsafe extern "C" {
     #[doc = " Get the linear velocity of a world point attached to a body. Usually in meters per second."]
     pub fn b2Body_GetWorldPointVelocity(bodyId: b2BodyId, worldPoint: b2Vec2) -> b2Vec2;
-}
-unsafe extern "C" {
     #[doc = " Apply a force at a world point. If the force is not applied at the center of mass,\n it will generate a torque and affect the angular velocity. This optionally wakes up the body.\n The force is ignored if the body is not awake.\n @param bodyId The body id\n @param force The world force vector, usually in newtons (N)\n @param point The world position of the point of application\n @param wake Option to wake up the body"]
     pub fn b2Body_ApplyForce(bodyId: b2BodyId, force: b2Vec2, point: b2Vec2, wake: bool);
-}
-unsafe extern "C" {
     #[doc = " Apply a force to the center of mass. This optionally wakes up the body.\n The force is ignored if the body is not awake.\n @param bodyId The body id\n @param force the world force vector, usually in newtons (N).\n @param wake also wake up the body"]
     pub fn b2Body_ApplyForceToCenter(bodyId: b2BodyId, force: b2Vec2, wake: bool);
-}
-unsafe extern "C" {
     #[doc = " Apply a torque. This affects the angular velocity without affecting the linear velocity.\n This optionally wakes the body. The torque is ignored if the body is not awake.\n @param bodyId The body id\n @param torque about the z-axis (out of the screen), usually in N*m.\n @param wake also wake up the body"]
     pub fn b2Body_ApplyTorque(bodyId: b2BodyId, torque: f32, wake: bool);
-}
-unsafe extern "C" {
     #[doc = " Apply an impulse at a point. This immediately modifies the velocity.\n It also modifies the angular velocity if the point of application\n is not at the center of mass. This optionally wakes the body.\n The impulse is ignored if the body is not awake.\n @param bodyId The body id\n @param impulse the world impulse vector, usually in N*s or kg*m/s.\n @param point the world position of the point of application.\n @param wake also wake up the body\n @warning This should be used for one-shot impulses. If you need a steady force,\n use a force instead, which will work better with the sub-stepping solver."]
     pub fn b2Body_ApplyLinearImpulse(bodyId: b2BodyId, impulse: b2Vec2, point: b2Vec2, wake: bool);
-}
-unsafe extern "C" {
     #[doc = " Apply an impulse to the center of mass. This immediately modifies the velocity.\n The impulse is ignored if the body is not awake. This optionally wakes the body.\n @param bodyId The body id\n @param impulse the world impulse vector, usually in N*s or kg*m/s.\n @param wake also wake up the body\n @warning This should be used for one-shot impulses. If you need a steady force,\n use a force instead, which will work better with the sub-stepping solver."]
     pub fn b2Body_ApplyLinearImpulseToCenter(bodyId: b2BodyId, impulse: b2Vec2, wake: bool);
-}
-unsafe extern "C" {
     #[doc = " Apply an angular impulse. The impulse is ignored if the body is not awake.\n This optionally wakes the body.\n @param bodyId The body id\n @param impulse the angular impulse, usually in units of kg*m*m/s\n @param wake also wake up the body\n @warning This should be used for one-shot impulses. If you need a steady torque,\n use a torque instead, which will work better with the sub-stepping solver."]
     pub fn b2Body_ApplyAngularImpulse(bodyId: b2BodyId, impulse: f32, wake: bool);
-}
-unsafe extern "C" {
     #[doc = " Get the mass of the body, usually in kilograms"]
     pub fn b2Body_GetMass(bodyId: b2BodyId) -> f32;
-}
-unsafe extern "C" {
     #[doc = " Get the rotational inertia of the body, usually in kg*m^2"]
     pub fn b2Body_GetRotationalInertia(bodyId: b2BodyId) -> f32;
-}
-unsafe extern "C" {
     #[doc = " Get the center of mass position of the body in local space"]
     pub fn b2Body_GetLocalCenterOfMass(bodyId: b2BodyId) -> b2Vec2;
-}
-unsafe extern "C" {
     #[doc = " Get the center of mass position of the body in world space"]
     pub fn b2Body_GetWorldCenterOfMass(bodyId: b2BodyId) -> b2Vec2;
-}
-unsafe extern "C" {
     #[doc = " Override the body's mass properties. Normally this is computed automatically using the\n shape geometry and density. This information is lost if a shape is added or removed or if the\n body type changes."]
     pub fn b2Body_SetMassData(bodyId: b2BodyId, massData: b2MassData);
-}
-unsafe extern "C" {
     #[doc = " Get the mass data for a body"]
     pub fn b2Body_GetMassData(bodyId: b2BodyId) -> b2MassData;
-}
-unsafe extern "C" {
     #[doc = " This update the mass properties to the sum of the mass properties of the shapes.\n This normally does not need to be called unless you called SetMassData to override\n the mass and you later want to reset the mass.\n You may also use this when automatic mass computation has been disabled.\n You should call this regardless of body type.\n Note that sensor shapes may have mass."]
     pub fn b2Body_ApplyMassFromShapes(bodyId: b2BodyId);
-}
-unsafe extern "C" {
     #[doc = " Adjust the linear damping. Normally this is set in b2BodyDef before creation."]
     pub fn b2Body_SetLinearDamping(bodyId: b2BodyId, linearDamping: f32);
-}
-unsafe extern "C" {
     #[doc = " Get the current linear damping."]
     pub fn b2Body_GetLinearDamping(bodyId: b2BodyId) -> f32;
-}
-unsafe extern "C" {
     #[doc = " Adjust the angular damping. Normally this is set in b2BodyDef before creation."]
     pub fn b2Body_SetAngularDamping(bodyId: b2BodyId, angularDamping: f32);
-}
-unsafe extern "C" {
     #[doc = " Get the current angular damping."]
     pub fn b2Body_GetAngularDamping(bodyId: b2BodyId) -> f32;
-}
-unsafe extern "C" {
     #[doc = " Adjust the gravity scale. Normally this is set in b2BodyDef before creation.\n @see b2BodyDef::gravityScale"]
     pub fn b2Body_SetGravityScale(bodyId: b2BodyId, gravityScale: f32);
-}
-unsafe extern "C" {
     #[doc = " Get the current gravity scale"]
     pub fn b2Body_GetGravityScale(bodyId: b2BodyId) -> f32;
-}
-unsafe extern "C" {
     #[doc = " @return true if this body is awake"]
     pub fn b2Body_IsAwake(bodyId: b2BodyId) -> bool;
-}
-unsafe extern "C" {
     #[doc = " Wake a body from sleep. This wakes the entire island the body is touching.\n @warning Putting a body to sleep will put the entire island of bodies touching this body to sleep,\n which can be expensive and possibly unintuitive."]
     pub fn b2Body_SetAwake(bodyId: b2BodyId, awake: bool);
-}
-unsafe extern "C" {
     #[doc = " Enable or disable sleeping for this body. If sleeping is disabled the body will wake."]
     pub fn b2Body_EnableSleep(bodyId: b2BodyId, enableSleep: bool);
-}
-unsafe extern "C" {
     #[doc = " Returns true if sleeping is enabled for this body"]
     pub fn b2Body_IsSleepEnabled(bodyId: b2BodyId) -> bool;
-}
-unsafe extern "C" {
     #[doc = " Set the sleep threshold, usually in meters per second"]
     pub fn b2Body_SetSleepThreshold(bodyId: b2BodyId, sleepThreshold: f32);
-}
-unsafe extern "C" {
     #[doc = " Get the sleep threshold, usually in meters per second."]
     pub fn b2Body_GetSleepThreshold(bodyId: b2BodyId) -> f32;
-}
-unsafe extern "C" {
     #[doc = " Returns true if this body is enabled"]
     pub fn b2Body_IsEnabled(bodyId: b2BodyId) -> bool;
-}
-unsafe extern "C" {
     #[doc = " Disable a body by removing it completely from the simulation. This is expensive."]
     pub fn b2Body_Disable(bodyId: b2BodyId);
-}
-unsafe extern "C" {
     #[doc = " Enable a body by adding it to the simulation. This is expensive."]
     pub fn b2Body_Enable(bodyId: b2BodyId);
-}
-unsafe extern "C" {
     #[doc = " Set the motion locks on this body."]
     pub fn b2Body_SetMotionLocks(bodyId: b2BodyId, locks: b2MotionLocks);
-}
-unsafe extern "C" {
     #[doc = " Get the motion locks for this body."]
     pub fn b2Body_GetMotionLocks(bodyId: b2BodyId) -> b2MotionLocks;
-}
-unsafe extern "C" {
     #[doc = " Set this body to be a bullet. A bullet does continuous collision detection\n against dynamic bodies (but not other bullets)."]
     pub fn b2Body_SetBullet(bodyId: b2BodyId, flag: bool);
-}
-unsafe extern "C" {
     #[doc = " Is this body a bullet?"]
     pub fn b2Body_IsBullet(bodyId: b2BodyId) -> bool;
-}
-unsafe extern "C" {
     #[doc = " Enable/disable contact events on all shapes.\n @see b2ShapeDef::enableContactEvents\n @warning changing this at runtime may cause mismatched begin/end touch events"]
     pub fn b2Body_EnableContactEvents(bodyId: b2BodyId, flag: bool);
-}
-unsafe extern "C" {
     #[doc = " Enable/disable hit events on all shapes\n @see b2ShapeDef::enableHitEvents"]
     pub fn b2Body_EnableHitEvents(bodyId: b2BodyId, flag: bool);
-}
-unsafe extern "C" {
     #[doc = " Get the world that owns this body"]
     pub fn b2Body_GetWorld(bodyId: b2BodyId) -> b2WorldId;
-}
-unsafe extern "C" {
     #[doc = " Get the number of shapes on this body"]
     pub fn b2Body_GetShapeCount(bodyId: b2BodyId) -> ::std::os::raw::c_int;
-}
-unsafe extern "C" {
     #[doc = " Get the shape ids for all shapes on this body, up to the provided capacity.\n @returns the number of shape ids stored in the user array"]
     pub fn b2Body_GetShapes(
         bodyId: b2BodyId,
         shapeArray: *mut b2ShapeId,
         capacity: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int;
-}
-unsafe extern "C" {
     #[doc = " Get the number of joints on this body"]
     pub fn b2Body_GetJointCount(bodyId: b2BodyId) -> ::std::os::raw::c_int;
-}
-unsafe extern "C" {
     #[doc = " Get the joint ids for all joints on this body, up to the provided capacity\n @returns the number of joint ids stored in the user array"]
     pub fn b2Body_GetJoints(
         bodyId: b2BodyId,
         jointArray: *mut b2JointId,
         capacity: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int;
-}
-unsafe extern "C" {
     #[doc = " Get the maximum capacity required for retrieving all the touching contacts on a body"]
     pub fn b2Body_GetContactCapacity(bodyId: b2BodyId) -> ::std::os::raw::c_int;
-}
-unsafe extern "C" {
     #[doc = " Get the touching contact data for a body.\n @note Box2D uses speculative collision so some contact points may be separated.\n @returns the number of elements filled in the provided array\n @warning do not ignore the return value, it specifies the valid number of elements"]
     pub fn b2Body_GetContactData(
         bodyId: b2BodyId,
         contactData: *mut b2ContactData,
         capacity: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int;
-}
-unsafe extern "C" {
     #[doc = " Get the current world AABB that contains all the attached shapes. Note that this may not encompass the body origin.\n If there are no shapes attached then the returned AABB is empty and centered on the body origin."]
     pub fn b2Body_ComputeAABB(bodyId: b2BodyId) -> b2AABB;
-}
-unsafe extern "C" {
     #[doc = " Create a circle shape and attach it to a body. The shape definition and geometry are fully cloned.\n Contacts are not created until the next time step.\n @return the shape id for accessing the shape"]
     pub fn b2CreateCircleShape(bodyId: b2BodyId, def: *const b2ShapeDef, circle: *const b2Circle) -> b2ShapeId;
-}
-unsafe extern "C" {
     #[doc = " Create a line segment shape and attach it to a body. The shape definition and geometry are fully cloned.\n Contacts are not created until the next time step.\n @return the shape id for accessing the shape"]
     pub fn b2CreateSegmentShape(bodyId: b2BodyId, def: *const b2ShapeDef, segment: *const b2Segment) -> b2ShapeId;
-}
-unsafe extern "C" {
     #[doc = " Create a capsule shape and attach it to a body. The shape definition and geometry are fully cloned.\n Contacts are not created until the next time step.\n @return the shape id for accessing the shape"]
     pub fn b2CreateCapsuleShape(bodyId: b2BodyId, def: *const b2ShapeDef, capsule: *const b2Capsule) -> b2ShapeId;
-}
-unsafe extern "C" {
     #[doc = " Create a polygon shape and attach it to a body. The shape definition and geometry are fully cloned.\n Contacts are not created until the next time step.\n @return the shape id for accessing the shape"]
     pub fn b2CreatePolygonShape(bodyId: b2BodyId, def: *const b2ShapeDef, polygon: *const b2Polygon) -> b2ShapeId;
-}
-unsafe extern "C" {
     #[doc = " Destroy a shape. You may defer the body mass update which can improve performance if several shapes on a\n\tbody are destroyed at once.\n\t@see b2Body_ApplyMassFromShapes"]
     pub fn b2DestroyShape(shapeId: b2ShapeId, updateBodyMass: bool);
-}
-unsafe extern "C" {
     #[doc = " Shape identifier validation. Provides validation for up to 64K allocations."]
     pub fn b2Shape_IsValid(id: b2ShapeId) -> bool;
-}
-unsafe extern "C" {
     #[doc = " Get the type of a shape"]
     pub fn b2Shape_GetType(shapeId: b2ShapeId) -> b2ShapeType;
-}
-unsafe extern "C" {
     #[doc = " Get the id of the body that a shape is attached to"]
     pub fn b2Shape_GetBody(shapeId: b2ShapeId) -> b2BodyId;
-}
-unsafe extern "C" {
     #[doc = " Get the world that owns this shape"]
     pub fn b2Shape_GetWorld(shapeId: b2ShapeId) -> b2WorldId;
-}
-unsafe extern "C" {
     #[doc = " Returns true if the shape is a sensor. It is not possible to change a shape\n from sensor to solid dynamically because this breaks the contract for\n sensor events."]
     pub fn b2Shape_IsSensor(shapeId: b2ShapeId) -> bool;
-}
-unsafe extern "C" {
     #[doc = " Set the user data for a shape"]
     pub fn b2Shape_SetUserData(shapeId: b2ShapeId, userData: *mut ::std::os::raw::c_void);
-}
-unsafe extern "C" {
     #[doc = " Get the user data for a shape. This is useful when you get a shape id\n from an event or query."]
     pub fn b2Shape_GetUserData(shapeId: b2ShapeId) -> *mut ::std::os::raw::c_void;
-}
-unsafe extern "C" {
     #[doc = " Set the mass density of a shape, usually in kg/m^2.\n This will optionally update the mass properties on the parent body.\n @see b2ShapeDef::density, b2Body_ApplyMassFromShapes"]
     pub fn b2Shape_SetDensity(shapeId: b2ShapeId, density: f32, updateBodyMass: bool);
-}
-unsafe extern "C" {
     #[doc = " Get the density of a shape, usually in kg/m^2"]
     pub fn b2Shape_GetDensity(shapeId: b2ShapeId) -> f32;
-}
-unsafe extern "C" {
     #[doc = " Set the friction on a shape"]
     pub fn b2Shape_SetFriction(shapeId: b2ShapeId, friction: f32);
-}
-unsafe extern "C" {
     #[doc = " Get the friction of a shape"]
     pub fn b2Shape_GetFriction(shapeId: b2ShapeId) -> f32;
-}
-unsafe extern "C" {
     #[doc = " Set the shape restitution (bounciness)"]
     pub fn b2Shape_SetRestitution(shapeId: b2ShapeId, restitution: f32);
-}
-unsafe extern "C" {
     #[doc = " Get the shape restitution"]
     pub fn b2Shape_GetRestitution(shapeId: b2ShapeId) -> f32;
-}
-unsafe extern "C" {
     #[doc = " Set the user material identifier"]
     pub fn b2Shape_SetUserMaterial(shapeId: b2ShapeId, material: u64);
-}
-unsafe extern "C" {
     #[doc = " Get the user material identifier"]
     pub fn b2Shape_GetUserMaterial(shapeId: b2ShapeId) -> u64;
-}
-unsafe extern "C" {
     #[doc = " Set the shape surface material"]
     pub fn b2Shape_SetSurfaceMaterial(shapeId: b2ShapeId, surfaceMaterial: *const b2SurfaceMaterial);
-}
-unsafe extern "C" {
     #[doc = " Get the shape surface material"]
     pub fn b2Shape_GetSurfaceMaterial(shapeId: b2ShapeId) -> b2SurfaceMaterial;
-}
-unsafe extern "C" {
     #[doc = " Get the shape filter"]
     pub fn b2Shape_GetFilter(shapeId: b2ShapeId) -> b2Filter;
-}
-unsafe extern "C" {
     #[doc = " Set the current filter. This is almost as expensive as recreating the shape. This may cause\n contacts to be immediately destroyed. However contacts are not created until the next world step.\n Sensor overlap state is also not updated until the next world step.\n @see b2ShapeDef::filter"]
     pub fn b2Shape_SetFilter(shapeId: b2ShapeId, filter: b2Filter);
-}
-unsafe extern "C" {
     #[doc = " Enable sensor events for this shape.\n @see b2ShapeDef::enableSensorEvents"]
     pub fn b2Shape_EnableSensorEvents(shapeId: b2ShapeId, flag: bool);
-}
-unsafe extern "C" {
     #[doc = " Returns true if sensor events are enabled."]
     pub fn b2Shape_AreSensorEventsEnabled(shapeId: b2ShapeId) -> bool;
-}
-unsafe extern "C" {
     #[doc = " Enable contact events for this shape. Only applies to kinematic and dynamic bodies. Ignored for sensors.\n @see b2ShapeDef::enableContactEvents\n @warning changing this at run-time may lead to lost begin/end events"]
     pub fn b2Shape_EnableContactEvents(shapeId: b2ShapeId, flag: bool);
-}
-unsafe extern "C" {
     #[doc = " Returns true if contact events are enabled"]
     pub fn b2Shape_AreContactEventsEnabled(shapeId: b2ShapeId) -> bool;
-}
-unsafe extern "C" {
     #[doc = " Enable pre-solve contact events for this shape. Only applies to dynamic bodies. These are expensive\n and must be carefully handled due to multithreading. Ignored for sensors.\n @see b2PreSolveFcn"]
     pub fn b2Shape_EnablePreSolveEvents(shapeId: b2ShapeId, flag: bool);
-}
-unsafe extern "C" {
     #[doc = " Returns true if pre-solve events are enabled"]
     pub fn b2Shape_ArePreSolveEventsEnabled(shapeId: b2ShapeId) -> bool;
-}
-unsafe extern "C" {
     #[doc = " Enable contact hit events for this shape. Ignored for sensors.\n @see b2WorldDef.hitEventThreshold"]
     pub fn b2Shape_EnableHitEvents(shapeId: b2ShapeId, flag: bool);
-}
-unsafe extern "C" {
     #[doc = " Returns true if hit events are enabled"]
     pub fn b2Shape_AreHitEventsEnabled(shapeId: b2ShapeId) -> bool;
-}
-unsafe extern "C" {
     #[doc = " Test a point for overlap with a shape"]
     pub fn b2Shape_TestPoint(shapeId: b2ShapeId, point: b2Vec2) -> bool;
-}
-unsafe extern "C" {
     #[doc = " Ray cast a shape directly"]
     pub fn b2Shape_RayCast(shapeId: b2ShapeId, input: *const b2RayCastInput) -> b2CastOutput;
-}
-unsafe extern "C" {
     #[doc = " Get a copy of the shape's circle. Asserts the type is correct."]
     pub fn b2Shape_GetCircle(shapeId: b2ShapeId) -> b2Circle;
-}
-unsafe extern "C" {
     #[doc = " Get a copy of the shape's line segment. Asserts the type is correct."]
     pub fn b2Shape_GetSegment(shapeId: b2ShapeId) -> b2Segment;
-}
-unsafe extern "C" {
     #[doc = " Get a copy of the shape's chain segment. These come from chain shapes.\n Asserts the type is correct."]
     pub fn b2Shape_GetChainSegment(shapeId: b2ShapeId) -> b2ChainSegment;
-}
-unsafe extern "C" {
     #[doc = " Get a copy of the shape's capsule. Asserts the type is correct."]
     pub fn b2Shape_GetCapsule(shapeId: b2ShapeId) -> b2Capsule;
-}
-unsafe extern "C" {
     #[doc = " Get a copy of the shape's convex polygon. Asserts the type is correct."]
     pub fn b2Shape_GetPolygon(shapeId: b2ShapeId) -> b2Polygon;
-}
-unsafe extern "C" {
     #[doc = " Allows you to change a shape to be a circle or update the current circle.\n This does not modify the mass properties.\n @see b2Body_ApplyMassFromShapes"]
     pub fn b2Shape_SetCircle(shapeId: b2ShapeId, circle: *const b2Circle);
-}
-unsafe extern "C" {
     #[doc = " Allows you to change a shape to be a capsule or update the current capsule.\n This does not modify the mass properties.\n @see b2Body_ApplyMassFromShapes"]
     pub fn b2Shape_SetCapsule(shapeId: b2ShapeId, capsule: *const b2Capsule);
-}
-unsafe extern "C" {
     #[doc = " Allows you to change a shape to be a segment or update the current segment."]
     pub fn b2Shape_SetSegment(shapeId: b2ShapeId, segment: *const b2Segment);
-}
-unsafe extern "C" {
     #[doc = " Allows you to change a shape to be a polygon or update the current polygon.\n This does not modify the mass properties.\n @see b2Body_ApplyMassFromShapes"]
     pub fn b2Shape_SetPolygon(shapeId: b2ShapeId, polygon: *const b2Polygon);
-}
-unsafe extern "C" {
     #[doc = " Get the parent chain id if the shape type is a chain segment, otherwise\n returns b2_nullChainId."]
     pub fn b2Shape_GetParentChain(shapeId: b2ShapeId) -> b2ChainId;
-}
-unsafe extern "C" {
     #[doc = " Get the maximum capacity required for retrieving all the touching contacts on a shape"]
     pub fn b2Shape_GetContactCapacity(shapeId: b2ShapeId) -> ::std::os::raw::c_int;
-}
-unsafe extern "C" {
     #[doc = " Get the touching contact data for a shape. The provided shapeId will be either shapeIdA or shapeIdB on the contact data.\n @note Box2D uses speculative collision so some contact points may be separated.\n @returns the number of elements filled in the provided array\n @warning do not ignore the return value, it specifies the valid number of elements"]
     pub fn b2Shape_GetContactData(
         shapeId: b2ShapeId,
         contactData: *mut b2ContactData,
         capacity: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int;
-}
-unsafe extern "C" {
     #[doc = " Get the maximum capacity required for retrieving all the overlapped shapes on a sensor shape.\n This returns 0 if the provided shape is not a sensor.\n @param shapeId the id of a sensor shape\n @returns the required capacity to get all the overlaps in b2Shape_GetSensorOverlaps"]
     pub fn b2Shape_GetSensorCapacity(shapeId: b2ShapeId) -> ::std::os::raw::c_int;
-}
-unsafe extern "C" {
     #[doc = " Get the overlap data for a sensor shape.\n @param shapeId the id of a sensor shape\n @param visitorIds a user allocated array that is filled with the overlapping shapes (visitors)\n @param capacity the capacity of overlappedShapes\n @returns the number of elements filled in the provided array\n @warning do not ignore the return value, it specifies the valid number of elements\n @warning overlaps may contain destroyed shapes so use b2Shape_IsValid to confirm each overlap"]
     pub fn b2Shape_GetSensorData(
         shapeId: b2ShapeId,
         visitorIds: *mut b2ShapeId,
         capacity: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int;
-}
-unsafe extern "C" {
     #[doc = " Get the current world AABB"]
     pub fn b2Shape_GetAABB(shapeId: b2ShapeId) -> b2AABB;
-}
-unsafe extern "C" {
     #[doc = " Compute the mass data for a shape"]
     pub fn b2Shape_ComputeMassData(shapeId: b2ShapeId) -> b2MassData;
-}
-unsafe extern "C" {
     #[doc = " Get the closest point on a shape to a target point. Target and result are in world space.\n todo need sample"]
     pub fn b2Shape_GetClosestPoint(shapeId: b2ShapeId, target: b2Vec2) -> b2Vec2;
-}
-unsafe extern "C" {
     #[doc = " Create a chain shape\n @see b2ChainDef for details"]
     pub fn b2CreateChain(bodyId: b2BodyId, def: *const b2ChainDef) -> b2ChainId;
-}
-unsafe extern "C" {
     #[doc = " Destroy a chain shape"]
     pub fn b2DestroyChain(chainId: b2ChainId);
-}
-unsafe extern "C" {
     #[doc = " Get the world that owns this chain shape"]
     pub fn b2Chain_GetWorld(chainId: b2ChainId) -> b2WorldId;
-}
-unsafe extern "C" {
     #[doc = " Get the number of segments on this chain"]
     pub fn b2Chain_GetSegmentCount(chainId: b2ChainId) -> ::std::os::raw::c_int;
-}
-unsafe extern "C" {
     #[doc = " Fill a user array with chain segment shape ids up to the specified capacity. Returns\n the actual number of segments returned."]
     pub fn b2Chain_GetSegments(
         chainId: b2ChainId,
         segmentArray: *mut b2ShapeId,
         capacity: ::std::os::raw::c_int,
     ) -> ::std::os::raw::c_int;
-}
-unsafe extern "C" {
     #[doc = " Get the number of materials used on this chain. Must be 1 or the number of segments."]
     pub fn b2Chain_GetSurfaceMaterialCount(chainId: b2ChainId) -> ::std::os::raw::c_int;
-}
-unsafe extern "C" {
     #[doc = " Set a chain material. If the chain has only one material, this material is applied to all\n segments. Otherwise it is applied to a single segment."]
     pub fn b2Chain_SetSurfaceMaterial(
         chainId: b2ChainId,
         material: *const b2SurfaceMaterial,
         materialIndex: ::std::os::raw::c_int,
     );
-}
-unsafe extern "C" {
     #[doc = " Get a chain material by index."]
     pub fn b2Chain_GetSurfaceMaterial(chainId: b2ChainId, materialIndex: ::std::os::raw::c_int) -> b2SurfaceMaterial;
-}
-unsafe extern "C" {
     #[doc = " Chain identifier validation. Provides validation for up to 64K allocations."]
     pub fn b2Chain_IsValid(id: b2ChainId) -> bool;
-}
-unsafe extern "C" {
     #[doc = " Destroy a joint"]
     pub fn b2DestroyJoint(jointId: b2JointId);
-}
-unsafe extern "C" {
     #[doc = " Joint identifier validation. Provides validation for up to 64K allocations."]
     pub fn b2Joint_IsValid(id: b2JointId) -> bool;
-}
-unsafe extern "C" {
     #[doc = " Get the joint type"]
     pub fn b2Joint_GetType(jointId: b2JointId) -> b2JointType;
-}
-unsafe extern "C" {
     #[doc = " Get body A id on a joint"]
     pub fn b2Joint_GetBodyA(jointId: b2JointId) -> b2BodyId;
-}
-unsafe extern "C" {
     #[doc = " Get body B id on a joint"]
     pub fn b2Joint_GetBodyB(jointId: b2JointId) -> b2BodyId;
-}
-unsafe extern "C" {
     #[doc = " Get the world that owns this joint"]
     pub fn b2Joint_GetWorld(jointId: b2JointId) -> b2WorldId;
-}
-unsafe extern "C" {
     #[doc = " Set the local frame on bodyA"]
     pub fn b2Joint_SetLocalFrameA(jointId: b2JointId, localFrame: b2Transform);
-}
-unsafe extern "C" {
     #[doc = " Get the local frame on bodyA"]
     pub fn b2Joint_GetLocalFrameA(jointId: b2JointId) -> b2Transform;
-}
-unsafe extern "C" {
     #[doc = " Set the local frame on bodyB"]
     pub fn b2Joint_SetLocalFrameB(jointId: b2JointId, localFrame: b2Transform);
-}
-unsafe extern "C" {
     #[doc = " Get the local frame on bodyB"]
     pub fn b2Joint_GetLocalFrameB(jointId: b2JointId) -> b2Transform;
-}
-unsafe extern "C" {
     #[doc = " Toggle collision between connected bodies"]
     pub fn b2Joint_SetCollideConnected(jointId: b2JointId, shouldCollide: bool);
-}
-unsafe extern "C" {
     #[doc = " Is collision allowed between connected bodies?"]
     pub fn b2Joint_GetCollideConnected(jointId: b2JointId) -> bool;
-}
-unsafe extern "C" {
     #[doc = " Set the user data on a joint"]
     pub fn b2Joint_SetUserData(jointId: b2JointId, userData: *mut ::std::os::raw::c_void);
-}
-unsafe extern "C" {
     #[doc = " Get the user data on a joint"]
     pub fn b2Joint_GetUserData(jointId: b2JointId) -> *mut ::std::os::raw::c_void;
-}
-unsafe extern "C" {
     #[doc = " Wake the bodies connect to this joint"]
     pub fn b2Joint_WakeBodies(jointId: b2JointId);
-}
-unsafe extern "C" {
     #[doc = " Get the current constraint force for this joint. Usually in Newtons."]
     pub fn b2Joint_GetConstraintForce(jointId: b2JointId) -> b2Vec2;
-}
-unsafe extern "C" {
     #[doc = " Get the current constraint torque for this joint. Usually in Newton * meters."]
     pub fn b2Joint_GetConstraintTorque(jointId: b2JointId) -> f32;
-}
-unsafe extern "C" {
     #[doc = " Get the current linear separation error for this joint. Does not consider admissible movement. Usually in meters."]
     pub fn b2Joint_GetLinearSeparation(jointId: b2JointId) -> f32;
-}
-unsafe extern "C" {
     #[doc = " Get the current angular separation error for this joint. Does not consider admissible movement. Usually in meters."]
     pub fn b2Joint_GetAngularSeparation(jointId: b2JointId) -> f32;
-}
-unsafe extern "C" {
     #[doc = " Set the joint constraint tuning. Advanced feature.\n @param jointId the joint\n @param hertz the stiffness in Hertz (cycles per second)\n @param dampingRatio the non-dimensional damping ratio (one for critical damping)"]
     pub fn b2Joint_SetConstraintTuning(jointId: b2JointId, hertz: f32, dampingRatio: f32);
-}
-unsafe extern "C" {
     #[doc = " Get the joint constraint tuning. Advanced feature."]
     pub fn b2Joint_GetConstraintTuning(jointId: b2JointId, hertz: *mut f32, dampingRatio: *mut f32);
-}
-unsafe extern "C" {
     #[doc = " Set the force threshold for joint events (Newtons)"]
     pub fn b2Joint_SetForceThreshold(jointId: b2JointId, threshold: f32);
-}
-unsafe extern "C" {
     #[doc = " Get the force threshold for joint events (Newtons)"]
     pub fn b2Joint_GetForceThreshold(jointId: b2JointId) -> f32;
-}
-unsafe extern "C" {
     #[doc = " Set the torque threshold for joint events (N-m)"]
     pub fn b2Joint_SetTorqueThreshold(jointId: b2JointId, threshold: f32);
-}
-unsafe extern "C" {
     #[doc = " Get the torque threshold for joint events (N-m)"]
     pub fn b2Joint_GetTorqueThreshold(jointId: b2JointId) -> f32;
-}
-unsafe extern "C" {
     #[doc = " Create a distance joint\n @see b2DistanceJointDef for details"]
     pub fn b2CreateDistanceJoint(worldId: b2WorldId, def: *const b2DistanceJointDef) -> b2JointId;
-}
-unsafe extern "C" {
     #[doc = " Set the rest length of a distance joint\n @param jointId The id for a distance joint\n @param length The new distance joint length"]
     pub fn b2DistanceJoint_SetLength(jointId: b2JointId, length: f32);
-}
-unsafe extern "C" {
     #[doc = " Get the rest length of a distance joint"]
     pub fn b2DistanceJoint_GetLength(jointId: b2JointId) -> f32;
-}
-unsafe extern "C" {
     #[doc = " Enable/disable the distance joint spring. When disabled the distance joint is rigid."]
     pub fn b2DistanceJoint_EnableSpring(jointId: b2JointId, enableSpring: bool);
-}
-unsafe extern "C" {
     #[doc = " Is the distance joint spring enabled?"]
     pub fn b2DistanceJoint_IsSpringEnabled(jointId: b2JointId) -> bool;
-}
-unsafe extern "C" {
     #[doc = " Set the force range for the spring."]
     pub fn b2DistanceJoint_SetSpringForceRange(jointId: b2JointId, lowerForce: f32, upperForce: f32);
-}
-unsafe extern "C" {
     #[doc = " Get the force range for the spring."]
     pub fn b2DistanceJoint_GetSpringForceRange(jointId: b2JointId, lowerForce: *mut f32, upperForce: *mut f32);
-}
-unsafe extern "C" {
     #[doc = " Set the spring stiffness in Hertz"]
     pub fn b2DistanceJoint_SetSpringHertz(jointId: b2JointId, hertz: f32);
-}
-unsafe extern "C" {
     #[doc = " Set the spring damping ratio, non-dimensional"]
     pub fn b2DistanceJoint_SetSpringDampingRatio(jointId: b2JointId, dampingRatio: f32);
-}
-unsafe extern "C" {
     #[doc = " Get the spring Hertz"]
     pub fn b2DistanceJoint_GetSpringHertz(jointId: b2JointId) -> f32;
-}
-unsafe extern "C" {
     #[doc = " Get the spring damping ratio"]
     pub fn b2DistanceJoint_GetSpringDampingRatio(jointId: b2JointId) -> f32;
-}
-unsafe extern "C" {
     #[doc = " Enable joint limit. The limit only works if the joint spring is enabled. Otherwise the joint is rigid\n and the limit has no effect."]
     pub fn b2DistanceJoint_EnableLimit(jointId: b2JointId, enableLimit: bool);
-}
-unsafe extern "C" {
     #[doc = " Is the distance joint limit enabled?"]
     pub fn b2DistanceJoint_IsLimitEnabled(jointId: b2JointId) -> bool;
-}
-unsafe extern "C" {
     #[doc = " Set the minimum and maximum length parameters of a distance joint"]
     pub fn b2DistanceJoint_SetLengthRange(jointId: b2JointId, minLength: f32, maxLength: f32);
-}
-unsafe extern "C" {
     #[doc = " Get the distance joint minimum length"]
     pub fn b2DistanceJoint_GetMinLength(jointId: b2JointId) -> f32;
-}
-unsafe extern "C" {
     #[doc = " Get the distance joint maximum length"]
     pub fn b2DistanceJoint_GetMaxLength(jointId: b2JointId) -> f32;
-}
-unsafe extern "C" {
     #[doc = " Get the current length of a distance joint"]
     pub fn b2DistanceJoint_GetCurrentLength(jointId: b2JointId) -> f32;
-}
-unsafe extern "C" {
     #[doc = " Enable/disable the distance joint motor"]
     pub fn b2DistanceJoint_EnableMotor(jointId: b2JointId, enableMotor: bool);
-}
-unsafe extern "C" {
     #[doc = " Is the distance joint motor enabled?"]
     pub fn b2DistanceJoint_IsMotorEnabled(jointId: b2JointId) -> bool;
-}
-unsafe extern "C" {
     #[doc = " Set the distance joint motor speed, usually in meters per second"]
     pub fn b2DistanceJoint_SetMotorSpeed(jointId: b2JointId, motorSpeed: f32);
-}
-unsafe extern "C" {
     #[doc = " Get the distance joint motor speed, usually in meters per second"]
     pub fn b2DistanceJoint_GetMotorSpeed(jointId: b2JointId) -> f32;
-}
-unsafe extern "C" {
     #[doc = " Set the distance joint maximum motor force, usually in newtons"]
     pub fn b2DistanceJoint_SetMaxMotorForce(jointId: b2JointId, force: f32);
-}
-unsafe extern "C" {
     #[doc = " Get the distance joint maximum motor force, usually in newtons"]
     pub fn b2DistanceJoint_GetMaxMotorForce(jointId: b2JointId) -> f32;
-}
-unsafe extern "C" {
     #[doc = " Get the distance joint current motor force, usually in newtons"]
     pub fn b2DistanceJoint_GetMotorForce(jointId: b2JointId) -> f32;
-}
-unsafe extern "C" {
     #[doc = " Create a motor joint\n @see b2MotorJointDef for details"]
     pub fn b2CreateMotorJoint(worldId: b2WorldId, def: *const b2MotorJointDef) -> b2JointId;
-}
-unsafe extern "C" {
     #[doc = " Set the desired relative linear velocity in meters per second"]
     pub fn b2MotorJoint_SetLinearVelocity(jointId: b2JointId, velocity: b2Vec2);
-}
-unsafe extern "C" {
     #[doc = " Get the desired relative linear velocity in meters per second"]
     pub fn b2MotorJoint_GetLinearVelocity(jointId: b2JointId) -> b2Vec2;
-}
-unsafe extern "C" {
     #[doc = " Set the desired relative angular velocity in radians per second"]
     pub fn b2MotorJoint_SetAngularVelocity(jointId: b2JointId, velocity: f32);
-}
-unsafe extern "C" {
     #[doc = " Get the desired relative angular velocity in radians per second"]
     pub fn b2MotorJoint_GetAngularVelocity(jointId: b2JointId) -> f32;
-}
-unsafe extern "C" {
     #[doc = " Set the motor joint maximum force, usually in newtons"]
     pub fn b2MotorJoint_SetMaxVelocityForce(jointId: b2JointId, maxForce: f32);
-}
-unsafe extern "C" {
     #[doc = " Get the motor joint maximum force, usually in newtons"]
     pub fn b2MotorJoint_GetMaxVelocityForce(jointId: b2JointId) -> f32;
-}
-unsafe extern "C" {
     #[doc = " Set the motor joint maximum torque, usually in newton-meters"]
     pub fn b2MotorJoint_SetMaxVelocityTorque(jointId: b2JointId, maxTorque: f32);
-}
-unsafe extern "C" {
     #[doc = " Get the motor joint maximum torque, usually in newton-meters"]
     pub fn b2MotorJoint_GetMaxVelocityTorque(jointId: b2JointId) -> f32;
-}
-unsafe extern "C" {
     #[doc = " Set the spring linear hertz stiffness"]
     pub fn b2MotorJoint_SetLinearHertz(jointId: b2JointId, hertz: f32);
-}
-unsafe extern "C" {
     #[doc = " Get the spring linear hertz stiffness"]
     pub fn b2MotorJoint_GetLinearHertz(jointId: b2JointId) -> f32;
-}
-unsafe extern "C" {
     #[doc = " Set the spring linear damping ratio. Use 1.0 for critical damping."]
     pub fn b2MotorJoint_SetLinearDampingRatio(jointId: b2JointId, damping: f32);
-}
-unsafe extern "C" {
     #[doc = " Get the spring linear damping ratio."]
     pub fn b2MotorJoint_GetLinearDampingRatio(jointId: b2JointId) -> f32;
-}
-unsafe extern "C" {
     #[doc = " Set the spring angular hertz stiffness"]
     pub fn b2MotorJoint_SetAngularHertz(jointId: b2JointId, hertz: f32);
-}
-unsafe extern "C" {
     #[doc = " Get the spring angular hertz stiffness"]
     pub fn b2MotorJoint_GetAngularHertz(jointId: b2JointId) -> f32;
-}
-unsafe extern "C" {
     #[doc = " Set the spring angular damping ratio. Use 1.0 for critical damping."]
     pub fn b2MotorJoint_SetAngularDampingRatio(jointId: b2JointId, damping: f32);
-}
-unsafe extern "C" {
     #[doc = " Get the spring angular damping ratio."]
     pub fn b2MotorJoint_GetAngularDampingRatio(jointId: b2JointId) -> f32;
-}
-unsafe extern "C" {
     #[doc = " Set the maximum spring force in newtons."]
     pub fn b2MotorJoint_SetMaxSpringForce(jointId: b2JointId, maxForce: f32);
-}
-unsafe extern "C" {
     #[doc = " Get the maximum spring force in newtons."]
     pub fn b2MotorJoint_GetMaxSpringForce(jointId: b2JointId) -> f32;
-}
-unsafe extern "C" {
     #[doc = " Set the maximum spring torque in newtons * meters"]
     pub fn b2MotorJoint_SetMaxSpringTorque(jointId: b2JointId, maxTorque: f32);
-}
-unsafe extern "C" {
     #[doc = " Get the maximum spring torque in newtons * meters"]
     pub fn b2MotorJoint_GetMaxSpringTorque(jointId: b2JointId) -> f32;
-}
-unsafe extern "C" {
     #[doc = " Create a filter joint.\n @see b2FilterJointDef for details"]
     pub fn b2CreateFilterJoint(worldId: b2WorldId, def: *const b2FilterJointDef) -> b2JointId;
-}
-unsafe extern "C" {
     #[doc = " Create a prismatic (slider) joint.\n @see b2PrismaticJointDef for details"]
     pub fn b2CreatePrismaticJoint(worldId: b2WorldId, def: *const b2PrismaticJointDef) -> b2JointId;
-}
-unsafe extern "C" {
     #[doc = " Enable/disable the joint spring."]
     pub fn b2PrismaticJoint_EnableSpring(jointId: b2JointId, enableSpring: bool);
-}
-unsafe extern "C" {
     #[doc = " Is the prismatic joint spring enabled or not?"]
     pub fn b2PrismaticJoint_IsSpringEnabled(jointId: b2JointId) -> bool;
-}
-unsafe extern "C" {
     #[doc = " Set the prismatic joint stiffness in Hertz.\n This should usually be less than a quarter of the simulation rate. For example, if the simulation\n runs at 60Hz then the joint stiffness should be 15Hz or less."]
     pub fn b2PrismaticJoint_SetSpringHertz(jointId: b2JointId, hertz: f32);
-}
-unsafe extern "C" {
     #[doc = " Get the prismatic joint stiffness in Hertz"]
     pub fn b2PrismaticJoint_GetSpringHertz(jointId: b2JointId) -> f32;
-}
-unsafe extern "C" {
     #[doc = " Set the prismatic joint damping ratio (non-dimensional)"]
     pub fn b2PrismaticJoint_SetSpringDampingRatio(jointId: b2JointId, dampingRatio: f32);
-}
-unsafe extern "C" {
     #[doc = " Get the prismatic spring damping ratio (non-dimensional)"]
     pub fn b2PrismaticJoint_GetSpringDampingRatio(jointId: b2JointId) -> f32;
-}
-unsafe extern "C" {
     #[doc = " Set the prismatic joint spring target angle, usually in meters"]
     pub fn b2PrismaticJoint_SetTargetTranslation(jointId: b2JointId, translation: f32);
-}
-unsafe extern "C" {
     #[doc = " Get the prismatic joint spring target translation, usually in meters"]
     pub fn b2PrismaticJoint_GetTargetTranslation(jointId: b2JointId) -> f32;
-}
-unsafe extern "C" {
     #[doc = " Enable/disable a prismatic joint limit"]
     pub fn b2PrismaticJoint_EnableLimit(jointId: b2JointId, enableLimit: bool);
-}
-unsafe extern "C" {
     #[doc = " Is the prismatic joint limit enabled?"]
     pub fn b2PrismaticJoint_IsLimitEnabled(jointId: b2JointId) -> bool;
-}
-unsafe extern "C" {
     #[doc = " Get the prismatic joint lower limit"]
     pub fn b2PrismaticJoint_GetLowerLimit(jointId: b2JointId) -> f32;
-}
-unsafe extern "C" {
     #[doc = " Get the prismatic joint upper limit"]
     pub fn b2PrismaticJoint_GetUpperLimit(jointId: b2JointId) -> f32;
-}
-unsafe extern "C" {
     #[doc = " Set the prismatic joint limits"]
     pub fn b2PrismaticJoint_SetLimits(jointId: b2JointId, lower: f32, upper: f32);
-}
-unsafe extern "C" {
     #[doc = " Enable/disable a prismatic joint motor"]
     pub fn b2PrismaticJoint_EnableMotor(jointId: b2JointId, enableMotor: bool);
-}
-unsafe extern "C" {
     #[doc = " Is the prismatic joint motor enabled?"]
     pub fn b2PrismaticJoint_IsMotorEnabled(jointId: b2JointId) -> bool;
-}
-unsafe extern "C" {
     #[doc = " Set the prismatic joint motor speed, usually in meters per second"]
     pub fn b2PrismaticJoint_SetMotorSpeed(jointId: b2JointId, motorSpeed: f32);
-}
-unsafe extern "C" {
     #[doc = " Get the prismatic joint motor speed, usually in meters per second"]
     pub fn b2PrismaticJoint_GetMotorSpeed(jointId: b2JointId) -> f32;
-}
-unsafe extern "C" {
     #[doc = " Set the prismatic joint maximum motor force, usually in newtons"]
     pub fn b2PrismaticJoint_SetMaxMotorForce(jointId: b2JointId, force: f32);
-}
-unsafe extern "C" {
     #[doc = " Get the prismatic joint maximum motor force, usually in newtons"]
     pub fn b2PrismaticJoint_GetMaxMotorForce(jointId: b2JointId) -> f32;
-}
-unsafe extern "C" {
     #[doc = " Get the prismatic joint current motor force, usually in newtons"]
     pub fn b2PrismaticJoint_GetMotorForce(jointId: b2JointId) -> f32;
-}
-unsafe extern "C" {
     #[doc = " Get the current joint translation, usually in meters."]
     pub fn b2PrismaticJoint_GetTranslation(jointId: b2JointId) -> f32;
-}
-unsafe extern "C" {
     #[doc = " Get the current joint translation speed, usually in meters per second."]
     pub fn b2PrismaticJoint_GetSpeed(jointId: b2JointId) -> f32;
-}
-unsafe extern "C" {
     #[doc = " Create a revolute joint\n @see b2RevoluteJointDef for details"]
     pub fn b2CreateRevoluteJoint(worldId: b2WorldId, def: *const b2RevoluteJointDef) -> b2JointId;
-}
-unsafe extern "C" {
     #[doc = " Enable/disable the revolute joint spring"]
     pub fn b2RevoluteJoint_EnableSpring(jointId: b2JointId, enableSpring: bool);
-}
-unsafe extern "C" {
     #[doc = " It the revolute angular spring enabled?"]
     pub fn b2RevoluteJoint_IsSpringEnabled(jointId: b2JointId) -> bool;
-}
-unsafe extern "C" {
     #[doc = " Set the revolute joint spring stiffness in Hertz"]
     pub fn b2RevoluteJoint_SetSpringHertz(jointId: b2JointId, hertz: f32);
-}
-unsafe extern "C" {
     #[doc = " Get the revolute joint spring stiffness in Hertz"]
     pub fn b2RevoluteJoint_GetSpringHertz(jointId: b2JointId) -> f32;
-}
-unsafe extern "C" {
     #[doc = " Set the revolute joint spring damping ratio, non-dimensional"]
     pub fn b2RevoluteJoint_SetSpringDampingRatio(jointId: b2JointId, dampingRatio: f32);
-}
-unsafe extern "C" {
     #[doc = " Get the revolute joint spring damping ratio, non-dimensional"]
     pub fn b2RevoluteJoint_GetSpringDampingRatio(jointId: b2JointId) -> f32;
-}
-unsafe extern "C" {
     #[doc = " Set the revolute joint spring target angle, radians"]
     pub fn b2RevoluteJoint_SetTargetAngle(jointId: b2JointId, angle: f32);
-}
-unsafe extern "C" {
     #[doc = " Get the revolute joint spring target angle, radians"]
     pub fn b2RevoluteJoint_GetTargetAngle(jointId: b2JointId) -> f32;
-}
-unsafe extern "C" {
     #[doc = " Get the revolute joint current angle in radians relative to the reference angle\n @see b2RevoluteJointDef::referenceAngle"]
     pub fn b2RevoluteJoint_GetAngle(jointId: b2JointId) -> f32;
-}
-unsafe extern "C" {
     #[doc = " Enable/disable the revolute joint limit"]
     pub fn b2RevoluteJoint_EnableLimit(jointId: b2JointId, enableLimit: bool);
-}
-unsafe extern "C" {
     #[doc = " Is the revolute joint limit enabled?"]
     pub fn b2RevoluteJoint_IsLimitEnabled(jointId: b2JointId) -> bool;
-}
-unsafe extern "C" {
     #[doc = " Get the revolute joint lower limit in radians"]
     pub fn b2RevoluteJoint_GetLowerLimit(jointId: b2JointId) -> f32;
-}
-unsafe extern "C" {
     #[doc = " Get the revolute joint upper limit in radians"]
     pub fn b2RevoluteJoint_GetUpperLimit(jointId: b2JointId) -> f32;
-}
-unsafe extern "C" {
     #[doc = " Set the revolute joint limits in radians. It is expected that lower <= upper\n and that -0.99 * B2_PI <= lower && upper <= -0.99 * B2_PI."]
     pub fn b2RevoluteJoint_SetLimits(jointId: b2JointId, lower: f32, upper: f32);
-}
-unsafe extern "C" {
     #[doc = " Enable/disable a revolute joint motor"]
     pub fn b2RevoluteJoint_EnableMotor(jointId: b2JointId, enableMotor: bool);
-}
-unsafe extern "C" {
     #[doc = " Is the revolute joint motor enabled?"]
     pub fn b2RevoluteJoint_IsMotorEnabled(jointId: b2JointId) -> bool;
-}
-unsafe extern "C" {
     #[doc = " Set the revolute joint motor speed in radians per second"]
     pub fn b2RevoluteJoint_SetMotorSpeed(jointId: b2JointId, motorSpeed: f32);
-}
-unsafe extern "C" {
     #[doc = " Get the revolute joint motor speed in radians per second"]
     pub fn b2RevoluteJoint_GetMotorSpeed(jointId: b2JointId) -> f32;
-}
-unsafe extern "C" {
     #[doc = " Get the revolute joint current motor torque, usually in newton-meters"]
     pub fn b2RevoluteJoint_GetMotorTorque(jointId: b2JointId) -> f32;
-}
-unsafe extern "C" {
     #[doc = " Set the revolute joint maximum motor torque, usually in newton-meters"]
     pub fn b2RevoluteJoint_SetMaxMotorTorque(jointId: b2JointId, torque: f32);
-}
-unsafe extern "C" {
     #[doc = " Get the revolute joint maximum motor torque, usually in newton-meters"]
     pub fn b2RevoluteJoint_GetMaxMotorTorque(jointId: b2JointId) -> f32;
-}
-unsafe extern "C" {
     #[doc = " Create a weld joint\n @see b2WeldJointDef for details"]
     pub fn b2CreateWeldJoint(worldId: b2WorldId, def: *const b2WeldJointDef) -> b2JointId;
-}
-unsafe extern "C" {
     #[doc = " Set the weld joint linear stiffness in Hertz. 0 is rigid."]
     pub fn b2WeldJoint_SetLinearHertz(jointId: b2JointId, hertz: f32);
-}
-unsafe extern "C" {
     #[doc = " Get the weld joint linear stiffness in Hertz"]
     pub fn b2WeldJoint_GetLinearHertz(jointId: b2JointId) -> f32;
-}
-unsafe extern "C" {
     #[doc = " Set the weld joint linear damping ratio (non-dimensional)"]
     pub fn b2WeldJoint_SetLinearDampingRatio(jointId: b2JointId, dampingRatio: f32);
-}
-unsafe extern "C" {
     #[doc = " Get the weld joint linear damping ratio (non-dimensional)"]
     pub fn b2WeldJoint_GetLinearDampingRatio(jointId: b2JointId) -> f32;
-}
-unsafe extern "C" {
     #[doc = " Set the weld joint angular stiffness in Hertz. 0 is rigid."]
     pub fn b2WeldJoint_SetAngularHertz(jointId: b2JointId, hertz: f32);
-}
-unsafe extern "C" {
     #[doc = " Get the weld joint angular stiffness in Hertz"]
     pub fn b2WeldJoint_GetAngularHertz(jointId: b2JointId) -> f32;
-}
-unsafe extern "C" {
     #[doc = " Set weld joint angular damping ratio, non-dimensional"]
     pub fn b2WeldJoint_SetAngularDampingRatio(jointId: b2JointId, dampingRatio: f32);
-}
-unsafe extern "C" {
     #[doc = " Get the weld joint angular damping ratio, non-dimensional"]
     pub fn b2WeldJoint_GetAngularDampingRatio(jointId: b2JointId) -> f32;
-}
-unsafe extern "C" {
     #[doc = " Create a wheel joint\n @see b2WheelJointDef for details"]
     pub fn b2CreateWheelJoint(worldId: b2WorldId, def: *const b2WheelJointDef) -> b2JointId;
-}
-unsafe extern "C" {
     #[doc = " Enable/disable the wheel joint spring"]
     pub fn b2WheelJoint_EnableSpring(jointId: b2JointId, enableSpring: bool);
-}
-unsafe extern "C" {
     #[doc = " Is the wheel joint spring enabled?"]
     pub fn b2WheelJoint_IsSpringEnabled(jointId: b2JointId) -> bool;
-}
-unsafe extern "C" {
     #[doc = " Set the wheel joint stiffness in Hertz"]
     pub fn b2WheelJoint_SetSpringHertz(jointId: b2JointId, hertz: f32);
-}
-unsafe extern "C" {
     #[doc = " Get the wheel joint stiffness in Hertz"]
     pub fn b2WheelJoint_GetSpringHertz(jointId: b2JointId) -> f32;
-}
-unsafe extern "C" {
     #[doc = " Set the wheel joint damping ratio, non-dimensional"]
     pub fn b2WheelJoint_SetSpringDampingRatio(jointId: b2JointId, dampingRatio: f32);
-}
-unsafe extern "C" {
     #[doc = " Get the wheel joint damping ratio, non-dimensional"]
     pub fn b2WheelJoint_GetSpringDampingRatio(jointId: b2JointId) -> f32;
-}
-unsafe extern "C" {
     #[doc = " Enable/disable the wheel joint limit"]
     pub fn b2WheelJoint_EnableLimit(jointId: b2JointId, enableLimit: bool);
-}
-unsafe extern "C" {
     #[doc = " Is the wheel joint limit enabled?"]
     pub fn b2WheelJoint_IsLimitEnabled(jointId: b2JointId) -> bool;
-}
-unsafe extern "C" {
     #[doc = " Get the wheel joint lower limit"]
     pub fn b2WheelJoint_GetLowerLimit(jointId: b2JointId) -> f32;
-}
-unsafe extern "C" {
     #[doc = " Get the wheel joint upper limit"]
     pub fn b2WheelJoint_GetUpperLimit(jointId: b2JointId) -> f32;
-}
-unsafe extern "C" {
     #[doc = " Set the wheel joint limits"]
     pub fn b2WheelJoint_SetLimits(jointId: b2JointId, lower: f32, upper: f32);
-}
-unsafe extern "C" {
     #[doc = " Enable/disable the wheel joint motor"]
     pub fn b2WheelJoint_EnableMotor(jointId: b2JointId, enableMotor: bool);
-}
-unsafe extern "C" {
     #[doc = " Is the wheel joint motor enabled?"]
     pub fn b2WheelJoint_IsMotorEnabled(jointId: b2JointId) -> bool;
-}
-unsafe extern "C" {
     #[doc = " Set the wheel joint motor speed in radians per second"]
     pub fn b2WheelJoint_SetMotorSpeed(jointId: b2JointId, motorSpeed: f32);
-}
-unsafe extern "C" {
     #[doc = " Get the wheel joint motor speed in radians per second"]
     pub fn b2WheelJoint_GetMotorSpeed(jointId: b2JointId) -> f32;
-}
-unsafe extern "C" {
     #[doc = " Set the wheel joint maximum motor torque, usually in newton-meters"]
     pub fn b2WheelJoint_SetMaxMotorTorque(jointId: b2JointId, torque: f32);
-}
-unsafe extern "C" {
     #[doc = " Get the wheel joint maximum motor torque, usually in newton-meters"]
     pub fn b2WheelJoint_GetMaxMotorTorque(jointId: b2JointId) -> f32;
-}
-unsafe extern "C" {
     #[doc = " Get the wheel joint current motor torque, usually in newton-meters"]
     pub fn b2WheelJoint_GetMotorTorque(jointId: b2JointId) -> f32;
-}
-unsafe extern "C" {
     #[doc = " Contact identifier validation. Provides validation for up to 2^32 allocations."]
     pub fn b2Contact_IsValid(id: b2ContactId) -> bool;
-}
-unsafe extern "C" {
     #[doc = " Get the data for a contact. The manifold may have no points if the contact is not touching."]
     pub fn b2Contact_GetData(contactId: b2ContactId) -> b2ContactData;
-}
-#[doc = " The tree nodes"]
-#[repr(C)]
-#[derive(Debug, Copy, Clone)]
-pub struct b2TreeNode {
-    pub _address: u8,
 }
