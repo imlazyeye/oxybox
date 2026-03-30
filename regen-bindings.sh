@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+git submodule init;
+git submodule update;
+
 bindgen ./oxybox-sys/vendor/box2d/include/box2d/box2d.h \
     --allowlist-function "b2.*" \
     --allowlist-type "b2.*" \
