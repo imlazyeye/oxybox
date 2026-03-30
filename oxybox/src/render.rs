@@ -1,30 +1,32 @@
 use bitflags::bitflags;
 use glam::Vec2;
 use oxybox_sys as sys;
-use smol_rgb::EncodedColor;
 use std::ffi::c_void;
 
-use crate::{World, WorldId};
+use crate::World;
 
 #[derive(Debug, Clone)]
 pub enum Draw {
     Circle {
         center: Vec2,
         radius: f32,
-        color: EncodedColor,
+        /// These colors are used for debug draw and mostly match the named SVG colors.
+        color: u32,
         filled: bool,
     },
     Rect {
         center: Vec2,
         size: Vec2,
         rotation: f32,
-        color: EncodedColor,
+        /// These colors are used for debug draw and mostly match the named SVG colors.
+        color: u32,
         filled: bool,
     },
     Segment {
         p1: Vec2,
         p2: Vec2,
-        color: EncodedColor,
+        /// These colors are used for debug draw and mostly match the named SVG colors.
+        color: u32,
     },
     Transform {
         position: Vec2,
@@ -33,47 +35,42 @@ pub enum Draw {
     Point {
         position: Vec2,
         size: f32,
-        color: EncodedColor,
+        /// These colors are used for debug draw and mostly match the named SVG colors.
+        color: u32,
     },
     String {
         position: Vec2,
         text: String,
-        color: EncodedColor,
+        /// These colors are used for debug draw and mostly match the named SVG colors.
+        color: u32,
     },
     Capsule {
         center: Vec2,
         half_height: f32,
         radius: f32,
         rotation: f32,
-        color: EncodedColor,
+        /// These colors are used for debug draw and mostly match the named SVG colors.
+        color: u32,
         filled: bool,
     },
 }
 
 bitflags! {
     pub struct TeselationFlags: u32 {
-        const SHAPES             = 0b0000_0001;
-        const JOINTS             = 0b0000_0010;
-        const JOINT_EXTRAS       = 0b0000_0100;
-        const BOUNDS             = 0b0000_1000;
-        const MASS               = 0b0001_0000;
-        const BODY_NAMES         = 0b0010_0000;
-        const CONTACTS           = 0b0100_0000;
-        const GRAPH_COLORS       = 0b1000_0000;
-        const CONTACT_NORMALS    = 0b0001_0000_0000;
-        const CONTACT_IMPULSES   = 0b0010_0000_0000;
-        const CONTACT_FEATURES   = 0b0100_0000_0000;
-        const FRICTION_IMPULSES  = 0b1000_0000_0000;
+        const SHAPES             = 0b0000_0000_0000_0001;
+        const JOINTS             = 0b0000_0000_0000_0010;
+        const JOINT_EXTRAS       = 0b0000_0000_0000_0100;
+        const BOUNDS             = 0b0000_0000_0000_1000;
+        const MASS               = 0b0000_0000_0001_0000;
+        const BODY_NAMES         = 0b0000_0000_0010_0000;
+        const CONTACTS           = 0b0000_0000_0100_0000;
+        const GRAPH_COLORS       = 0b0000_0000_1000_0000;
+        const CONTACT_NORMALS    = 0b0000_0001_0000_0000;
+        const CONTACT_IMPULSES   = 0b0000_0010_0000_0000;
+        const CONTACT_FEATURES   = 0b0000_0100_0000_0000;
+        const FRICTION_IMPULSES  = 0b0000_1000_0000_0000;
         const ISLANDS            = 0b0001_0000_0000_0000;
     }
-}
-
-#[inline]
-fn b2_hex_to_encoded(c: u32) -> EncodedColor {
-    let r = ((c >> 16) & 0xFF) as u8;
-    let g = ((c >> 8) & 0xFF) as u8;
-    let b = (c & 0xFF) as u8;
-    EncodedColor::new(r, g, b, 255)
 }
 
 pub fn gather_draws(world: &World, flags: TeselationFlags) -> Vec<Draw> {
@@ -133,7 +130,7 @@ extern "C" fn draw_circle_cb(center: sys::b2Vec2, radius: f32, color: sys::b2Hex
     calls.push(Draw::Circle {
         center: Vec2::new(center.x, center.y),
         radius,
-        color: b2_hex_to_encoded(color),
+        color,
         filled: false,
     });
 }
@@ -144,7 +141,7 @@ extern "C" fn draw_solid_circle_cb(transform: sys::b2Transform, radius: f32, col
     calls.push(Draw::Circle {
         center: Vec2::new(center.x, center.y),
         radius,
-        color: b2_hex_to_encoded(color),
+        color,
         filled: true,
     });
 }
@@ -210,7 +207,7 @@ extern "C" fn draw_polygon_cb(verts: *const sys::b2Vec2, count: i32, color: sys:
             center,
             size,
             rotation,
-            color: b2_hex_to_encoded(color),
+            color,
             filled: false,
         });
     }
@@ -224,14 +221,14 @@ unsafe extern "C" fn draw_solid_polygon_cb(
     color: sys::b2HexColor,
     ctx: *mut c_void,
 ) {
-    let calls = &mut *(ctx as *mut Vec<Draw>);
-    let verts_slice = std::slice::from_raw_parts(verts, count as usize);
+    let calls = unsafe { &mut *(ctx as *mut Vec<Draw>) };
+    let verts_slice = unsafe { std::slice::from_raw_parts(verts, count as usize) };
     if let Some((center, size, rotation)) = polygon_to_rect(verts_slice, Some(transform)) {
         calls.push(Draw::Rect {
             center,
             size,
             rotation,
-            color: b2_hex_to_encoded(color),
+            color,
             filled: true,
         });
     }

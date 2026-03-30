@@ -1,4 +1,4 @@
-use glam::{Vec2, vec2};
+use glam::Vec2;
 use oxybox_sys::{self as sys};
 use std::os::raw::c_void;
 
@@ -30,6 +30,10 @@ impl Body {
 
     pub fn shape_id(&self) -> ShapeId {
         self.shape_id
+    }
+
+    pub fn world_id(&self) -> WorldId {
+        self.world_id
     }
 
     pub fn kind(&self) -> BodyKind {
@@ -85,7 +89,7 @@ impl Body {
     }
 
     pub fn dimensions(&self) -> Vec2 {
-        vec2(self.width(), self.height())
+        Vec2::new(self.width(), self.height())
     }
 
     pub fn width(&self) -> f32 {
@@ -176,7 +180,7 @@ impl Body {
         unsafe { sys::b2Body_GetMass(*self.body_id) }
     }
 
-    pub fn contact_begin_bodies<'w>(&self, world: &'w World) -> impl Iterator<Item = Body> + 'w {
+    pub fn contact_begin_bodies<'w>(&self, world: &'w World) -> impl Iterator<Item = Body> + use<'w> {
         assert!(
             unsafe { sys::b2Shape_AreContactEventsEnabled(*self.shape_id) },
             "You must enable contact events to read contact events!"
@@ -184,17 +188,15 @@ impl Body {
 
         let body = self.body_id;
 
-        unsafe {
-            world.contact_events().filter_map(move |(a, b)| {
-                if a == body {
-                    Some(world.body(b))
-                } else if b == body {
-                    Some(world.body(a))
-                } else {
-                    None
-                }
-            })
-        }
+        world.contact_events().filter_map(move |(a, b)| {
+            if a == body {
+                Some(world.body(b))
+            } else if b == body {
+                Some(world.body(a))
+            } else {
+                None
+            }
+        })
     }
 
     pub fn contact_begin(&self, other: Body, world: &World) -> bool {

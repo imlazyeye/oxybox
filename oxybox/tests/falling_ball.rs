@@ -3,7 +3,7 @@ use oxybox::*;
 
 #[test]
 fn falling_ball() {
-    let mut world = World::new(1.0 / 60.0);
+    let world = World::new(1.0 / 60.0);
     world.set_gravity(vec2(0.0, -10.0));
 
     let _ground = BodyBuilder::rectangle(vec2(100.0, 20.0))
