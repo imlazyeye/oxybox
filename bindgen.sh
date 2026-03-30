@@ -1,9 +1,19 @@
 #!/usr/bin/env bash
+
 set -euo pipefail
 
-git submodule init;
-git submodule update;
+REQUIRED_BINDGEN_VERSION="bindgen 0.72.1"
+ACTUAL_BINDGEN_VERSION=$(bindgen --version)
 
+if [ "$ACTUAL_BINDGEN_VERSION" != "$REQUIRED_BINDGEN_VERSION" ]; then
+    echo "Error: requires $REQUIRED_BINDGEN_VERSION, got $ACTUAL_BINDGEN_VERSION"
+    exit 1
+fi
+
+# we need to pull in the submodule.
+git submodule update --init;
+
+# run bindgen itself
 bindgen ./oxybox-sys/vendor/box2d/include/box2d/box2d.h \
     --allowlist-function "b2.*" \
     --allowlist-type "b2.*" \
