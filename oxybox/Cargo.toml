@@ -1,22 +1,9 @@
 [package]
 name = "oxybox"
 version = "0.1.0"
-edition = "2021"
+edition = "2024"
 
 [dependencies]
-glam = { workspace = true }
-bitflags = "2.9.3"
-smol-rgb = { version = "0.4.0", features = [
-    "std",
-    "serde",
-    "bytemuck",
-    "rand",
-] }
-oxybox-sys = { path = "../oxybox-sys" }
-lyon = { version = "1", features = ["extra"] }
-
-
-[lib]
-
-[features]
-default = []
+glam.workspace = true
+oxybox-sys.path = "../oxybox-sys"
+bitflags = "2.11"
