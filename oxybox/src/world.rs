@@ -1,7 +1,7 @@
 use glam::Vec2;
-use oxybox_sys::{self as sys, b2DestroyBody, b2DestroyWorld};
+use sys::{b2DestroyBody, b2DestroyWorld};
 
-use crate::{Body, BodyId, ShapeId};
+use crate::{Body, BodyId, ShapeId, WorldId};
 
 pub struct World {
     id: WorldId,
@@ -12,7 +12,7 @@ impl World {
     const SUBSTEPS: i32 = 4;
 
     pub fn new(delta_time: f32) -> Self {
-        let id = unsafe { WorldId(sys::b2CreateWorld(&sys::b2DefaultWorldDef())) };
+        let id = unsafe { WorldId::from_b2(sys::b2CreateWorld(&sys::b2DefaultWorldDef())) };
         Self { id, dt: delta_time }
     }
 
@@ -27,11 +27,13 @@ impl World {
             let mut vec = Vec::with_capacity(count as usize);
             sys::b2Body_GetShapes(*body_id, vec.as_mut_ptr(), count);
             vec.set_len(count as usize);
-            (body_id, ShapeId::from(vec[0]))
+            (body_id, ShapeId::from_b2(vec[0]))
         };
         Body::new(body_id, shape_id, self.id)
     }
 
+    /// Simulate a world for one time step.
+    /// This performs collision detection, integration, and constraint solution.
     pub fn step(&self) {
         unsafe {
             sys::b2World_Step(*self.id, self.dt, Self::SUBSTEPS);
@@ -92,31 +94,5 @@ impl World {
 impl Drop for World {
     fn drop(&mut self) {
         unsafe { b2DestroyWorld(*self.id) }
-    }
-}
-
-#[derive(Debug, Copy, Clone)]
-pub struct WorldId(sys::b2WorldId);
-
-impl PartialEq for WorldId {
-    fn eq(&self, other: &Self) -> bool {
-        self.0.generation == other.0.generation && self.0.index1 == other.0.index1
-    }
-}
-
-impl Eq for WorldId {}
-
-impl std::hash::Hash for WorldId {
-    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
-        let bits: u32 = unsafe { std::mem::transmute(self.0) };
-        bits.hash(state);
-    }
-}
-
-impl std::ops::Deref for WorldId {
-    type Target = sys::b2WorldId;
-
-    fn deref(&self) -> &Self::Target {
-        &self.0
     }
 }
