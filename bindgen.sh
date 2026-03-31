@@ -10,9 +10,6 @@ if [ "$ACTUAL_BINDGEN_VERSION" != "$REQUIRED_BINDGEN_VERSION" ]; then
     exit 1
 fi
 
-# we need to pull in the submodule.
-git submodule update --init;
-
 # run bindgen itself
 bindgen ./oxybox-sys/vendor/box2d/include/box2d/box2d.h \
     --allowlist-function "b2.*" \

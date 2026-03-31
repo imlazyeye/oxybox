@@ -1,3 +1,0 @@
-[submodule "oxybox-sys/vendor/box2d"]
-	path = oxybox-sys/vendor/box2d
-	url = https://github.com/erincatto/box2d
