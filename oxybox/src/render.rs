@@ -1,6 +1,5 @@
 use bitflags::bitflags;
 use glam::Vec2;
-use oxybox_sys as sys;
 use std::ffi::c_void;
 
 use crate::World;
@@ -73,57 +72,60 @@ bitflags! {
     }
 }
 
-pub fn gather_draws(world: &World, flags: TeselationFlags) -> Vec<Draw> {
-    let mut calls = Vec::new();
+impl World {
+    /// Creates a list of draw commands.
+    pub fn gather_draws(&self, flags: TeselationFlags) -> Vec<Draw> {
+        let mut calls = Vec::new();
 
-    let mut dd = sys::b2DebugDraw {
-        DrawCircleFcn: Some(draw_circle_cb),
-        DrawSolidCircleFcn: Some(draw_solid_circle_cb),
-        DrawPolygonFcn: Some(draw_polygon_cb),
-        DrawSolidPolygonFcn: Some(draw_solid_polygon_cb),
+        let mut dd = sys::b2DebugDraw {
+            DrawCircleFcn: Some(draw_circle_cb),
+            DrawSolidCircleFcn: Some(draw_solid_circle_cb),
+            DrawPolygonFcn: Some(draw_polygon_cb),
+            DrawSolidPolygonFcn: Some(draw_solid_polygon_cb),
 
-        // not yet supported
-        DrawSolidCapsuleFcn: None,
-        DrawSegmentFcn: None,
-        DrawTransformFcn: None,
-        DrawPointFcn: None,
-        DrawStringFcn: None,
+            // not yet supported
+            DrawSolidCapsuleFcn: None,
+            DrawSegmentFcn: None,
+            DrawTransformFcn: None,
+            DrawPointFcn: None,
+            DrawStringFcn: None,
 
-        drawShapes: flags.contains(TeselationFlags::SHAPES),
+            drawShapes: flags.contains(TeselationFlags::SHAPES),
 
-        // not yet supported
-        drawJoints: false,
-        drawJointExtras: false,
-        drawBounds: false,
-        drawMass: false,
-        drawBodyNames: false,
-        drawContacts: false,
-        drawGraphColors: false,
-        drawContactNormals: false,
-        drawContactImpulses: false,
-        drawContactFeatures: false,
-        drawFrictionImpulses: false,
-        drawIslands: false,
-        drawingBounds: sys::b2AABB {
-            lowerBound: sys::b2Vec2 {
-                x: -100000.0,
-                y: -100000.0,
+            // not yet supported
+            drawJoints: false,
+            drawJointExtras: false,
+            drawBounds: false,
+            drawMass: false,
+            drawBodyNames: false,
+            drawContacts: false,
+            drawGraphColors: false,
+            drawContactNormals: false,
+            drawContactImpulses: false,
+            drawContactFeatures: false,
+            drawFrictionImpulses: false,
+            drawIslands: false,
+            drawingBounds: sys::b2AABB {
+                lowerBound: sys::b2Vec2 {
+                    x: -100000.0,
+                    y: -100000.0,
+                },
+                upperBound: sys::b2Vec2 {
+                    x: 100000.0,
+                    y: 100000.0,
+                }, // todo
             },
-            upperBound: sys::b2Vec2 {
-                x: 100000.0,
-                y: 100000.0,
-            }, // todo
-        },
 
-        context: &mut calls as *mut _ as *mut c_void,
-        useDrawingBounds: false,
-    };
+            context: &mut calls as *mut _ as *mut c_void,
+            useDrawingBounds: false,
+        };
 
-    unsafe {
-        sys::b2World_Draw(*world.id(), &mut dd as *mut _);
+        unsafe {
+            sys::b2World_Draw(*self.id(), &raw mut dd);
+        }
+
+        calls
     }
-
-    calls
 }
 
 extern "C" fn draw_circle_cb(center: sys::b2Vec2, radius: f32, color: sys::b2HexColor, ctx: *mut c_void) {

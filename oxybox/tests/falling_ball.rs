@@ -6,15 +6,30 @@ fn falling_ball() {
     let world = World::new(1.0 / 60.0);
     world.set_gravity(vec2(0.0, -10.0));
 
-    let _ground = BodyBuilder::rectangle(vec2(100.0, 20.0))
-        .position(vec2(0.0, -10.0))
-        .build(world.id());
+    let _ground = Body::create(
+        world.id(),
+        &BodyDefinition {
+            build_shape: BuildShape::Rectangle {
+                dimensions: vec2(100.0, 20.0),
+            },
+            position: Some(vec2(0.0, -10.0)),
+            ..Default::default()
+        },
+    );
 
-    let ball = BodyBuilder::circle(5.0)
-        .kind(BodyKind::Dynamic)
-        .position(vec2(0.0, 20.0))
-        .restitution(0.0)
-        .build(world.id());
+    let ball = Body::create(
+        world.id(),
+        &BodyDefinition {
+            build_shape: BuildShape::Circle {
+                center: glam::Vec2::ZERO,
+                radius: 5.0,
+            },
+            position: Some(vec2(0.0, 20.0)),
+            restitution: Some(0.0),
+            kind: BodyKind::Dynamic,
+            ..Default::default()
+        },
+    );
 
     for _ in 0..120 {
         world.step();
