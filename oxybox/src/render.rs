@@ -57,18 +57,18 @@ pub enum Draw {
 bitflags! {
     pub struct TeselationFlags: u32 {
         const SHAPES             = 0b0000_0000_0000_0001;
-        const JOINTS             = 0b0000_0000_0000_0010;
-        const JOINT_EXTRAS       = 0b0000_0000_0000_0100;
-        const BOUNDS             = 0b0000_0000_0000_1000;
-        const MASS               = 0b0000_0000_0001_0000;
-        const BODY_NAMES         = 0b0000_0000_0010_0000;
-        const CONTACTS           = 0b0000_0000_0100_0000;
-        const GRAPH_COLORS       = 0b0000_0000_1000_0000;
-        const CONTACT_NORMALS    = 0b0000_0001_0000_0000;
-        const CONTACT_IMPULSES   = 0b0000_0010_0000_0000;
-        const CONTACT_FEATURES   = 0b0000_0100_0000_0000;
-        const FRICTION_IMPULSES  = 0b0000_1000_0000_0000;
-        const ISLANDS            = 0b0001_0000_0000_0000;
+        // const JOINTS             = 0b0000_0000_0000_0010;
+        // const JOINT_EXTRAS       = 0b0000_0000_0000_0100;
+        // const BOUNDS             = 0b0000_0000_0000_1000;
+        // const MASS               = 0b0000_0000_0001_0000;
+        // const BODY_NAMES         = 0b0000_0000_0010_0000;
+        // const CONTACTS           = 0b0000_0000_0100_0000;
+        // const GRAPH_COLORS       = 0b0000_0000_1000_0000;
+        // const CONTACT_NORMALS    = 0b0000_0001_0000_0000;
+        // const CONTACT_IMPULSES   = 0b0000_0010_0000_0000;
+        // const CONTACT_FEATURES   = 0b0000_0100_0000_0000;
+        // const FRICTION_IMPULSES  = 0b0000_1000_0000_0000;
+        // const ISLANDS            = 0b0001_0000_0000_0000;
     }
 }
 
@@ -121,7 +121,7 @@ impl World {
         };
 
         unsafe {
-            sys::b2World_Draw(self.id, &raw mut dd);
+            sys::b2World_Draw(self.id, &mut dd);
         }
 
         calls
