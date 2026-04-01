@@ -188,7 +188,26 @@ impl Body {
         unsafe { sys::b2Body_GetMass(*self.body_id) }
     }
 
-    /// Create a rigid body given a definition. No reference to the definition is retained.
+    /// Destroy a rigid body given an id. This destroys all shapes and joints attached to the body.
+    ///
+    /// Do not keep references to the associated shapes and joints.
+    pub fn destroy_body(self) {
+        unsafe {
+            sys::b2DestroyBody(*self.body_id);
+        }
+    }
+
+    /// Body identifier validation. Can be used to detect orphaned ids. Provides validation for up to 64K allocations.
+    pub fn body_valid(&self) -> bool {
+        unsafe { sys::b2Body_IsValid(*self.body_id) }
+    }
+
+    /// Shape identifier validation. Provides validation for up to 64K allocations.
+    pub fn shape_valid(&self, shape_id: ShapeId) -> bool {
+        unsafe { sys::b2Shape_IsValid(*shape_id) }
+    }
+
+    /// Create a rigid body given a definition.
     pub fn create(world: WorldId, body_definition: &BodyDefinition) -> Body {
         unsafe {
             let mut body = sys::b2DefaultBodyDef();

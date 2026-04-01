@@ -1,8 +1,12 @@
 use glam::Vec2;
-use sys::{b2DestroyBody, b2DestroyWorld};
 
 use crate::{Body, BodyId, ShapeId, WorldId};
 
+/// A physics world.
+///
+/// A world contains bodies, shapes, and constraints. You make create up to 128 worlds.
+/// Each world is completely independent and may be simulated in parallel.
+#[derive(Debug, Clone, Copy)]
 pub struct World {
     id: WorldId,
     dt: f32,
@@ -11,13 +15,22 @@ pub struct World {
 impl World {
     const SUBSTEPS: i32 = 4;
 
+    /// Create a world for rigid body simulation.
     pub fn new(delta_time: f32) -> Self {
         let id = unsafe { WorldId::from_b2(sys::b2CreateWorld(&sys::b2DefaultWorldDef())) };
         Self { id, dt: delta_time }
     }
 
+    /// Gets the world's id.
     pub fn id(&self) -> WorldId {
         self.id
+    }
+
+    /// The amount of time to simulate when we call [`World::step`].
+    ///
+    /// This should be a fixed number. Usually `1.0 / 60.0`.
+    pub fn dt(&self) -> f32 {
+        self.dt
     }
 
     pub fn body(&self, body_id: BodyId) -> Body {
@@ -40,6 +53,13 @@ impl World {
         }
     }
 
+    /// Destroy a world.
+    pub fn destroy(self) {
+        unsafe { sys::b2DestroyWorld(*self.id) }
+    }
+
+    /// Set the gravity vector for the entire world. Box2D has no concept of an up direction and
+    /// this is left as a decision for the application. Usually in m/s^2.
     pub fn set_gravity(&self, gravity: Vec2) {
         unsafe { sys::b2World_SetGravity(*self.id, gravity.into()) }
     }
@@ -53,24 +73,17 @@ impl World {
         unsafe { sys::b2SetLengthUnitsPerMeter(ppm) }
     }
 
+    /// Get the current length units per meter.
     pub fn length_units_per_meter(&self) -> f32 {
         unsafe { sys::b2GetLengthUnitsPerMeter() }
     }
 
-    pub fn destroy_body(&self, body: Body) {
-        unsafe {
-            b2DestroyBody(*body.body_id());
-        }
+    /// Create a rigid body given a definition.
+    pub fn create_body(&self, body_definition: &crate::BodyDefinition) -> Body {
+        Body::create(self.id, body_definition)
     }
 
-    pub fn body_valid(&self, body_id: BodyId) -> bool {
-        unsafe { sys::b2Body_IsValid(*body_id) }
-    }
-
-    pub fn shape_valid(&self, shape_id: ShapeId) -> bool {
-        unsafe { sys::b2Shape_IsValid(*shape_id) }
-    }
-
+    /// Get contact events for this current time step.
     pub fn contact_events(&self) -> impl Iterator<Item = (BodyId, BodyId)> {
         unsafe {
             let contact_events = sys::b2World_GetContactEvents(*self.id);
@@ -88,11 +101,5 @@ impl World {
                 }
             })
         }
-    }
-}
-
-impl Drop for World {
-    fn drop(&mut self) {
-        unsafe { b2DestroyWorld(*self.id) }
     }
 }
