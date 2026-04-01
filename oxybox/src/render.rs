@@ -121,7 +121,7 @@ impl World {
         };
 
         unsafe {
-            sys::b2World_Draw(*self.id(), &raw mut dd);
+            sys::b2World_Draw(self.id, &raw mut dd);
         }
 
         calls

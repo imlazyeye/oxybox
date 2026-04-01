@@ -1,6 +1,6 @@
 use glam::Vec2;
 
-use crate::{Body, BodyId, ShapeId, WorldId};
+use crate::BodyId;
 
 /// A physics world.
 ///
@@ -8,8 +8,8 @@ use crate::{Body, BodyId, ShapeId, WorldId};
 /// Each world is completely independent and may be simulated in parallel.
 #[derive(Debug, Clone, Copy)]
 pub struct World {
-    id: WorldId,
-    dt: f32,
+    pub id: sys::b2WorldId,
+    pub dt: f32,
 }
 
 impl World {
@@ -17,13 +17,8 @@ impl World {
 
     /// Create a world for rigid body simulation.
     pub fn new(delta_time: f32) -> Self {
-        let id = unsafe { WorldId::from_b2(sys::b2CreateWorld(&sys::b2DefaultWorldDef())) };
+        let id = unsafe { sys::b2CreateWorld(&sys::b2DefaultWorldDef()) };
         Self { id, dt: delta_time }
-    }
-
-    /// Gets the world's id.
-    pub fn id(&self) -> WorldId {
-        self.id
     }
 
     /// The amount of time to simulate when we call [`World::step`].
@@ -33,35 +28,23 @@ impl World {
         self.dt
     }
 
-    pub fn body(&self, body_id: BodyId) -> Body {
-        let (body_id, shape_id) = unsafe {
-            let count = sys::b2Body_GetShapeCount(*body_id);
-            assert_eq!(count, 1, "oxybox can only handle 1 shape per body right now");
-            let mut vec = Vec::with_capacity(count as usize);
-            sys::b2Body_GetShapes(*body_id, vec.as_mut_ptr(), count);
-            vec.set_len(count as usize);
-            (body_id, ShapeId::from_b2(vec[0]))
-        };
-        Body::new(body_id, shape_id, self.id)
-    }
-
     /// Simulate a world for one time step.
     /// This performs collision detection, integration, and constraint solution.
     pub fn step(&self) {
         unsafe {
-            sys::b2World_Step(*self.id, self.dt, Self::SUBSTEPS);
+            sys::b2World_Step(self.id, self.dt, Self::SUBSTEPS);
         }
     }
 
     /// Destroy a world.
     pub fn destroy(self) {
-        unsafe { sys::b2DestroyWorld(*self.id) }
+        unsafe { sys::b2DestroyWorld(self.id) }
     }
 
     /// Set the gravity vector for the entire world. Box2D has no concept of an up direction and
     /// this is left as a decision for the application. Usually in m/s^2.
     pub fn set_gravity(&self, gravity: Vec2) {
-        unsafe { sys::b2World_SetGravity(*self.id, gravity.into()) }
+        unsafe { sys::b2World_SetGravity(self.id, gravity.into()) }
     }
 
     /// Sets the pixels-per-meter Box2D will expect. While you're free to work with whatever units
@@ -79,14 +62,14 @@ impl World {
     }
 
     /// Create a rigid body given a definition.
-    pub fn create_body(&self, body_definition: &crate::BodyDefinition) -> Body {
-        Body::create(self.id, body_definition)
+    pub fn create_body(&self, body_definition: &crate::BodyDefinition) -> BodyId {
+        BodyId::create(self, body_definition)
     }
 
     /// Get contact events for this current time step.
     pub fn contact_events(&self) -> impl Iterator<Item = (BodyId, BodyId)> {
         unsafe {
-            let contact_events = sys::b2World_GetContactEvents(*self.id);
+            let contact_events = sys::b2World_GetContactEvents(self.id);
             let begin_events: &mut [sys::b2ContactBeginTouchEvent] =
                 std::slice::from_raw_parts_mut(contact_events.beginEvents, contact_events.beginCount as usize);
 
