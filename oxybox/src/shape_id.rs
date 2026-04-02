@@ -80,7 +80,7 @@ impl ShapeId {
         let shape_id = unsafe {
             sys::b2CreateCircleShape(
                 body_id.into(),
-                &shape_def.into(),
+                &shape_def.0,
                 &sys::b2Circle {
                     center: center.into(),
                     radius,
@@ -105,7 +105,7 @@ impl ShapeId {
         let shape_id = unsafe {
             sys::b2CreatePolygonShape(
                 body_id.into(),
-                &shape_def.into(),
+                &shape_def.0,
                 &sys::b2MakeOffsetBox(
                     half_dims.x,
                     half_dims.y,
@@ -138,67 +138,75 @@ impl From<ShapeId> for sys::b2ShapeId {
 ///
 /// You can safely re-use shape definitions. Shapes are added to a body after construction.
 /// Shape definitions are temporary objects used to bundle creation parameters.
-#[derive(Debug, Clone, Copy, Default)]
-pub struct ShapeDefinition {
+#[derive(Debug, Clone, Copy)]
+pub struct ShapeDefinition(sys::b2ShapeDef);
+
+impl ShapeDefinition {
+    /// Creates a new ShapeDefinition, which is used to create a shape.
+    pub fn new() -> Self {
+        Self(unsafe { sys::b2DefaultShapeDef() })
+    }
+
     /// The density, usually in kg/m^2.
     ///
     /// This is not part of the surface material because this is for the interior, which may have other considerations, such as
     /// being hollow. For example a wood barrel may be hollow or full of water.
-    pub density: Option<f32>,
+    pub fn density(mut self, density: f32) -> Self {
+        self.0.density = density;
+        self
+    }
 
     /// The collision category bits. Normally you would just set one bit as a bitflag.
     ///
     /// The category bits should represent your application object types.
-    pub category: Option<u64>,
+    pub fn category(mut self, category: u64) -> Self {
+        self.0.filter.categoryBits = category;
+        self
+    }
 
     /// The collision mask bits. This states the categories that this shape would accept for collision.
     ///
     /// For example, you may want your player to only collide with static objects and other players.
-    pub mask: Option<u64>,
+    pub fn mask(mut self, mask: u64) -> Self {
+        self.0.filter.maskBits = mask;
+        self
+    }
 
     /// A sensor shape generates overlap events but never generates a collision response.
     ///
     /// Sensors do not have continuous collision. Instead, use a ray or shape cast for those scenarios.
     /// Sensors still contribute to the body mass if they have non-zero density. Sensor events are disabled by default.
-    pub is_sensor: bool,
+    pub fn is_sensor(mut self, is_sensor: bool) -> Self {
+        self.0.isSensor = is_sensor;
+        self
+    }
 
     /// Enable contact events for this shape.
     ///
     /// Only applies to kinematic and dynamic bodies. Ignored for sensors.
-    pub enable_contact_events: bool,
+    pub fn enable_contact_events(mut self, enable_contact_events: bool) -> Self {
+        self.0.enableContactEvents = enable_contact_events;
+        self
+    }
 
     /// The coefficient of restitution (bounce) usually in the range `0.0..=1.0`.
     ///
     /// See [wikipedia](https://en.wikipedia.org/wiki/Coefficient_of_restitution).
-    pub restitution: Option<f32>,
+    pub fn restitution(mut self, restitution: f32) -> Self {
+        self.0.material.restitution = restitution;
+        self
+    }
 
     /// The Coulomb (dry) friction coefficient, usually in the range `0.0..=1.0`.
-    pub friction: Option<f32>,
+    pub fn friction(mut self, friction: f32) -> Self {
+        self.0.material.friction = friction;
+        self
+    }
 }
 
-impl From<&'_ ShapeDefinition> for sys::b2ShapeDef {
-    fn from(shape_def: &ShapeDefinition) -> Self {
-        let mut b2_shape_def = unsafe { sys::b2DefaultShapeDef() };
-        if let Some(friction) = shape_def.friction {
-            b2_shape_def.material.friction = friction;
-        }
-
-        if let Some(density) = shape_def.density {
-            b2_shape_def.density = density;
-        }
-        if let Some(restitution) = shape_def.restitution {
-            b2_shape_def.material.restitution = restitution;
-        }
-        if let Some(category) = shape_def.category {
-            b2_shape_def.filter.categoryBits = category;
-        }
-        if let Some(mask) = shape_def.mask {
-            b2_shape_def.filter.maskBits = mask;
-        }
-        b2_shape_def.isSensor = shape_def.is_sensor;
-        b2_shape_def.enableContactEvents = shape_def.enable_contact_events;
-
-        b2_shape_def
+impl Default for ShapeDefinition {
+    fn default() -> Self {
+        Self::new()
     }
 }
 

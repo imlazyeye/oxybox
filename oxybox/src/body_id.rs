@@ -127,38 +127,7 @@ impl BodyId {
 
     /// Create a rigid body given a definition.
     pub fn create(world: &World, body_definition: &BodyDefinition) -> BodyId {
-        let mut body = unsafe { sys::b2DefaultBodyDef() };
-        body.type_ = body_definition.kind as u32;
-
-        if let Some(position) = body_definition.position {
-            body.position = position.into();
-        }
-        if let Some(angular_damping) = body_definition.angular_damping {
-            body.angularDamping = angular_damping;
-        }
-        if let Some(linear_damping) = body_definition.linear_damping {
-            body.linearDamping = linear_damping;
-        }
-        if let Some(rotation) = body_definition.rotation {
-            body.rotation = sys::b2Rot {
-                c: rotation.cos(),
-                s: rotation.sin(),
-            };
-        }
-        if let Some(linear_velocity) = body_definition.linear_velocity {
-            body.linearVelocity = linear_velocity.into();
-        }
-        if let Some(angular_velocity) = body_definition.angular_velocity {
-            body.angularVelocity = angular_velocity;
-        }
-
-        body.isBullet = body_definition.is_bullet;
-
-        if let Some(user_data) = body_definition.user_data {
-            body.userData = user_data as usize as *mut c_void;
-        }
-
-        let body_id = unsafe { sys::b2CreateBody(world.id, &body) };
+        let body_id = unsafe { sys::b2CreateBody(world.id, &body_definition.0) };
 
         BodyId::from_b2(body_id)
     }
@@ -208,46 +177,95 @@ impl std::fmt::Debug for BodyId {
 ///
 /// You can safely re-use body definitions. Shapes are added to a body after construction.
 /// Body definitions are temporary objects used to bundle creation parameters.
-#[derive(Debug, Clone, Copy, Default)]
-pub struct BodyDefinition {
+#[repr(transparent)]
+pub struct BodyDefinition(sys::b2BodyDef);
+
+impl BodyDefinition {
+    /// Creates a new BodyDefinition for use in creating a body.
+    pub fn new() -> Self {
+        Self(unsafe { sys::b2DefaultBodyDef() })
+    }
+
     /// The body type: static, kinematic, or dynamic. The default is [`BodyKind::Static`].
-    pub kind: BodyKind,
+    pub fn kind(mut self, kind: BodyKind) -> Self {
+        self.0.type_ = kind as u32;
+
+        self
+    }
 
     /// The initial world position of the body. Bodies should be created with the desired position.
     /// Creating bodies at the origin and then moving them nearly doubles the cost of body creation,
     /// especially if the body is moved after shapes have been added.
-    pub position: Option<Vec2>,
+    pub fn position(mut self, position: Vec2) -> Self {
+        self.0.position = position.into();
 
-    /// The initial world rotation of the body.
-    pub rotation: Option<f32>,
+        self
+    }
+
+    /// The initial world rotation of the body. This number is in radians.
+    pub fn rotation(mut self, rotation: f32) -> Self {
+        self.0.rotation = sys::b2Rot {
+            c: rotation.cos(),
+            s: rotation.sin(),
+        };
+
+        self
+    }
 
     /// Treat this body as high speed object that performs continuous collision detection against dynamic
     /// and kinematic bodies, but not other bullet bodies.
     ///
     /// Bullets should be used sparingly. They are not a solution for general dynamic-versus-dynamic continuous collision.
     /// They may interfere with joint constraints.
-    pub is_bullet: bool,
+    pub fn is_bullet(mut self, is_bullet: bool) -> Self {
+        self.0.isBullet = is_bullet;
+
+        self
+    }
 
     /// The initial linear velocity of the body’s origin. Usually in meters per second.
-    pub linear_velocity: Option<Vec2>,
+    pub fn linear_velocity(mut self, linear_velocity: Vec2) -> Self {
+        self.0.linearVelocity = linear_velocity.into();
+        self
+    }
 
     /// The initial angular velocity of the body. Radians per second.
-    pub angular_velocity: Option<f32>,
+    pub fn angular_velocity(mut self, angular_velocity: f32) -> Self {
+        self.0.angularVelocity = angular_velocity;
+        self
+    }
 
     /// Linear damping is used to reduce the linear velocity.
     ///
     /// The damping parameter can be larger than 1.0 but the damping effect becomes sensitive to the time step when the damping
     /// parameter is large. Generally linear damping is undesirable because it makes objects move slowly as if they are floating.
-    pub linear_damping: Option<f32>,
+    pub fn linear_damping(mut self, linear_damping: f32) -> Self {
+        self.0.linearDamping = linear_damping;
+        self
+    }
 
     /// Angular damping is used to reduce the angular velocity.
     ///
     /// The damping parameter can be larger than 1.0 but the damping effect becomes sensitive to the time step when the damping
     /// parameter is large. Angular damping can be use slow down rotating bodies.
-    pub angular_damping: Option<f32>,
+    pub fn angular_damping(mut self, angular_damping: f32) -> Self {
+        self.0.angularDamping = angular_damping;
+
+        self
+    }
 
     /// Use this to store application specific body data.
-    pub user_data: Option<u64>,
+    pub fn user_data(mut self, user_data: u64) -> Self {
+        self.0.userData = user_data as _;
+
+        self
+    }
+}
+
+impl Default for BodyDefinition {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 #[derive(Debug, Copy, Clone, PartialEq, Default)]
