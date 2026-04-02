@@ -6,6 +6,7 @@ links = "box2d"
 
 [dependencies]
 glam.workspace = true
+static_assertions = "1.1.0"
 
 [build-dependencies]
 cc = "1"

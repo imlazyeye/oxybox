@@ -153,6 +153,22 @@ impl BodyId {
     ) -> ShapeId {
         ShapeId::create_rectangle(self, half_dims, offset, rotation, shape_def)
     }
+
+    /// Create a polygon shape and attach it to a body.
+    ///
+    /// Some failure cases:
+    /// - All points very close together
+    /// - All points on a line
+    /// - Less than 3 points
+    /// - More than [`ShapeId::MAX_POLYGON_POINTS`].
+    ///
+    /// We weld close points and remove collinear points.
+    ///
+    /// If a hull would be made empty, no polygon is attached.
+    #[must_use]
+    pub fn attach_polygon(self, polygon_points: &[Vec2], shape_def: &ShapeDefinition) -> Option<ShapeId> {
+        ShapeId::create_polygon(self, polygon_points, shape_def)
+    }
 }
 
 impl From<sys::b2BodyId> for BodyId {

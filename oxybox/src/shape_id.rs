@@ -7,6 +7,9 @@ use crate::BodyId;
 pub struct ShapeId(sys::b2ShapeId);
 
 impl ShapeId {
+    /// The maximum number of points a polygon can have.
+    pub const MAX_POLYGON_POINTS: usize = 8;
+
     /// Creates a [`ShapeId`] from a [`sys::b2ShapeId`].
     pub fn from_b2(input: sys::b2ShapeId) -> Self {
         Self(input)
@@ -119,6 +122,39 @@ impl ShapeId {
         };
 
         Self::from_b2(shape_id)
+    }
+
+    /// Create a polygon shape and attach it to a body.
+    ///
+    /// Some failure cases:
+    /// - All points very close together
+    /// - All points on a line
+    /// - Less than 3 points
+    /// - More than [`ShapeId::MAX_POLYGON_POINTS`].
+    ///
+    /// We weld close points and remove collinear points.
+    ///
+    /// If a hull would be made empty, no polygon is attached.
+    #[must_use]
+    pub fn create_polygon(body_id: BodyId, polygon_points: &[Vec2], shape_def: &ShapeDefinition) -> Option<Self> {
+        if polygon_points.len() > Self::MAX_POLYGON_POINTS || polygon_points.len() < 3 {
+            return None;
+        }
+
+        // safety: glam::Vec2 and b2Vec2 are identical in memory.
+        let hull = unsafe {
+            sys::b2ComputeHull(
+                polygon_points.as_ptr() as *const sys::b2Vec2,
+                polygon_points.len() as i32,
+            )
+        };
+        if hull.count == 0 {
+            return None;
+        }
+
+        let shape_id =
+            unsafe { sys::b2CreatePolygonShape(body_id.into(), &shape_def.0, &sys::b2MakePolygon(&hull, 0.0)) };
+        Some(Self::from_b2(shape_id))
     }
 }
 

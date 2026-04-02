@@ -46,3 +46,9 @@ impl std::hash::Hash for b2ShapeId {
         self.generation.hash(state);
     }
 }
+
+// glam and b2Vec2 are the same thing (two f32s):
+static_assertions::assert_eq_size!(glam::Vec2, b2Vec2);
+static_assertions::assert_eq_align!(glam::Vec2, b2Vec2);
+static_assertions::const_assert_eq!(std::mem::offset_of!(glam::Vec2, x), std::mem::offset_of!(b2Vec2, x));
+static_assertions::const_assert_eq!(std::mem::offset_of!(glam::Vec2, y), std::mem::offset_of!(b2Vec2, y));
