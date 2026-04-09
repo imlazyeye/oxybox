@@ -1,59 +1,89 @@
-use bitflags::bitflags;
-use glam::Vec2;
-use std::ffi::c_void;
+use glam::{Affine2, Vec2};
 
 use crate::World;
 
-#[derive(Debug, Clone)]
-pub enum Draw {
-    /// Draws a circle.
-    Circle {
-        /// The center position of the circle.
-        center: Vec2,
-
-        /// The radius of the circle.
-        radius: f32,
-
-        /// These colors are used for debug draw and mostly match the named SVG colors.
-        color: u32,
-    },
-
-    Polygon {
-        /// The verts to be drawn.
-        vertices: Vec<Vec2>,
-
-        /// These colors are used for debug draw and mostly match the named SVG colors.
-        color: u32,
-    },
+pub enum DrawCommand<'a> {
+    Circle(CircleDraw),
+    Polygon(PolygonDraw<'a>),
 }
 
-bitflags! {
-    pub struct DrawInstructions: u32 {
-        /// Option to draw shapes
-        const SHAPES             = 0b0000_0000_0000_0001;
-        // const JOINTS             = 0b0000_0000_0000_0010;
-        // const JOINT_EXTRAS       = 0b0000_0000_0000_0100;
-        // const BOUNDS             = 0b0000_0000_0000_1000;
-        // const MASS               = 0b0000_0000_0001_0000;
-        // const BODY_NAMES         = 0b0000_0000_0010_0000;
-        // const CONTACTS           = 0b0000_0000_0100_0000;
-        // const GRAPH_COLORS       = 0b0000_0000_1000_0000;
-        // const CONTACT_NORMALS    = 0b0000_0001_0000_0000;
-        // const CONTACT_IMPULSES   = 0b0000_0010_0000_0000;
-        // const CONTACT_FEATURES   = 0b0000_0100_0000_0000;
-        // const FRICTION_IMPULSES  = 0b0000_1000_0000_0000;
-        // const ISLANDS            = 0b0001_0000_0000_0000;
-    }
+pub struct CircleDraw {
+    pub transform: Affine2,
+    pub radius: f32,
+    pub color: u32,
+}
+
+pub struct PolygonDraw<'a> {
+    pub transform: Affine2,
+    pub vertices: &'a [Vec2],
+    pub radius: f32,
+    pub color: u32,
 }
 
 impl World {
-    /// Creates a list of draw commands.
-    pub fn gather_draws(&self, flags: DrawInstructions) -> Vec<Draw> {
-        let mut calls = Vec::new();
+    /// Takes a callback and draws the world.
+    pub fn draw_shapes<DrawShapesFn>(&self, mut draw_shapes: DrawShapesFn)
+    where
+        DrawShapesFn: FnMut(DrawCommand<'_>),
+    {
+        unsafe extern "C" fn draw_solid_circle_wrapper<DrawShapesFn>(
+            transform: sys::b2Transform,
+            radius: f32,
+            color: sys::b2HexColor,
+            ctx: *mut std::ffi::c_void,
+        ) where
+            DrawShapesFn: FnMut(DrawCommand<'_>),
+        {
+            // we own this pointer and know it is valid:
+            let f = unsafe { &mut *(ctx as *mut DrawShapesFn) };
+
+            let (s, c) = (transform.q.s, transform.q.c);
+            let transform = glam::Affine2 {
+                matrix2: glam::Mat2::from_cols(glam::Vec2::new(c, s), glam::Vec2::new(-s, c)),
+                translation: Vec2::new(transform.p.x, transform.p.y),
+            };
+
+            f(DrawCommand::Circle(CircleDraw {
+                transform,
+                radius,
+                color,
+            }));
+        }
+
+        unsafe extern "C" fn draw_solid_polygon_wrapper<DrawShapesFn>(
+            transform: sys::b2Transform,
+            verts: *const sys::b2Vec2,
+            count: i32,
+            radius: f32,
+            color: sys::b2HexColor,
+            ctx: *mut std::ffi::c_void,
+        ) where
+            DrawShapesFn: FnMut(DrawCommand<'_>),
+        {
+            // we own this pointer and know it is valid:
+            let f = unsafe { &mut *(ctx as *mut DrawShapesFn) };
+
+            // safety: glam::Vec2 is the same as b2Vec2, via static tests in lib.rs
+            let verts_slice = unsafe { std::slice::from_raw_parts(verts as *const glam::Vec2, count as usize) };
+            let (s, c) = (transform.q.s, transform.q.c);
+            let transform = glam::Affine2 {
+                matrix2: glam::Mat2::from_cols(glam::Vec2::new(c, s), glam::Vec2::new(-s, c)),
+                translation: Vec2::new(transform.p.x, transform.p.y),
+            };
+
+            let arg = DrawCommand::Polygon(PolygonDraw {
+                transform,
+                vertices: verts_slice,
+                radius,
+                color,
+            });
+
+            f(arg);
+        }
 
         let mut dd = sys::b2DebugDraw {
-            DrawSolidCircleFcn: Some(draw_solid_circle_cb),
-            DrawSolidPolygonFcn: Some(draw_solid_polygon_cb),
+            DrawSolidCircleFcn: Some(draw_solid_circle_wrapper::<DrawShapesFn>),
+            DrawSolidPolygonFcn: Some(draw_solid_polygon_wrapper::<DrawShapesFn>),
 
             // not yet supported
             DrawCircleFcn: None,
@@ -64,7 +94,7 @@ impl World {
             DrawPointFcn: None,
             DrawStringFcn: None,
 
-            drawShapes: flags.contains(DrawInstructions::SHAPES),
+            drawShapes: true,
 
             // not yet supported
             drawJoints: false,
@@ -79,6 +109,8 @@ impl World {
             drawContactFeatures: false,
             drawFrictionImpulses: false,
             drawIslands: false,
+
+            // we're uh we're drawing everything:
             drawingBounds: sys::b2AABB {
                 lowerBound: sys::b2Vec2 {
                     x: -100000.0,
@@ -87,76 +119,15 @@ impl World {
                 upperBound: sys::b2Vec2 {
                     x: 100000.0,
                     y: 100000.0,
-                }, // todo
+                },
             },
 
-            context: &mut calls as *mut _ as *mut c_void,
+            context: &mut draw_shapes as *mut _ as *mut _,
             useDrawingBounds: false,
         };
 
         unsafe {
             sys::b2World_Draw(self.id, &mut dd);
         }
-
-        calls
     }
 }
-
-extern "C" fn draw_solid_circle_cb(transform: sys::b2Transform, radius: f32, color: sys::b2HexColor, ctx: *mut c_void) {
-    let calls = unsafe { &mut *(ctx as *mut Vec<Draw>) };
-    let center = transform.p;
-    calls.push(Draw::Circle {
-        center: Vec2::new(center.x, center.y),
-        radius,
-        color,
-    });
-}
-
-unsafe extern "C" fn draw_solid_polygon_cb(
-    transform: sys::b2Transform,
-    verts: *const sys::b2Vec2,
-    count: i32,
-    _radius: f32,
-    color: sys::b2HexColor,
-    calls: *mut c_void,
-) {
-    let calls = unsafe { &mut *(calls as *mut Vec<Draw>) };
-    let verts_slice = unsafe { std::slice::from_raw_parts(verts, count as usize) };
-
-    calls.push(Draw::Polygon {
-        vertices: verts_slice
-            .iter()
-            .map(|vertex| {
-                let x = (transform.q.c * vertex.x - transform.q.s * vertex.y) + transform.p.x;
-                let y = (transform.q.s * vertex.x + transform.q.c * vertex.y) + transform.p.y;
-
-                Vec2::new(x, y)
-            })
-            .collect(),
-        color,
-    });
-}
-
-// extern "C" fn draw_circle_cb(center: sys::b2Vec2, radius: f32, color: sys::b2HexColor, ctx: *mut c_void) {
-//     let calls = unsafe { &mut *(ctx as *mut Vec<Draw>) };
-//     calls.push(Draw::Circle {
-//         center: Vec2::new(center.x, center.y),
-//         radius,
-//         color,
-//         filled: false,
-//     });
-// }
-
-// extern "C" fn draw_polygon_cb(verts: *const sys::b2Vec2, count: i32, color: sys::b2HexColor, ctx: *mut c_void) {
-//     let calls = unsafe { &mut *(ctx as *mut Vec<Draw>) };
-//     let verts_slice = unsafe { std::slice::from_raw_parts(verts, count as usize) };
-//     if let Some((center, size, rotation)) = polygon_to_rect(verts_slice, None) {
-//         calls.push(Draw::Rect {
-//             center,
-//             size,
-//             rotation,
-//             color,
-//             filled: false,
-//         });
-//     }
-// }

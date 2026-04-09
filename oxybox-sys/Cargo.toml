@@ -9,5 +9,6 @@ glam.workspace = true
 static_assertions = "1.1.0"
 
 [build-dependencies]
-cc = "1"
+# note: cc had an annoying failure on macOS on 1.2.59, likely to be reverted in 1.2.60
+cc = "=1.2.58"
 camino = "1.2.2"

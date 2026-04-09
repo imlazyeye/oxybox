@@ -6,4 +6,3 @@ edition = "2024"
 [dependencies]
 glam.workspace = true
 sys = { package = "oxybox-sys", path = "../oxybox-sys" }
-bitflags = "2.11"
