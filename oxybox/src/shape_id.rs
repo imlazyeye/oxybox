@@ -3,7 +3,11 @@ use glam::Vec2;
 use crate::BodyId;
 
 /// Shape id references a shape instance. This should be treated as an opaque handle.
+///
+/// It is possible to hold a shape which has been destroyed -- you should run [`ShapeId::is_valid`]
+/// to check that.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[repr(transparent)]
 pub struct ShapeId(sys::b2ShapeId);
 
 impl ShapeId {
@@ -72,13 +76,22 @@ impl ShapeId {
     }
 
     /// Shape identifier validation. Provides validation for up to 64K allocations.
-    pub fn shape_valid(self) -> bool {
+    pub fn is_valid(self) -> bool {
         unsafe { sys::b2Shape_IsValid(self.0) }
+    }
+
+    /// Gets the [`BodyId`] which this shape is attached to.
+    pub fn get_body(self) -> BodyId {
+        // safety: we aren't giving any pointers, so this should be trivially safe,
+        // but the global scoped nature of this function worries me.
+        let raw = unsafe { sys::b2Shape_GetBody(self.0) };
+        BodyId::from_b2(raw)
     }
 
     /// Create a circle given a definition.
     ///
     /// The `center` is the local offset from the body, and the `radius` is the radius of the circle.
+    #[must_use]
     pub fn create_circle(body_id: BodyId, center: Vec2, radius: f32, shape_def: &ShapeDefinition) -> Self {
         let shape_id = unsafe {
             sys::b2CreateCircleShape(
@@ -98,6 +111,7 @@ impl ShapeId {
     ///
     /// `half_dims` are the half dimensions of the rectangle, `offset` is the offset relative to the body,
     /// and `rotation` is the rotation amount in radians.
+    #[must_use]
     pub fn create_rectangle(
         body_id: BodyId,
         half_dims: Vec2,
@@ -175,6 +189,7 @@ impl From<ShapeId> for sys::b2ShapeId {
 /// You can safely re-use shape definitions. Shapes are added to a body after construction.
 /// Shape definitions are temporary objects used to bundle creation parameters.
 #[derive(Debug, Clone, Copy)]
+#[repr(transparent)]
 pub struct ShapeDefinition(sys::b2ShapeDef);
 
 impl ShapeDefinition {
