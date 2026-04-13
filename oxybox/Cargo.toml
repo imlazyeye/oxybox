@@ -5,4 +5,5 @@ edition = "2024"
 
 [dependencies]
 glam.workspace = true
+static_assertions = "1.1.0"
 sys = { package = "oxybox-sys", path = "../oxybox-sys" }
