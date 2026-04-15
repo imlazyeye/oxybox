@@ -4,7 +4,7 @@ mod shape_id;
 mod world;
 
 pub use body_id::*;
-pub use render::{DrawCommand, PolygonDraw};
+pub use render::{DrawShapeCommand, PolygonDraw};
 pub use shape_id::*;
 pub use world::*;
 

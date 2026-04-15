@@ -6,6 +6,14 @@ fn main() {
     let mut ccbuild = cc::Build::new();
     ccbuild.include("vendor/box2d/include").warnings(false);
 
+    // we need to build in C17 for box2D:
+    let flag = if ccbuild.get_compiler().is_like_msvc() {
+        "/std:c17"
+    } else {
+        "-std=c17"
+    };
+    ccbuild.flag(flag);
+
     for entry in std::fs::read_dir("vendor/box2d/src").unwrap() {
         let Ok(entry) = entry else {
             continue;

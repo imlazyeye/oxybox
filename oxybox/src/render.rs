@@ -2,7 +2,8 @@ use glam::{Affine2, Vec2};
 
 use crate::World;
 
-pub enum DrawCommand<'a> {
+/// A draw shape command.
+pub enum DrawShapeCommand<'a> {
     Circle(CircleDraw),
     Polygon(PolygonDraw<'a>),
 }
@@ -21,10 +22,11 @@ pub struct PolygonDraw<'a> {
 }
 
 impl World {
-    /// Takes a callback and draws the world.
+    /// Takes a callback and draws all the shapes in the world. This function is very stubbed, and
+    /// more work is needed to added full support.
     pub fn draw_shapes<DrawShapesFn>(&self, mut draw_shapes: DrawShapesFn)
     where
-        DrawShapesFn: FnMut(DrawCommand<'_>),
+        DrawShapesFn: FnMut(DrawShapeCommand<'_>),
     {
         unsafe extern "C" fn draw_solid_circle_wrapper<DrawShapesFn>(
             transform: sys::b2Transform,
@@ -32,7 +34,7 @@ impl World {
             color: sys::b2HexColor,
             ctx: *mut std::ffi::c_void,
         ) where
-            DrawShapesFn: FnMut(DrawCommand<'_>),
+            DrawShapesFn: FnMut(DrawShapeCommand<'_>),
         {
             // we own this pointer and know it is valid:
             let f = unsafe { &mut *(ctx as *mut DrawShapesFn) };
@@ -43,7 +45,7 @@ impl World {
                 translation: Vec2::new(transform.p.x, transform.p.y),
             };
 
-            f(DrawCommand::Circle(CircleDraw {
+            f(DrawShapeCommand::Circle(CircleDraw {
                 transform,
                 radius,
                 color,
@@ -58,7 +60,7 @@ impl World {
             color: sys::b2HexColor,
             ctx: *mut std::ffi::c_void,
         ) where
-            DrawShapesFn: FnMut(DrawCommand<'_>),
+            DrawShapesFn: FnMut(DrawShapeCommand<'_>),
         {
             // we own this pointer and know it is valid:
             let f = unsafe { &mut *(ctx as *mut DrawShapesFn) };
@@ -71,7 +73,7 @@ impl World {
                 translation: Vec2::new(transform.p.x, transform.p.y),
             };
 
-            let arg = DrawCommand::Polygon(PolygonDraw {
+            let arg = DrawShapeCommand::Polygon(PolygonDraw {
                 transform,
                 vertices: verts_slice,
                 radius,

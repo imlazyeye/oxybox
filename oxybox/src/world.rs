@@ -6,7 +6,7 @@ use crate::{BodyId, ShapeId};
 ///
 /// A world contains bodies, shapes, and constraints. You make create up to 128 worlds.
 /// Each world is completely independent and may be simulated in parallel.
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug)]
 pub struct World {
     pub id: sys::b2WorldId,
     pub dt: f32,
@@ -67,7 +67,7 @@ impl World {
     }
 
     /// Overlap test for circles.
-    /// 
+    ///
     /// The callback will be called for each shape which overlaps with the provided circle. If the callback
     /// returns `false`, then we will stop iterating and return early.
     pub fn overlap_circle<OverlapFn>(&self, circle_position: Vec2, radius: f32, mut overlap: OverlapFn) -> OverlapStats
