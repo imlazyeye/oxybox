@@ -6,7 +6,7 @@ use crate::BodyId;
 ///
 /// It is possible to hold a shape which has been destroyed -- you should run [`ShapeId::is_valid`]
 /// to check that.
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Copy, Clone, PartialEq, Eq, Hash)]
 #[repr(transparent)]
 pub struct ShapeId(sys::b2ShapeId);
 
@@ -181,6 +181,12 @@ impl From<sys::b2ShapeId> for ShapeId {
 impl From<ShapeId> for sys::b2ShapeId {
     fn from(value: ShapeId) -> Self {
         value.0
+    }
+}
+
+impl std::fmt::Debug for ShapeId {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.pad(&format!("{}@{}v{}", self.0.world0, self.0.index1, self.0.generation))
     }
 }
 
