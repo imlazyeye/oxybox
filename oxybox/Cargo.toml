@@ -2,6 +2,10 @@
 name = "oxybox"
 version = "0.1.0"
 edition = "2024"
+description = "Rust bindings/API for Box2D."
+license = "MIT"
+repository = "https://github.com/imlazyeye/oxybox"
+readme = "../README.md"
 
 [dependencies]
 glam.workspace = true

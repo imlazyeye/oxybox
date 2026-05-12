@@ -2,6 +2,20 @@
 name = "oxybox-sys"
 version = "0.1.0"
 edition = "2024"
+description = "Low-level Rust bindings for Box2D."
+license = "MIT"
+repository = "https://github.com/imlazyeye/oxybox"
+readme = "../README.md"
+include = [
+    "Cargo.toml",
+    "LICENSE",
+    "README.md",
+    "build.rs",
+    "src/**",
+    "vendor/box2d/LICENSE",
+    "vendor/box2d/include/**",
+    "vendor/box2d/src/**",
+]
 links = "box2d"
 
 [dependencies]
