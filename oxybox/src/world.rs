@@ -14,7 +14,9 @@ pub use overlap_stats::OverlapStats;
 pub use query_filter::QueryFilter;
 pub use world_definition::{MixingCallbacks, TaskSystem, WorldDefinition};
 
-use crate::{Body, BodyId, Shape, ShapeId, ShapeRef};
+use crate::{
+    Body, BodyId, InvalidJointBody, Joint, JointId, MouseJoint, MouseJointDefinition, Shape, ShapeId, ShapeRef,
+};
 
 /// Box2D keeps every world in one global array and claims slots without synchronization:
 /// `b2CreateWorld` scans for the first entry with `inUse == false` and sets it, and
@@ -119,6 +121,27 @@ impl World {
         let body_id = unsafe { sys::b2CreateBody(self.id, body_definition.as_b2()) };
 
         Body::new(BodyId::from_b2(body_id))
+    }
+
+    /// Create a mouse joint given a definition.
+    pub fn create_mouse_joint(
+        &self,
+        mouse_joint_definition: MouseJointDefinition,
+    ) -> Result<MouseJoint<'_>, InvalidJointBody> {
+        // Box2D only checks the bodies in a debug assertion, and indexes its body array with them
+        // regardless, so a stale or foreign id would read out of bounds.
+        if !self.owns_body(mouse_joint_definition.body_id_a) {
+            return Err(InvalidJointBody::BodyA);
+        }
+        if !self.owns_body(mouse_joint_definition.body_id_b) {
+            return Err(InvalidJointBody::BodyB);
+        }
+
+        // safety: `MouseJointDefinition` is laid out exactly like `b2MouseJointDef` (checked at
+        // compile time where it is defined), and both of its bodies were just checked.
+        let joint_id = unsafe { sys::b2CreateMouseJoint(self.id, mouse_joint_definition.as_b2()) };
+
+        Ok(MouseJoint(Joint::new(JointId::from_b2(joint_id))))
     }
 
     /// Overlap test for circles.
@@ -255,6 +278,13 @@ impl World {
         self.owns_body(body_id).then(|| Body::new(body_id))
     }
 
+    /// Gets a given [`Joint`] from an existing [`JointId`].
+    ///
+    /// Returns `None` if the joint has been destroyed, or belongs to a different world.
+    pub fn joint(&self, joint_id: JointId) -> Option<Joint<'_>> {
+        self.owns_joint(joint_id).then(|| Joint::new(joint_id))
+    }
+
     /// Destroy a rigid body. This destroys all shapes and joints attached to the body.
     ///
     /// Returns `false` if the body was already destroyed, or belongs to a different world.
@@ -264,6 +294,18 @@ impl World {
         }
 
         unsafe { sys::b2DestroyBody(body_id.0) };
+        true
+    }
+
+    /// Destroy a joint.
+    ///
+    /// Returns `false` if the joint was already destroyed, or belongs to a different world.
+    pub fn destroy_joint(&mut self, joint_id: JointId) -> bool {
+        if !self.owns_joint(joint_id) {
+            return false;
+        }
+
+        unsafe { sys::b2DestroyJoint(joint_id.0) };
         true
     }
 
@@ -285,6 +327,16 @@ impl World {
     /// to worry about it.
     pub fn owns_shape(&self, shape_id: ShapeId) -> bool {
         self.id.index1.wrapping_sub(1) == shape_id.0.world0 && shape_id.is_valid()
+    }
+
+    /// Whether `joint_id` names a live joint in *this* world.
+    ///
+    /// If you make and destroy a world, the old joint ids from the past world may overlap
+    /// (ie, break the A-B-A problem) from joints in the new world -- Box2d only exposes world
+    /// slot index, but not generation data. If you never or rarely delete worlds, you don't have
+    /// to worry about it.
+    pub fn owns_joint(&self, joint_id: JointId) -> bool {
+        self.id.index1.wrapping_sub(1) == joint_id.0.world0 && joint_id.is_valid()
     }
 }
 

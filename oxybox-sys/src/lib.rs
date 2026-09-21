@@ -17,6 +17,13 @@ impl PartialEq for b2ShapeId {
 }
 impl Eq for b2ShapeId {}
 
+impl PartialEq for b2JointId {
+    fn eq(&self, other: &Self) -> bool {
+        self.index1 == other.index1 && self.world0 == other.world0 && self.generation == other.generation
+    }
+}
+impl Eq for b2JointId {}
+
 impl PartialEq for b2WorldId {
     fn eq(&self, other: &Self) -> bool {
         self.generation == other.generation && self.index1 == other.index1
@@ -40,6 +47,14 @@ impl std::hash::Hash for b2BodyId {
 }
 
 impl std::hash::Hash for b2ShapeId {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        self.index1.hash(state);
+        self.world0.hash(state);
+        self.generation.hash(state);
+    }
+}
+
+impl std::hash::Hash for b2JointId {
     fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
         self.index1.hash(state);
         self.world0.hash(state);

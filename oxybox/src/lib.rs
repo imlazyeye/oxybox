@@ -1,10 +1,12 @@
 mod body;
+mod joint;
 mod render;
 mod rotation;
 mod shape;
 mod world;
 
 pub use body::{Body, BodyDefinition, BodyId, BodyKind, BodyName, BodyRef};
+pub use joint::{InvalidJointBody, Joint, JointId, JointKind, JointRef, MouseJoint, MouseJointDefinition};
 pub use render::{CircleDraw, DrawShapeCommand, PolygonDraw};
 pub use rotation::Rotation;
 pub use shape::*;
