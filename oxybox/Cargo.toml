@@ -1,6 +1,6 @@
 [package]
 name = "oxybox"
-version = "0.1.0"
+version.workspace = true
 edition = "2024"
 description = "Rust bindings/API for Box2D."
 license = "MIT"
@@ -10,5 +10,5 @@ readme = "../README.md"
 [dependencies]
 glam.workspace = true
 
-sys = { package = "oxybox-sys", version = "0.1.0", path = "../oxybox-sys" }
+sys = { package = "oxybox-sys", version = "0.2.0", path = "../oxybox-sys" }
 thiserror = "2.0.20"

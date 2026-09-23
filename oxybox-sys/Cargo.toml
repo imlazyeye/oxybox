@@ -1,6 +1,6 @@
 [package]
 name = "oxybox-sys"
-version = "0.1.0"
+version.workspace = true
 edition = "2024"
 description = "Low-level Rust bindings for Box2D."
 license = "MIT"
@@ -22,6 +22,5 @@ links = "box2d"
 glam.workspace = true
 
 [build-dependencies]
-# note: cc had an annoying failure on macOS on 1.2.59, likely to be reverted in 1.2.60
-cc = "1.2.60"
-camino = "1.2.2"
+cc = "1.4.7"
+camino = "1.2.6"
