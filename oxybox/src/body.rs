@@ -68,6 +68,11 @@ impl<'a> BodyRef<'a> {
     pub fn mass(&self) -> f32 {
         unsafe { sys::b2Body_GetMass(self.0) }
     }
+
+    /// Returns true if this body is awake.
+    pub fn awake(&self) -> bool {
+        unsafe { sys::b2Body_IsAwake(self.0) }
+    }
 }
 
 impl std::fmt::Debug for BodyRef<'_> {
@@ -136,6 +141,15 @@ impl<'a> Body<'a> {
     /// `wake` will also wake up the body.
     pub fn apply_angular_impulse(&self, impulse: f32, wake: bool) {
         unsafe { sys::b2Body_ApplyAngularImpulse(self.raw(), impulse, wake) }
+    }
+    /// Wake a body from sleep. This wakes the entire island the body is touching.
+    ///
+    /// **Warning:** Putting a body to sleep will put the entire island of bodies touching this body to sleep,
+    /// which can be expensive and possibly unintuitive.
+    pub fn set_awake(&self, awake: bool) {
+        unsafe {
+            sys::b2Body_SetAwake(self.raw(), awake);
+        }
     }
 
     /// Attaches a circle to the body.
