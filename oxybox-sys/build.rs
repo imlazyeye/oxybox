@@ -13,6 +13,9 @@ fn main() {
     };
     ccbuild.flag(flag);
 
+    // matches Box2D's CMake; FMA contraction breaks cross-platform determinism
+    ccbuild.flag_if_supported("-ffp-contract=off");
+
     // tie B2_ASSERT to debug_assertions, like `debug_assert!`
     if std::env::var_os("CARGO_CFG_DEBUG_ASSERTIONS").is_none() {
         ccbuild.define("NDEBUG", None);
