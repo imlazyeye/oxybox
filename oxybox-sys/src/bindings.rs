@@ -827,7 +827,7 @@ const _: () = {
 };
 #[doc = " World id references a world instance. This should be treated as an opaque handle."]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub struct b2WorldId {
     pub index1: u16,
     pub generation: u16,
@@ -841,7 +841,7 @@ const _: () = {
 };
 #[doc = " Body id references a body instance. This should be treated as an opaque handle."]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub struct b2BodyId {
     pub index1: i32,
     pub world0: u16,
@@ -857,7 +857,7 @@ const _: () = {
 };
 #[doc = " Shape id references a shape instance. This should be treated as an opaque handle."]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub struct b2ShapeId {
     pub index1: i32,
     pub world0: u16,
@@ -889,7 +889,7 @@ const _: () = {
 };
 #[doc = " Joint id references a joint instance. This should be treated as an opaque handle."]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub struct b2JointId {
     pub index1: i32,
     pub world0: u16,

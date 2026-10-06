@@ -3,12 +3,6 @@
 version = 4
 
 [[package]]
-name = "camino"
-version = "1.2.6"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bbbad30e4b4c14a39e3cc8aed085a12a327257c316619c93581e017bc52be591"
-
-[[package]]
 name = "cc"
 version = "1.4.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -43,7 +37,6 @@ dependencies = [
 name = "oxybox-sys"
 version = "0.2.0"
 dependencies = [
- "camino",
  "cc",
  "glam",
 ]

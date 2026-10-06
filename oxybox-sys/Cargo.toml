@@ -23,4 +23,3 @@ glam.workspace = true
 
 [build-dependencies]
 cc = "1.4.7"
-camino = "1.2.6"
