@@ -29,6 +29,30 @@ pub mod opaque {
 
 pub use sys;
 
+/// Check if we've installed the assert handler.
+static INSTALL_ASSERT_HANDLER: std::sync::Once = std::sync::Once::new();
+
+/// install the global handler, if we haven't done so yet
+fn install_assert_handler() {
+    use std::ffi::{CStr, c_char, c_int};
+
+    unsafe extern "C" fn on_box2d_assert(
+        condition: *const c_char,
+        file_name: *const c_char,
+        line_number: c_int,
+    ) -> c_int {
+        // safety: Box2D passes the stringified condition and `__FILE__`, both nul-terminated literals
+        let (condition, file_name) = unsafe { (CStr::from_ptr(condition), CStr::from_ptr(file_name)) };
+        panic!(
+            "Box2D assertion failed: {}\n  at {}:{line_number}",
+            condition.to_string_lossy(),
+            file_name.to_string_lossy()
+        );
+    }
+
+    INSTALL_ASSERT_HANDLER.call_once(|| unsafe { sys::b2SetAssertFcn(Some(on_box2d_assert)) });
+}
+
 /// Sets the length units per meter Box2D will expect. While you're free to work with whatever units
 /// you please, setting this will help Box2D tweak internal numbers to better work with your
 /// expectations. For example, if your player character is 32 pixels high, then pass `32.0`, and you
@@ -40,6 +64,8 @@ pub use sys;
 /// [`WorldDefinition::new`] and [`BodyDefinition::new`], whose defaults are scaled by this value,
 /// not just [`World::new`].**
 pub fn set_length_units_per_meter(length_units: f32) {
+    install_assert_handler();
+
     let _guard = world::world_lock();
     unsafe { sys::b2SetLengthUnitsPerMeter(length_units) }
 }

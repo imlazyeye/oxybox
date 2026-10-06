@@ -75,6 +75,9 @@ impl World {
     pub fn try_new(world_definition: WorldDefinition) -> Result<Self, TooManyWorlds> {
         let _guard = world_lock();
 
+        // install the handler, if we haven't...
+        super::install_assert_handler();
+
         // safety: `WorldDefinition` is laid out exactly like `b2WorldDef`
         let id = unsafe { sys::b2CreateWorld(world_definition.as_b2()) };
 

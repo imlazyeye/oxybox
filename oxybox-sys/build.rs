@@ -13,6 +13,11 @@ fn main() {
     };
     ccbuild.flag(flag);
 
+    // tie B2_ASSERT to debug_assertions, like `debug_assert!`
+    if std::env::var_os("CARGO_CFG_DEBUG_ASSERTIONS").is_none() {
+        ccbuild.define("NDEBUG", None);
+    }
+
     for entry in std::fs::read_dir("vendor/box2d/src").unwrap() {
         let Ok(entry) = entry else {
             continue;
