@@ -15,6 +15,7 @@ bindgen ./oxybox-sys/vendor/box2d/include/box2d/box2d.h \
     --allowlist-function "b2.*" \
     --allowlist-type "b2.*" \
     --allowlist-var "b2.*" \
+    --blocklist-var "b2_null.*" \
     --rust-edition 2024 \
     --rust-target 1.94 \
     --merge-extern-blocks \

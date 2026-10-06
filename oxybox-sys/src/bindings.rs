@@ -2677,12 +2677,6 @@ unsafe extern "C" {
     ) -> b2PlaneSolverResult;
     #[doc = " Clips the velocity against the given collision planes. Planes with zero push or clipVelocity\n set to false are skipped."]
     pub fn b2ClipVector(vector: b2Vec2, planes: *const b2CollisionPlane, count: ::std::os::raw::c_int) -> b2Vec2;
-    #[doc = " Use these to make your identifiers null.\n You may also use zero initialization to get null."]
-    pub static b2_nullWorldId: b2WorldId;
-    pub static b2_nullBodyId: b2BodyId;
-    pub static b2_nullShapeId: b2ShapeId;
-    pub static b2_nullChainId: b2ChainId;
-    pub static b2_nullJointId: b2JointId;
     #[doc = " Use this to initialize your world definition\n @ingroup world"]
     pub fn b2DefaultWorldDef() -> b2WorldDef;
     #[doc = " Use this to initialize your body definition\n @ingroup body"]
