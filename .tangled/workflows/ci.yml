@@ -1,0 +1,16 @@
+when:
+  - event: ["push"]
+    branch: ["main"]
+  - event: ["pull_request"]
+
+engine: "nixery"
+
+dependencies:
+  nixpkgs:
+    - cargo
+    - rustc
+    - gcc
+
+steps:
+  - name: "Test"
+    command: "cargo test --workspace"
